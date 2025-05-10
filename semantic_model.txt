@@ -29,7 +29,7 @@ semantic_model:
       expression: SUM(store_returns.sr_return_amt)
       description: "Total value of returned items."
     - name: net_sales
-      expression: SUM(store_sales.ss_sales_price * store_quantity) - SUM(store_returns.sr_return_quantity) # Corrected to use quantity for net_sales if applicable, otherwise revert to amount
+      expression: SUM(store_sales.ss_sales_price * store_quantity) - SUM(store_returns.sr_return_amt)
       description: "Net sales revenue after accounting for returns."
     - name: return_rate
       expression: (SUM(store_returns.sr_return_amt) / NULLIF(SUM(store_sales.ss_sales_price * store_sales.ss_quantity), 0)) * 100
