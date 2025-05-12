@@ -8,5 +8,6 @@ I am personally interested in the performance of small Language models
 
 just a first pass verification, nbr of records and columns
 
-<img width="908" alt="image" src="https://github.com/user-attachments/assets/b7b6c7d5-c938-4bc5-8b50-1b16996b2244" />
+<img width="639" alt="image" src="https://github.com/user-attachments/assets/8107da93-d680-4a87-b42c-adb319bcfcf1" />
+
 
