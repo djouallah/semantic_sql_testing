@@ -12,7 +12,7 @@
     "What is the net sales for each store name, order by net sales.",
     "Calculate the return rate for each item category, ordered alphabetically by item category name.",
     "What is the monthly trend of net sales during the year 2001, order by net sales desc",
-    "Which customer birth country exhibits the highest average return rate Order by average return rate descending ?",
+    "Which customer birth country exhibits the highest average return rate Order by average return rate descending ? show only the country and the return rate",
     "List all item product names that have a return rate greater than 5% and their total sales, ordered by item product name alphabetically.",
     "For each store, what was the percentage change in net sales between two consecutive recent years (e.g., 2001 and 2002), ordered alphabetically by store name.",
     "What is the return rate for items sold on weekends versus weekdays, broken down by customer age groups (e.g., under 30, 30-45, over 45), ordered by age group.",
