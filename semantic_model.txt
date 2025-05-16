@@ -1,4 +1,3 @@
-#  "/no_think"
 # === Model Objective/Context ===
 # This model is designed for analyzing store sales and return performance to identify trends and areas for improvement.
 
