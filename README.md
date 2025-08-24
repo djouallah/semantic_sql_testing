@@ -6,8 +6,12 @@ Initial benchmarks were performed using Qwen3:30B-a3b local, the remote o3-mini 
 
 I am personally interested in the performance of small Language models 
 
-just a first pass verification, nbr of records and columns
 
-<img width="639" alt="image" src="https://github.com/user-attachments/assets/8107da93-d680-4a87-b42c-adb319bcfcf1" />
+<img width="987" height="590" alt="image" src="https://github.com/user-attachments/assets/d1f9653f-1048-43c1-aa90-0b285bff2f32" />
+
+
+
+
+
 
 
