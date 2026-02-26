@@ -1,0 +1,27 @@
+# LLM binaries and models
+llama/
+models/
+
+# DuckDB database files
+*.duckdb
+*.duckdb.wal
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Baseline generator (internal tool, not needed in repo)
+generate_baseline.py
+
+# PowerBI file
+*.pbix
+
+# PowerPoint (already in remote, will be kept)
+# semantic_model.pptx
+
+# Claude Code config
+.claude/
+
+# OS files
+Thumbs.db
+.DS_Store

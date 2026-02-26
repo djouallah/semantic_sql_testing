@@ -1,0 +1,2456 @@
+[
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 1,
+        "question": "What is the overall total sales revenue?",
+        "duration_s": 28.94,
+        "sql_query": "SELECT SUM(store_sales.ss_sales_price * store_sales.ss_quantity) as total_sales_revenue\nFROM store_sales;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "total_sales_revenue": 514300867.72
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 2,
+        "question": "What is the total number of items sold across all transactions?",
+        "duration_s": 17.94,
+        "sql_query": "SELECT SUM(ss_quantity) as total_items_sold\nFROM store_sales;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "total_items_sold": 13939520.0
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 3,
+        "question": "What is the total monetary value of all returned items?",
+        "duration_s": 17.67,
+        "sql_query": "SELECT SUM(sr_return_amt) as total_returns\nFROM store_returns;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "total_returns": 26706800.77
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 4,
+        "question": "List the names of all stores, order by store name.",
+        "duration_s": 18.54,
+        "sql_query": "SELECT s_store_name \nFROM store \nORDER BY s_store_name;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "s_store_name": "ought"
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 5,
+        "question": "What are the different item categories available? Order alphabetically by category name.",
+        "duration_s": 53.31,
+        "sql_query": "WITH unique_items AS (\n    SELECT DISTINCT i_item_sk\n    FROM item\n)\nSELECT \n    i_category,\n    COUNT(*) as num_items\nFROM unique_items u\nJOIN item i ON u.i_item_sk = i.i_item_sk\nGROUP BY i_category\nORDER BY i_category ASC",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "i_category": "Books",
+                "num_items": 195
+            },
+            {
+                "i_category": "Children",
+                "num_items": 171
+            },
+            {
+                "i_category": "Electronics",
+                "num_items": 196
+            },
+            {
+                "i_category": "Home",
+                "num_items": 174
+            },
+            {
+                "i_category": "Jewelry",
+                "num_items": 178
+            },
+            {
+                "i_category": "Men",
+                "num_items": 184
+            },
+            {
+                "i_category": "Music",
+                "num_items": 183
+            },
+            {
+                "i_category": "Shoes",
+                "num_items": 178
+            },
+            {
+                "i_category": "Sports",
+                "num_items": 158
+            },
+            {
+                "i_category": "Women",
+                "num_items": 179
+            },
+            {
+                "i_category": null,
+                "num_items": 4
+            }
+        ],
+        "result_count": 11,
+        "error_details": null
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 6,
+        "question": "Show total sales revenue for each year, ordered chronologically by year.",
+        "duration_s": 37.48,
+        "sql_query": "WITH yearly_sales AS (\n    SELECT\n        d.d_year,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_revenue\n    FROM store_sales AS ss\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    GROUP BY d.d_year\n)\nSELECT \n    d_year, \n    total_revenue\nFROM yearly_sales\nORDER BY d_year;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "d_year": 1998,
+                "total_revenue": 102297175.54
+            },
+            {
+                "d_year": 1999,
+                "total_revenue": 99370448.87
+            },
+            {
+                "d_year": 2000,
+                "total_revenue": 103184045.02
+            },
+            {
+                "d_year": 2001,
+                "total_revenue": 102172898.92
+            },
+            {
+                "d_year": 2002,
+                "total_revenue": 100289052.41
+            },
+            {
+                "d_year": 2003,
+                "total_revenue": 873774.86
+            }
+        ],
+        "result_count": 6,
+        "error_details": null
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 7,
+        "question": "Which store generated the most total sales revenue? show store and total sales (To ensure a deterministic result if there's a tie, you might order by revenue descending and then store name alphabetically).",
+        "duration_s": 33.8,
+        "sql_query": "WITH store_sales_agg AS (\n    SELECT\n        st.s_store_name,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    INNER JOIN store AS st ON ss.ss_store_sk = st.s_store_sk\n    GROUP BY st.s_store_name\n)\nSELECT\n    s_store_name,\n    total_sales\nFROM store_sales_agg\nORDER BY total_sales DESC, s_store_name ASC",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "s_store_name": "ought",
+                "total_sales": 507941155.42
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 8,
+        "question": "What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, and then by brand name alphabetically for ties.",
+        "duration_s": 63.84,
+        "sql_query": "WITH sales_by_brand AS (\n    SELECT \n        i.i_brand,\n        SUM(ss.ss_quantity) as total_quantity\n    FROM store_sales ss\n    JOIN item i ON ss.ss_item_sk = i.i_item_sk\n    GROUP BY i.i_brand\n)\nSELECT \n    COALESCE(sbb.i_brand, 'Unknown') as brand_name,\n    COALESCE(sbb.total_quantity, 0) as quantity_sold\nFROM sales_by_brand sbb\nGROUP BY ALL\nORDER BY quantity_sold DESC, brand_name ASC;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "brand_name": "exportischolar #2",
+                "quantity_sold": 329402.0
+            },
+            {
+                "brand_name": "edu packimporto #2",
+                "quantity_sold": 279745.0
+            },
+            {
+                "brand_name": "amalgexporti #2",
+                "quantity_sold": 256831.0
+            },
+            {
+                "brand_name": "importoimporto #2",
+                "quantity_sold": 251018.0
+            },
+            {
+                "brand_name": "importoamalg #2",
+                "quantity_sold": 244138.0
+            },
+            {
+                "brand_name": "amalgscholar #2",
+                "quantity_sold": 239380.0
+            },
+            {
+                "brand_name": "exportiamalg #2",
+                "quantity_sold": 231784.0
+            },
+            {
+                "brand_name": "edu packamalg #2",
+                "quantity_sold": 224472.0
+            },
+            {
+                "brand_name": "exportiexporti #2",
+                "quantity_sold": 213186.0
+            },
+            {
+                "brand_name": "amalgamalg #2",
+                "quantity_sold": 207931.0
+            },
+            {
+                "brand_name": "edu packedu pack #1",
+                "quantity_sold": 192204.0
+            },
+            {
+                "brand_name": "importoscholar #2",
+                "quantity_sold": 185015.0
+            },
+            {
+                "brand_name": "importoedu pack #2",
+                "quantity_sold": 184099.0
+            },
+            {
+                "brand_name": "exportiedu pack #1",
+                "quantity_sold": 168400.0
+            },
+            {
+                "brand_name": "amalgscholar #1",
+                "quantity_sold": 167416.0
+            },
+            {
+                "brand_name": "edu packexporti #2",
+                "quantity_sold": 165626.0
+            },
+            {
+                "brand_name": "edu packimporto #1",
+                "quantity_sold": 164536.0
+            },
+            {
+                "brand_name": "edu packedu pack #2",
+                "quantity_sold": 163607.0
+            },
+            {
+                "brand_name": "importoexporti #2",
+                "quantity_sold": 161730.0
+            },
+            {
+                "brand_name": "edu packscholar #2",
+                "quantity_sold": 157531.0
+            },
+            {
+                "brand_name": "amalgimporto #2",
+                "quantity_sold": 155880.0
+            },
+            {
+                "brand_name": "amalgedu pack #2",
+                "quantity_sold": 154242.0
+            },
+            {
+                "brand_name": "edu packamalg #1",
+                "quantity_sold": 153807.0
+            },
+            {
+                "brand_name": "amalgedu pack #1",
+                "quantity_sold": 151663.0
+            },
+            {
+                "brand_name": "exportiexporti #1",
+                "quantity_sold": 150430.0
+            },
+            {
+                "brand_name": "importoamalg #1",
+                "quantity_sold": 149011.0
+            },
+            {
+                "brand_name": "exportiimporto #1",
+                "quantity_sold": 148421.0
+            },
+            {
+                "brand_name": "importoscholar #1",
+                "quantity_sold": 147690.0
+            },
+            {
+                "brand_name": "importoedu pack #1",
+                "quantity_sold": 140846.0
+            },
+            {
+                "brand_name": "exportiamalg #1",
+                "quantity_sold": 140795.0
+            },
+            {
+                "brand_name": "exportiimporto #2",
+                "quantity_sold": 138346.0
+            },
+            {
+                "brand_name": "edu packexporti #1",
+                "quantity_sold": 134945.0
+            },
+            {
+                "brand_name": "importoimporto #1",
+                "quantity_sold": 130490.0
+            },
+            {
+                "brand_name": "importoexporti #1",
+                "quantity_sold": 127048.0
+            },
+            {
+                "brand_name": "amalgamalg #1",
+                "quantity_sold": 125500.0
+            },
+            {
+                "brand_name": "exportiedu pack #2",
+                "quantity_sold": 125336.0
+            },
+            {
+                "brand_name": "amalgexporti #1",
+                "quantity_sold": 118122.0
+            },
+            {
+                "brand_name": "amalgimporto #1",
+                "quantity_sold": 117929.0
+            },
+            {
+                "brand_name": "edu packscholar #1",
+                "quantity_sold": 108121.0
+            },
+            {
+                "brand_name": "exportischolar #1",
+                "quantity_sold": 105930.0
+            },
+            {
+                "brand_name": "scholarunivamalg #8",
+                "quantity_sold": 72051.0
+            },
+            {
+                "brand_name": "exportiunivamalg #2",
+                "quantity_sold": 65123.0
+            },
+            {
+                "brand_name": "univunivamalg #8",
+                "quantity_sold": 61123.0
+            },
+            {
+                "brand_name": "scholarbrand #2",
+                "quantity_sold": 55768.0
+            },
+            {
+                "brand_name": "amalgbrand #4",
+                "quantity_sold": 46286.0
+            },
+            {
+                "brand_name": "importobrand #6",
+                "quantity_sold": 46028.0
+            },
+            {
+                "brand_name": "brandmaxi #8",
+                "quantity_sold": 45835.0
+            },
+            {
+                "brand_name": "importomaxi #4",
+                "quantity_sold": 45092.0
+            },
+            {
+                "brand_name": "importobrand #2",
+                "quantity_sold": 44410.0
+            },
+            {
+                "brand_name": "namelessmaxi #2",
+                "quantity_sold": 44233.0
+            },
+            {
+                "brand_name": "maxinameless #4",
+                "quantity_sold": 42788.0
+            },
+            {
+                "brand_name": "importonameless #6",
+                "quantity_sold": 40948.0
+            },
+            {
+                "brand_name": "corpmaxi #10",
+                "quantity_sold": 40521.0
+            },
+            {
+                "brand_name": "scholarmaxi #3",
+                "quantity_sold": 39981.0
+            },
+            {
+                "brand_name": "scholarmaxi #2",
+                "quantity_sold": 39467.0
+            },
+            {
+                "brand_name": "brandbrand #4",
+                "quantity_sold": 38751.0
+            },
+            {
+                "brand_name": "importobrand #3",
+                "quantity_sold": 38633.0
+            },
+            {
+                "brand_name": "edu packcorp #8",
+                "quantity_sold": 38532.0
+            },
+            {
+                "brand_name": "corpunivamalg #3",
+                "quantity_sold": 38433.0
+            },
+            {
+                "brand_name": "corpmaxi #2",
+                "quantity_sold": 37830.0
+            },
+            {
+                "brand_name": "importobrand #4",
+                "quantity_sold": 37759.0
+            },
+            {
+                "brand_name": "exportibrand #2",
+                "quantity_sold": 37086.0
+            },
+            {
+                "brand_name": "importocorp #4",
+                "quantity_sold": 36984.0
+            },
+            {
+                "brand_name": "maxicorp #8",
+                "quantity_sold": 36489.0
+            },
+            {
+                "brand_name": "corpnameless #3",
+                "quantity_sold": 35534.0
+            },
+            {
+                "brand_name": "exporticorp #2",
+                "quantity_sold": 34989.0
+            },
+            {
+                "brand_name": "corpnameless #8",
+                "quantity_sold": 34761.0
+            },
+            {
+                "brand_name": "importocorp #8",
+                "quantity_sold": 34712.0
+            },
+            {
+                "brand_name": "exportibrand #8",
+                "quantity_sold": 33832.0
+            },
+            {
+                "brand_name": "corpbrand #8",
+                "quantity_sold": 33664.0
+            },
+            {
+                "brand_name": "importonameless #8",
+                "quantity_sold": 32904.0
+            },
+            {
+                "brand_name": "importounivamalg #9",
+                "quantity_sold": 32488.0
+            },
+            {
+                "brand_name": "exportiunivamalg #12",
+                "quantity_sold": 31918.0
+            },
+            {
+                "brand_name": "scholarunivamalg #2",
+                "quantity_sold": 31689.0
+            },
+            {
+                "brand_name": "brandmaxi #2",
+                "quantity_sold": 31567.0
+            },
+            {
+                "brand_name": "amalgcorp #8",
+                "quantity_sold": 31467.0
+            },
+            {
+                "brand_name": "edu packnameless #9",
+                "quantity_sold": 31162.0
+            },
+            {
+                "brand_name": "exportiunivamalg #1",
+                "quantity_sold": 30716.0
+            },
+            {
+                "brand_name": "corpamalgamalg #10",
+                "quantity_sold": 30470.0
+            },
+            {
+                "brand_name": "namelesscorp #3",
+                "quantity_sold": 30107.0
+            },
+            {
+                "brand_name": "scholarunivamalg #14",
+                "quantity_sold": 29946.0
+            },
+            {
+                "brand_name": "exportimaxi #3",
+                "quantity_sold": 29376.0
+            },
+            {
+                "brand_name": "scholarmaxi #4",
+                "quantity_sold": 29120.0
+            },
+            {
+                "brand_name": "edu packbrand #3",
+                "quantity_sold": 29016.0
+            },
+            {
+                "brand_name": "univnameless #2",
+                "quantity_sold": 28856.0
+            },
+            {
+                "brand_name": "maxiunivamalg #12",
+                "quantity_sold": 28852.0
+            },
+            {
+                "brand_name": "namelessbrand #2",
+                "quantity_sold": 28676.0
+            },
+            {
+                "brand_name": "corpbrand #6",
+                "quantity_sold": 28494.0
+            },
+            {
+                "brand_name": "maximaxi #8",
+                "quantity_sold": 28469.0
+            },
+            {
+                "brand_name": "importomaxi #8",
+                "quantity_sold": 28365.0
+            },
+            {
+                "brand_name": "exportiunivamalg #6",
+                "quantity_sold": 28044.0
+            },
+            {
+                "brand_name": "amalgmaxi #10",
+                "quantity_sold": 27907.0
+            },
+            {
+                "brand_name": "brandnameless #2",
+                "quantity_sold": 27760.0
+            },
+            {
+                "brand_name": "importobrand #1",
+                "quantity_sold": 27629.0
+            },
+            {
+                "brand_name": "brandcorp #6",
+                "quantity_sold": 27455.0
+            },
+            {
+                "brand_name": "amalgunivamalg #11",
+                "quantity_sold": 27433.0
+            },
+            {
+                "brand_name": "scholarunivamalg #11",
+                "quantity_sold": 27365.0
+            },
+            {
+                "brand_name": "edu packbrand #5",
+                "quantity_sold": 27251.0
+            },
+            {
+                "brand_name": "exporticorp #8",
+                "quantity_sold": 27197.0
+            },
+            {
+                "brand_name": "importomaxi #10",
+                "quantity_sold": 27185.0
+            },
+            {
+                "brand_name": "scholarnameless #6",
+                "quantity_sold": 26890.0
+            },
+            {
+                "brand_name": "univbrand #2",
+                "quantity_sold": 26853.0
+            },
+            {
+                "brand_name": "namelessbrand #4",
+                "quantity_sold": 26809.0
+            },
+            {
+                "brand_name": "univnameless #7",
+                "quantity_sold": 26730.0
+            },
+            {
+                "brand_name": "corpnameless #10",
+                "quantity_sold": 26615.0
+            },
+            {
+                "brand_name": "univmaxi #9",
+                "quantity_sold": 26535.0
+            },
+            {
+                "brand_name": "exportinameless #9",
+                "quantity_sold": 26303.0
+            },
+            {
+                "brand_name": "amalgunivamalg #4",
+                "quantity_sold": 25906.0
+            },
+            {
+                "brand_name": "edu packamalgamalg #15",
+                "quantity_sold": 25606.0
+            },
+            {
+                "brand_name": "importomaxi #9",
+                "quantity_sold": 24852.0
+            },
+            {
+                "brand_name": "univbrand #4",
+                "quantity_sold": 24775.0
+            },
+            {
+                "brand_name": "corpunivamalg #1",
+                "quantity_sold": 24744.0
+            },
+            {
+                "brand_name": "univbrand #6",
+                "quantity_sold": 24738.0
+            },
+            {
+                "brand_name": "exportiamalgamalg #6",
+                "quantity_sold": 24368.0
+            },
+            {
+                "brand_name": "scholaramalgamalg #16",
+                "quantity_sold": 23206.0
+            },
+            {
+                "brand_name": "importounivamalg #2",
+                "quantity_sold": 23107.0
+            },
+            {
+                "brand_name": "univamalgamalg #15",
+                "quantity_sold": 23104.0
+            },
+            {
+                "brand_name": "edu packamalgamalg #6",
+                "quantity_sold": 23021.0
+            },
+            {
+                "brand_name": "corpnameless #5",
+                "quantity_sold": 22696.0
+            },
+            {
+                "brand_name": "amalgmaxi #6",
+                "quantity_sold": 22569.0
+            },
+            {
+                "brand_name": "corpcorp #8",
+                "quantity_sold": 22407.0
+            },
+            {
+                "brand_name": "brandcorp #4",
+                "quantity_sold": 22265.0
+            },
+            {
+                "brand_name": "exporticorp #5",
+                "quantity_sold": 22243.0
+            },
+            {
+                "brand_name": "brandbrand #10",
+                "quantity_sold": 22193.0
+            },
+            {
+                "brand_name": "brandnameless #10",
+                "quantity_sold": 22081.0
+            },
+            {
+                "brand_name": "corpamalgamalg #3",
+                "quantity_sold": 22061.0
+            },
+            {
+                "brand_name": "exportimaxi #2",
+                "quantity_sold": 21993.0
+            },
+            {
+                "brand_name": "edu packbrand #6",
+                "quantity_sold": 21887.0
+            },
+            {
+                "brand_name": "namelessbrand #10",
+                "quantity_sold": 21702.0
+            },
+            {
+                "brand_name": "univbrand #8",
+                "quantity_sold": 21615.0
+            },
+            {
+                "brand_name": "amalgmaxi #4",
+                "quantity_sold": 21611.0
+            },
+            {
+                "brand_name": "exportiunivamalg #3",
+                "quantity_sold": 21468.0
+            },
+            {
+                "brand_name": "amalgunivamalg #1",
+                "quantity_sold": 21424.0
+            },
+            {
+                "brand_name": "edu packnameless #8",
+                "quantity_sold": 21346.0
+            },
+            {
+                "brand_name": "amalgbrand #2",
+                "quantity_sold": 21311.0
+            },
+            {
+                "brand_name": "edu packnameless #10",
+                "quantity_sold": 21236.0
+            },
+            {
+                "brand_name": "edu packmaxi #2",
+                "quantity_sold": 21223.0
+            },
+            {
+                "brand_name": "univbrand #7",
+                "quantity_sold": 21220.0
+            },
+            {
+                "brand_name": "importoamalgamalg #16",
+                "quantity_sold": 21214.0
+            },
+            {
+                "brand_name": "scholarbrand #6",
+                "quantity_sold": 21181.0
+            },
+            {
+                "brand_name": "edu packnameless #1",
+                "quantity_sold": 21175.0
+            },
+            {
+                "brand_name": "amalgcorp #2",
+                "quantity_sold": 21123.0
+            },
+            {
+                "brand_name": "amalgnameless #10",
+                "quantity_sold": 21063.0
+            },
+            {
+                "brand_name": "edu packbrand #7",
+                "quantity_sold": 21035.0
+            },
+            {
+                "brand_name": "edu packunivamalg #12",
+                "quantity_sold": 20931.0
+            },
+            {
+                "brand_name": "maxicorp #1",
+                "quantity_sold": 20910.0
+            },
+            {
+                "brand_name": "corpnameless #2",
+                "quantity_sold": 20804.0
+            },
+            {
+                "brand_name": "exportibrand #4",
+                "quantity_sold": 20633.0
+            },
+            {
+                "brand_name": "corpbrand #1",
+                "quantity_sold": 20602.0
+            },
+            {
+                "brand_name": "scholarunivamalg #15",
+                "quantity_sold": 20532.0
+            },
+            {
+                "brand_name": "amalgunivamalg #10",
+                "quantity_sold": 20491.0
+            },
+            {
+                "brand_name": "corpmaxi #4",
+                "quantity_sold": 20465.0
+            },
+            {
+                "brand_name": "scholarunivamalg #3",
+                "quantity_sold": 20172.0
+            },
+            {
+                "brand_name": "scholarbrand #3",
+                "quantity_sold": 20155.0
+            },
+            {
+                "brand_name": "namelessmaxi #6",
+                "quantity_sold": 19889.0
+            },
+            {
+                "brand_name": "amalgunivamalg #2",
+                "quantity_sold": 19789.0
+            },
+            {
+                "brand_name": "exportimaxi #1",
+                "quantity_sold": 19788.0
+            },
+            {
+                "brand_name": "amalgbrand #6",
+                "quantity_sold": 19746.0
+            },
+            {
+                "brand_name": "corpunivamalg #4",
+                "quantity_sold": 19667.0
+            },
+            {
+                "brand_name": "importoamalgamalg #2",
+                "quantity_sold": 19419.0
+            },
+            {
+                "brand_name": "maxicorp #2",
+                "quantity_sold": 19356.0
+            },
+            {
+                "brand_name": "exportinameless #7",
+                "quantity_sold": 19288.0
+            },
+            {
+                "brand_name": "exportiunivamalg #15",
+                "quantity_sold": 19236.0
+            },
+            {
+                "brand_name": "exporticorp #1",
+                "quantity_sold": 19235.0
+            },
+            {
+                "brand_name": "exportiunivamalg #5",
+                "quantity_sold": 19204.0
+            },
+            {
+                "brand_name": "maxiunivamalg #8",
+                "quantity_sold": 19066.0
+            },
+            {
+                "brand_name": "scholarnameless #2",
+                "quantity_sold": 19048.0
+            },
+            {
+                "brand_name": "edu packunivamalg #9",
+                "quantity_sold": 18944.0
+            },
+            {
+                "brand_name": "amalgnameless #1",
+                "quantity_sold": 18805.0
+            },
+            {
+                "brand_name": "brandcorp #7",
+                "quantity_sold": 18717.0
+            },
+            {
+                "brand_name": "edu packmaxi #3",
+                "quantity_sold": 18716.0
+            },
+            {
+                "brand_name": "brandmaxi #9",
+                "quantity_sold": 18688.0
+            },
+            {
+                "brand_name": "edu packunivamalg #7",
+                "quantity_sold": 18590.0
+            },
+            {
+                "brand_name": "amalgmaxi #12",
+                "quantity_sold": 18522.0
+            },
+            {
+                "brand_name": "corpmaxi #9",
+                "quantity_sold": 18487.0
+            },
+            {
+                "brand_name": "scholarnameless #3",
+                "quantity_sold": 18411.0
+            },
+            {
+                "brand_name": "importonameless #9",
+                "quantity_sold": 18213.0
+            },
+            {
+                "brand_name": "importobrand #10",
+                "quantity_sold": 18072.0
+            },
+            {
+                "brand_name": "edu packbrand #8",
+                "quantity_sold": 18066.0
+            },
+            {
+                "brand_name": "amalgmaxi #7",
+                "quantity_sold": 18036.0
+            },
+            {
+                "brand_name": "importobrand #7",
+                "quantity_sold": 17963.0
+            },
+            {
+                "brand_name": "univunivamalg #5",
+                "quantity_sold": 17960.0
+            },
+            {
+                "brand_name": "maximaxi #5",
+                "quantity_sold": 17883.0
+            },
+            {
+                "brand_name": "scholarcorp #1",
+                "quantity_sold": 17850.0
+            },
+            {
+                "brand_name": "corpunivamalg #9",
+                "quantity_sold": 17841.0
+            },
+            {
+                "brand_name": "namelessmaxi #10",
+                "quantity_sold": 17830.0
+            },
+            {
+                "brand_name": "importomaxi #6",
+                "quantity_sold": 17742.0
+            },
+            {
+                "brand_name": "exportiunivamalg #8",
+                "quantity_sold": 17687.0
+            },
+            {
+                "brand_name": "univmaxi #8",
+                "quantity_sold": 17646.0
+            },
+            {
+                "brand_name": "scholarbrand #10",
+                "quantity_sold": 17561.0
+            },
+            {
+                "brand_name": "edu packmaxi #10",
+                "quantity_sold": 17512.0
+            },
+            {
+                "brand_name": "exportimaxi #6",
+                "quantity_sold": 17314.0
+            },
+            {
+                "brand_name": "namelessnameless #10",
+                "quantity_sold": 17297.0
+            },
+            {
+                "brand_name": "scholarcorp #4",
+                "quantity_sold": 17236.0
+            },
+            {
+                "brand_name": "univnameless #4",
+                "quantity_sold": 17230.0
+            },
+            {
+                "brand_name": "edu packmaxi #12",
+                "quantity_sold": 17203.0
+            },
+            {
+                "brand_name": "scholarcorp #8",
+                "quantity_sold": 17134.0
+            },
+            {
+                "brand_name": "scholarbrand #4",
+                "quantity_sold": 17112.0
+            },
+            {
+                "brand_name": "univunivamalg #4",
+                "quantity_sold": 16985.0
+            },
+            {
+                "brand_name": "Unknown",
+                "quantity_sold": 16970.0
+            },
+            {
+                "brand_name": "scholarnameless #5",
+                "quantity_sold": 16680.0
+            },
+            {
+                "brand_name": "namelessmaxi #8",
+                "quantity_sold": 16524.0
+            },
+            {
+                "brand_name": "amalgamalgamalg #10",
+                "quantity_sold": 16463.0
+            },
+            {
+                "brand_name": "scholarbrand #5",
+                "quantity_sold": 16386.0
+            },
+            {
+                "brand_name": "corpcorp #7",
+                "quantity_sold": 16287.0
+            },
+            {
+                "brand_name": "amalgnameless #5",
+                "quantity_sold": 16178.0
+            },
+            {
+                "brand_name": "namelessnameless #1",
+                "quantity_sold": 16168.0
+            },
+            {
+                "brand_name": "namelessbrand #6",
+                "quantity_sold": 16042.0
+            },
+            {
+                "brand_name": "exporticorp #7",
+                "quantity_sold": 16022.0
+            },
+            {
+                "brand_name": "importobrand #8",
+                "quantity_sold": 15962.0
+            },
+            {
+                "brand_name": "scholarbrand #8",
+                "quantity_sold": 15937.0
+            },
+            {
+                "brand_name": "namelessnameless #5",
+                "quantity_sold": 15930.0
+            },
+            {
+                "brand_name": "scholarmaxi #8",
+                "quantity_sold": 15873.0
+            },
+            {
+                "brand_name": "amalgamalgamalg #5",
+                "quantity_sold": 15773.0
+            },
+            {
+                "brand_name": "edu packamalgamalg #8",
+                "quantity_sold": 15751.0
+            },
+            {
+                "brand_name": "corpunivamalg #5",
+                "quantity_sold": 15747.0
+            },
+            {
+                "brand_name": "corpbrand #7",
+                "quantity_sold": 15740.0
+            },
+            {
+                "brand_name": "corpnameless #6",
+                "quantity_sold": 15587.0
+            },
+            {
+                "brand_name": "edu packamalgamalg #16",
+                "quantity_sold": 15575.0
+            },
+            {
+                "brand_name": "corpnameless #1",
+                "quantity_sold": 15557.0
+            },
+            {
+                "brand_name": "corpunivamalg #11",
+                "quantity_sold": 15536.0
+            },
+            {
+                "brand_name": "importonameless #7",
+                "quantity_sold": 15499.0
+            },
+            {
+                "brand_name": "maxiunivamalg #13",
+                "quantity_sold": 15498.0
+            },
+            {
+                "brand_name": "maxibrand #4",
+                "quantity_sold": 15483.0
+            },
+            {
+                "brand_name": "brandbrand #2",
+                "quantity_sold": 15418.0
+            },
+            {
+                "brand_name": "importonameless #10",
+                "quantity_sold": 15409.0
+            },
+            {
+                "brand_name": "corpbrand #10",
+                "quantity_sold": 15380.0
+            },
+            {
+                "brand_name": "brandnameless #8",
+                "quantity_sold": 15360.0
+            },
+            {
+                "brand_name": "exportinameless #8",
+                "quantity_sold": 15262.0
+            },
+            {
+                "brand_name": "namelessnameless #8",
+                "quantity_sold": 15238.0
+            },
+            {
+                "brand_name": "amalgmaxi #2",
+                "quantity_sold": 15232.0
+            },
+            {
+                "brand_name": "exportimaxi #8",
+                "quantity_sold": 15228.0
+            },
+            {
+                "brand_name": "univamalgamalg #14",
+                "quantity_sold": 15216.0
+            },
+            {
+                "brand_name": "maxinameless #1",
+                "quantity_sold": 15199.0
+            },
+            {
+                "brand_name": "corpunivamalg #7",
+                "quantity_sold": 15135.0
+            },
+            {
+                "brand_name": "importounivamalg #8",
+                "quantity_sold": 15127.0
+            },
+            {
+                "brand_name": "maxibrand #10",
+                "quantity_sold": 15030.0
+            },
+            {
+                "brand_name": "corpnameless #9",
+                "quantity_sold": 15014.0
+            },
+            {
+                "brand_name": "scholarmaxi #6",
+                "quantity_sold": 14903.0
+            },
+            {
+                "brand_name": "brandbrand #7",
+                "quantity_sold": 14799.0
+            },
+            {
+                "brand_name": "scholarcorp #6",
+                "quantity_sold": 14763.0
+            },
+            {
+                "brand_name": "exportiamalgamalg #5",
+                "quantity_sold": 14711.0
+            },
+            {
+                "brand_name": "scholarmaxi #9",
+                "quantity_sold": 14690.0
+            },
+            {
+                "brand_name": "edu packunivamalg #4",
+                "quantity_sold": 14665.0
+            },
+            {
+                "brand_name": "exportiamalgamalg #14",
+                "quantity_sold": 14618.0
+            },
+            {
+                "brand_name": "amalgunivamalg #16",
+                "quantity_sold": 14575.0
+            },
+            {
+                "brand_name": "amalgunivamalg #8",
+                "quantity_sold": 14520.0
+            },
+            {
+                "brand_name": "edu packnameless #3",
+                "quantity_sold": 14441.0
+            },
+            {
+                "brand_name": "amalgnameless #7",
+                "quantity_sold": 14421.0
+            },
+            {
+                "brand_name": "exportinameless #4",
+                "quantity_sold": 14419.0
+            },
+            {
+                "brand_name": "corpbrand #4",
+                "quantity_sold": 14176.0
+            },
+            {
+                "brand_name": "brandunivamalg #7",
+                "quantity_sold": 14138.0
+            },
+            {
+                "brand_name": "brandcorp #3",
+                "quantity_sold": 14011.0
+            },
+            {
+                "brand_name": "namelessnameless #2",
+                "quantity_sold": 14003.0
+            },
+            {
+                "brand_name": "amalgbrand #8",
+                "quantity_sold": 13984.0
+            },
+            {
+                "brand_name": "univnameless #3",
+                "quantity_sold": 13870.0
+            },
+            {
+                "brand_name": "namelessnameless #4",
+                "quantity_sold": 13751.0
+            },
+            {
+                "brand_name": "amalgunivamalg #12",
+                "quantity_sold": 13465.0
+            },
+            {
+                "brand_name": "scholarcorp #7",
+                "quantity_sold": 13164.0
+            },
+            {
+                "brand_name": "edu packbrand #1",
+                "quantity_sold": 13159.0
+            },
+            {
+                "brand_name": "edu packcorp #6",
+                "quantity_sold": 13133.0
+            },
+            {
+                "brand_name": "brandnameless #5",
+                "quantity_sold": 13115.0
+            },
+            {
+                "brand_name": "importocorp #6",
+                "quantity_sold": 13033.0
+            },
+            {
+                "brand_name": "univamalgamalg #5",
+                "quantity_sold": 13030.0
+            },
+            {
+                "brand_name": "brandunivamalg #1",
+                "quantity_sold": 12996.0
+            },
+            {
+                "brand_name": "exportinameless #1",
+                "quantity_sold": 12977.0
+            },
+            {
+                "brand_name": "edu packmaxi #4",
+                "quantity_sold": 12948.0
+            },
+            {
+                "brand_name": "scholarmaxi #10",
+                "quantity_sold": 12862.0
+            },
+            {
+                "brand_name": "namelesscorp #7",
+                "quantity_sold": 12849.0
+            },
+            {
+                "brand_name": "edu packnameless #7",
+                "quantity_sold": 12774.0
+            },
+            {
+                "brand_name": "exportinameless #6",
+                "quantity_sold": 12752.0
+            },
+            {
+                "brand_name": "importounivamalg #10",
+                "quantity_sold": 12694.0
+            },
+            {
+                "brand_name": "scholarunivamalg #4",
+                "quantity_sold": 12685.0
+            },
+            {
+                "brand_name": "maximaxi #6",
+                "quantity_sold": 12656.0
+            },
+            {
+                "brand_name": "univamalgamalg #13",
+                "quantity_sold": 12545.0
+            },
+            {
+                "brand_name": "brandmaxi #12",
+                "quantity_sold": 12542.0
+            },
+            {
+                "brand_name": "importounivamalg #5",
+                "quantity_sold": 12540.0
+            },
+            {
+                "brand_name": "univunivamalg #12",
+                "quantity_sold": 12529.0
+            },
+            {
+                "brand_name": "amalgnameless #6",
+                "quantity_sold": 12527.0
+            },
+            {
+                "brand_name": "importounivamalg #6",
+                "quantity_sold": 12435.0
+            },
+            {
+                "brand_name": "brandunivamalg #11",
+                "quantity_sold": 12384.0
+            },
+            {
+                "brand_name": "corpbrand #2",
+                "quantity_sold": 12383.0
+            },
+            {
+                "brand_name": "edu packnameless #6",
+                "quantity_sold": 12357.0
+            },
+            {
+                "brand_name": "importonameless #5",
+                "quantity_sold": 12285.0
+            },
+            {
+                "brand_name": "namelessunivamalg #12",
+                "quantity_sold": 12266.0
+            },
+            {
+                "brand_name": "corpmaxi #8",
+                "quantity_sold": 12228.0
+            },
+            {
+                "brand_name": "corpamalgamalg #7",
+                "quantity_sold": 12169.0
+            },
+            {
+                "brand_name": "maxiunivamalg #10",
+                "quantity_sold": 12167.0
+            },
+            {
+                "brand_name": "corpunivamalg #6",
+                "quantity_sold": 12166.0
+            },
+            {
+                "brand_name": "namelessmaxi #4",
+                "quantity_sold": 12079.0
+            },
+            {
+                "brand_name": "corpbrand #5",
+                "quantity_sold": 12004.0
+            },
+            {
+                "brand_name": "scholarunivamalg #9",
+                "quantity_sold": 11996.0
+            },
+            {
+                "brand_name": "corpmaxi #5",
+                "quantity_sold": 11994.0
+            },
+            {
+                "brand_name": "brandbrand #8",
+                "quantity_sold": 11971.0
+            },
+            {
+                "brand_name": "brandmaxi #10",
+                "quantity_sold": 11849.0
+            },
+            {
+                "brand_name": "importoamalgamalg #8",
+                "quantity_sold": 11751.0
+            },
+            {
+                "brand_name": "scholarmaxi #1",
+                "quantity_sold": 11743.0
+            },
+            {
+                "brand_name": "maximaxi #11",
+                "quantity_sold": 11330.0
+            },
+            {
+                "brand_name": "amalgbrand #3",
+                "quantity_sold": 11254.0
+            },
+            {
+                "brand_name": "scholarunivamalg #10",
+                "quantity_sold": 11048.0
+            },
+            {
+                "brand_name": "corpamalgamalg #12",
+                "quantity_sold": 11043.0
+            },
+            {
+                "brand_name": "scholarbrand #1",
+                "quantity_sold": 10780.0
+            },
+            {
+                "brand_name": "maxicorp #5",
+                "quantity_sold": 10762.0
+            },
+            {
+                "brand_name": "amalgmaxi #5",
+                "quantity_sold": 10584.0
+            },
+            {
+                "brand_name": "maxiunivamalg #3",
+                "quantity_sold": 10527.0
+            },
+            {
+                "brand_name": "amalgamalgamalg #6",
+                "quantity_sold": 10415.0
+            },
+            {
+                "brand_name": "brandcorp #5",
+                "quantity_sold": 10339.0
+            },
+            {
+                "brand_name": "brandunivamalg #15",
+                "quantity_sold": 10319.0
+            },
+            {
+                "brand_name": "amalgcorp #1",
+                "quantity_sold": 10294.0
+            },
+            {
+                "brand_name": "edu packcorp #7",
+                "quantity_sold": 10180.0
+            },
+            {
+                "brand_name": "importocorp #5",
+                "quantity_sold": 9970.0
+            },
+            {
+                "brand_name": "corpmaxi #3",
+                "quantity_sold": 9967.0
+            },
+            {
+                "brand_name": "exportiamalgamalg #16",
+                "quantity_sold": 9799.0
+            },
+            {
+                "brand_name": "exportinameless #3",
+                "quantity_sold": 9734.0
+            },
+            {
+                "brand_name": "importounivamalg #3",
+                "quantity_sold": 9730.0
+            },
+            {
+                "brand_name": "maxiunivamalg #9",
+                "quantity_sold": 9680.0
+            },
+            {
+                "brand_name": "brandcorp #1",
+                "quantity_sold": 9663.0
+            },
+            {
+                "brand_name": "namelessbrand #9",
+                "quantity_sold": 9594.0
+            },
+            {
+                "brand_name": "brandbrand #3",
+                "quantity_sold": 9588.0
+            },
+            {
+                "brand_name": "univunivamalg #9",
+                "quantity_sold": 9501.0
+            },
+            {
+                "brand_name": "scholarnameless #9",
+                "quantity_sold": 9429.0
+            },
+            {
+                "brand_name": "edu packmaxi #7",
+                "quantity_sold": 9353.0
+            },
+            {
+                "brand_name": "maxinameless #3",
+                "quantity_sold": 9349.0
+            },
+            {
+                "brand_name": "amalgmaxi #3",
+                "quantity_sold": 9337.0
+            },
+            {
+                "brand_name": "edu packbrand #9",
+                "quantity_sold": 9333.0
+            },
+            {
+                "brand_name": "amalgnameless #3",
+                "quantity_sold": 9271.0
+            },
+            {
+                "brand_name": "amalgmaxi #9",
+                "quantity_sold": 9251.0
+            },
+            {
+                "brand_name": "brandunivamalg #13",
+                "quantity_sold": 9246.0
+            },
+            {
+                "brand_name": "namelessmaxi #9",
+                "quantity_sold": 9201.0
+            },
+            {
+                "brand_name": "exportimaxi #5",
+                "quantity_sold": 9188.0
+            },
+            {
+                "brand_name": "edu packmaxi #9",
+                "quantity_sold": 9138.0
+            },
+            {
+                "brand_name": "namelesscorp #5",
+                "quantity_sold": 8974.0
+            },
+            {
+                "brand_name": "brandunivamalg #9",
+                "quantity_sold": 8925.0
+            },
+            {
+                "brand_name": "exportiamalgamalg #12",
+                "quantity_sold": 8875.0
+            },
+            {
+                "brand_name": "amalgcorp #5",
+                "quantity_sold": 8819.0
+            },
+            {
+                "brand_name": "scholarbrand #7",
+                "quantity_sold": 8756.0
+            },
+            {
+                "brand_name": "scholaramalgamalg #8",
+                "quantity_sold": 8724.0
+            },
+            {
+                "brand_name": "maxiunivamalg #5",
+                "quantity_sold": 8649.0
+            },
+            {
+                "brand_name": "edu packamalgamalg #4",
+                "quantity_sold": 8604.0
+            },
+            {
+                "brand_name": "edu packunivamalg #8",
+                "quantity_sold": 8601.0
+            },
+            {
+                "brand_name": "namelessbrand #3",
+                "quantity_sold": 8579.0
+            },
+            {
+                "brand_name": "scholaramalgamalg #4",
+                "quantity_sold": 8455.0
+            },
+            {
+                "brand_name": "brandnameless #1",
+                "quantity_sold": 8384.0
+            },
+            {
+                "brand_name": "amalgunivamalg #3",
+                "quantity_sold": 8354.0
+            },
+            {
+                "brand_name": "importocorp #7",
+                "quantity_sold": 8321.0
+            },
+            {
+                "brand_name": "namelessmaxi #3",
+                "quantity_sold": 8196.0
+            },
+            {
+                "brand_name": "scholaramalgamalg #11",
+                "quantity_sold": 8196.0
+            },
+            {
+                "brand_name": "amalgamalgamalg #8",
+                "quantity_sold": 8148.0
+            },
+            {
+                "brand_name": "namelessnameless #9",
+                "quantity_sold": 8140.0
+            },
+            {
+                "brand_name": "maxibrand #3",
+                "quantity_sold": 7961.0
+            },
+            {
+                "brand_name": "importomaxi #3",
+                "quantity_sold": 7939.0
+            },
+            {
+                "brand_name": "importomaxi #7",
+                "quantity_sold": 7937.0
+            },
+            {
+                "brand_name": "exportiamalgamalg #8",
+                "quantity_sold": 7925.0
+            },
+            {
+                "brand_name": "maxiunivamalg #1",
+                "quantity_sold": 7855.0
+            },
+            {
+                "brand_name": "scholarnameless #8",
+                "quantity_sold": 7784.0
+            },
+            {
+                "brand_name": "exportiunivamalg #7",
+                "quantity_sold": 7726.0
+            },
+            {
+                "brand_name": "maximaxi #1",
+                "quantity_sold": 7499.0
+            },
+            {
+                "brand_name": "exportiamalgamalg #11",
+                "quantity_sold": 7426.0
+            },
+            {
+                "brand_name": "maxiunivamalg #16",
+                "quantity_sold": 7421.0
+            },
+            {
+                "brand_name": "importonameless #4",
+                "quantity_sold": 7343.0
+            },
+            {
+                "brand_name": "namelessunivamalg #15",
+                "quantity_sold": 7288.0
+            },
+            {
+                "brand_name": "univmaxi #4",
+                "quantity_sold": 7279.0
+            },
+            {
+                "brand_name": "scholarunivamalg #6",
+                "quantity_sold": 7193.0
+            },
+            {
+                "brand_name": "namelessnameless #6",
+                "quantity_sold": 6970.0
+            },
+            {
+                "brand_name": "univunivamalg #7",
+                "quantity_sold": 6925.0
+            },
+            {
+                "brand_name": "edu packmaxi #8",
+                "quantity_sold": 6907.0
+            },
+            {
+                "brand_name": "scholarnameless #1",
+                "quantity_sold": 6900.0
+            },
+            {
+                "brand_name": "maxinameless #10",
+                "quantity_sold": 6896.0
+            },
+            {
+                "brand_name": "edu packamalgamalg #14",
+                "quantity_sold": 6863.0
+            },
+            {
+                "brand_name": "scholarunivamalg #16",
+                "quantity_sold": 6856.0
+            },
+            {
+                "brand_name": "maxinameless #5",
+                "quantity_sold": 6851.0
+            },
+            {
+                "brand_name": "univamalgamalg #6",
+                "quantity_sold": 6849.0
+            },
+            {
+                "brand_name": "exportiamalgamalg #15",
+                "quantity_sold": 6841.0
+            },
+            {
+                "brand_name": "importoamalgamalg #10",
+                "quantity_sold": 6813.0
+            },
+            {
+                "brand_name": "importoamalgamalg #17",
+                "quantity_sold": 6802.0
+            },
+            {
+                "brand_name": "corpmaxi #11",
+                "quantity_sold": 6778.0
+            },
+            {
+                "brand_name": "importomaxi #11",
+                "quantity_sold": 6708.0
+            },
+            {
+                "brand_name": "importoamalgamalg #13",
+                "quantity_sold": 6631.0
+            },
+            {
+                "brand_name": "maximaxi #10",
+                "quantity_sold": 6629.0
+            },
+            {
+                "brand_name": "edu packbrand #10",
+                "quantity_sold": 6627.0
+            },
+            {
+                "brand_name": "univunivamalg #6",
+                "quantity_sold": 6562.0
+            },
+            {
+                "brand_name": "maxinameless #2",
+                "quantity_sold": 6554.0
+            },
+            {
+                "brand_name": "edu packnameless #4",
+                "quantity_sold": 6516.0
+            },
+            {
+                "brand_name": "amalgnameless #8",
+                "quantity_sold": 6513.0
+            },
+            {
+                "brand_name": "importomaxi #1",
+                "quantity_sold": 6496.0
+            },
+            {
+                "brand_name": "scholarnameless #4",
+                "quantity_sold": 6463.0
+            },
+            {
+                "brand_name": "namelessunivamalg #4",
+                "quantity_sold": 6446.0
+            },
+            {
+                "brand_name": "importocorp #3",
+                "quantity_sold": 6431.0
+            },
+            {
+                "brand_name": "edu packmaxi #5",
+                "quantity_sold": 6430.0
+            },
+            {
+                "brand_name": "amalgunivamalg #13",
+                "quantity_sold": 6396.0
+            },
+            {
+                "brand_name": "corpunivamalg #10",
+                "quantity_sold": 6387.0
+            },
+            {
+                "brand_name": "scholarnameless #10",
+                "quantity_sold": 6378.0
+            },
+            {
+                "brand_name": "maxiunivamalg #15",
+                "quantity_sold": 6347.0
+            },
+            {
+                "brand_name": "univunivamalg #11",
+                "quantity_sold": 6340.0
+            },
+            {
+                "brand_name": "maxiunivamalg #17",
+                "quantity_sold": 6332.0
+            },
+            {
+                "brand_name": "amalgamalgamalg #17",
+                "quantity_sold": 6327.0
+            },
+            {
+                "brand_name": "brandnameless #4",
+                "quantity_sold": 6300.0
+            },
+            {
+                "brand_name": "brandbrand #5",
+                "quantity_sold": 6291.0
+            },
+            {
+                "brand_name": "brandmaxi #6",
+                "quantity_sold": 6289.0
+            },
+            {
+                "brand_name": "corpunivamalg #2",
+                "quantity_sold": 6288.0
+            },
+            {
+                "brand_name": "exportimaxi #9",
+                "quantity_sold": 6288.0
+            },
+            {
+                "brand_name": "scholarunivamalg #5",
+                "quantity_sold": 6272.0
+            },
+            {
+                "brand_name": "maxicorp #4",
+                "quantity_sold": 6268.0
+            },
+            {
+                "brand_name": "corpunivamalg #8",
+                "quantity_sold": 6266.0
+            },
+            {
+                "brand_name": "amalgamalgamalg #13",
+                "quantity_sold": 6236.0
+            },
+            {
+                "brand_name": "edu packunivamalg #11",
+                "quantity_sold": 6236.0
+            },
+            {
+                "brand_name": "scholarunivamalg #7",
+                "quantity_sold": 6215.0
+            },
+            {
+                "brand_name": "namelesscorp #4",
+                "quantity_sold": 6214.0
+            },
+            {
+                "brand_name": "scholarunivamalg #17",
+                "quantity_sold": 6214.0
+            },
+            {
+                "brand_name": "brandunivamalg #14",
+                "quantity_sold": 6203.0
+            },
+            {
+                "brand_name": "corpnameless #4",
+                "quantity_sold": 6198.0
+            },
+            {
+                "brand_name": "edu packbrand #4",
+                "quantity_sold": 6191.0
+            },
+            {
+                "brand_name": "amalgmaxi #11",
+                "quantity_sold": 6187.0
+            },
+            {
+                "brand_name": "edu packamalgamalg #17",
+                "quantity_sold": 6165.0
+            },
+            {
+                "brand_name": "corpcorp #6",
+                "quantity_sold": 6163.0
+            },
+            {
+                "brand_name": "edu packcorp #4",
+                "quantity_sold": 6151.0
+            },
+            {
+                "brand_name": "scholarcorp #2",
+                "quantity_sold": 6150.0
+            },
+            {
+                "brand_name": "exportiunivamalg #13",
+                "quantity_sold": 6148.0
+            },
+            {
+                "brand_name": "scholarmaxi #5",
+                "quantity_sold": 6146.0
+            },
+            {
+                "brand_name": "exportiunivamalg #4",
+                "quantity_sold": 6133.0
+            },
+            {
+                "brand_name": "namelessbrand #1",
+                "quantity_sold": 6113.0
+            },
+            {
+                "brand_name": "maxicorp #7",
+                "quantity_sold": 6105.0
+            },
+            {
+                "brand_name": "univmaxi #3",
+                "quantity_sold": 6094.0
+            },
+            {
+                "brand_name": "namelessunivamalg #11",
+                "quantity_sold": 6092.0
+            },
+            {
+                "brand_name": "edu packbrand #2",
+                "quantity_sold": 6081.0
+            },
+            {
+                "brand_name": "univmaxi #7",
+                "quantity_sold": 6062.0
+            },
+            {
+                "brand_name": "importounivamalg #14",
+                "quantity_sold": 6052.0
+            },
+            {
+                "brand_name": "edu packunivamalg #5",
+                "quantity_sold": 6049.0
+            },
+            {
+                "brand_name": "amalgnameless #9",
+                "quantity_sold": 6032.0
+            },
+            {
+                "brand_name": "exportimaxi #12",
+                "quantity_sold": 6021.0
+            },
+            {
+                "brand_name": "edu packunivamalg #6",
+                "quantity_sold": 6013.0
+            },
+            {
+                "brand_name": "univamalgamalg #2",
+                "quantity_sold": 5998.0
+            },
+            {
+                "brand_name": "exportibrand #7",
+                "quantity_sold": 5997.0
+            },
+            {
+                "brand_name": "importoamalgamalg #5",
+                "quantity_sold": 5990.0
+            },
+            {
+                "brand_name": "amalgunivamalg #14",
+                "quantity_sold": 5978.0
+            },
+            {
+                "brand_name": "importomaxi #12",
+                "quantity_sold": 5940.0
+            },
+            {
+                "brand_name": "namelessmaxi #12",
+                "quantity_sold": 5929.0
+            },
+            {
+                "brand_name": "brandmaxi #4",
+                "quantity_sold": 5920.0
+            },
+            {
+                "brand_name": "scholarmaxi #7",
+                "quantity_sold": 5920.0
+            },
+            {
+                "brand_name": "amalgbrand #7",
+                "quantity_sold": 5913.0
+            },
+            {
+                "brand_name": "maxicorp #3",
+                "quantity_sold": 5905.0
+            },
+            {
+                "brand_name": "namelessmaxi #7",
+                "quantity_sold": 5874.0
+            },
+            {
+                "brand_name": "edu packunivamalg #1",
+                "quantity_sold": 5865.0
+            },
+            {
+                "brand_name": "corpnameless #7",
+                "quantity_sold": 5852.0
+            },
+            {
+                "brand_name": "amalgunivamalg #5",
+                "quantity_sold": 5837.0
+            },
+            {
+                "brand_name": "exportimaxi #11",
+                "quantity_sold": 5819.0
+            },
+            {
+                "brand_name": "maxiunivamalg #11",
+                "quantity_sold": 5804.0
+            },
+            {
+                "brand_name": "namelesscorp #6",
+                "quantity_sold": 5791.0
+            },
+            {
+                "brand_name": "namelesscorp #1",
+                "quantity_sold": 5765.0
+            },
+            {
+                "brand_name": "maxinameless #7",
+                "quantity_sold": 5735.0
+            },
+            {
+                "brand_name": "brandnameless #3",
+                "quantity_sold": 5734.0
+            },
+            {
+                "brand_name": "importobrand #9",
+                "quantity_sold": 5704.0
+            },
+            {
+                "brand_name": "brandcorp #2",
+                "quantity_sold": 5689.0
+            },
+            {
+                "brand_name": "maxiunivamalg #7",
+                "quantity_sold": 5687.0
+            },
+            {
+                "brand_name": "importounivamalg #12",
+                "quantity_sold": 5676.0
+            },
+            {
+                "brand_name": "univmaxi #5",
+                "quantity_sold": 5648.0
+            },
+            {
+                "brand_name": "corpmaxi #6",
+                "quantity_sold": 5601.0
+            },
+            {
+                "brand_name": "edu packmaxi #11",
+                "quantity_sold": 5583.0
+            },
+            {
+                "brand_name": "namelesscorp #8",
+                "quantity_sold": 5566.0
+            },
+            {
+                "brand_name": "amalgnameless #2",
+                "quantity_sold": 5563.0
+            },
+            {
+                "brand_name": "amalgbrand #10",
+                "quantity_sold": 5559.0
+            },
+            {
+                "brand_name": "importomaxi #5",
+                "quantity_sold": 5547.0
+            },
+            {
+                "brand_name": "edu packunivamalg #15",
+                "quantity_sold": 5543.0
+            },
+            {
+                "brand_name": "univamalgamalg #3",
+                "quantity_sold": 5516.0
+            },
+            {
+                "brand_name": "edu packcorp #2",
+                "quantity_sold": 5490.0
+            },
+            {
+                "brand_name": "brandcorp #8",
+                "quantity_sold": 5485.0
+            },
+            {
+                "brand_name": "corpcorp #1",
+                "quantity_sold": 5483.0
+            },
+            {
+                "brand_name": "exportiunivamalg #11",
+                "quantity_sold": 5453.0
+            },
+            {
+                "brand_name": "scholarcorp #3",
+                "quantity_sold": 5443.0
+            },
+            {
+                "brand_name": "corpunivamalg #12",
+                "quantity_sold": 5407.0
+            },
+            {
+                "brand_name": "edu packunivamalg #16",
+                "quantity_sold": 5371.0
+            },
+            {
+                "brand_name": "amalgnameless #4",
+                "quantity_sold": 5315.0
+            },
+            {
+                "brand_name": "importonameless #2",
+                "quantity_sold": 5293.0
+            },
+            {
+                "brand_name": "exportinameless #5",
+                "quantity_sold": 5292.0
+            },
+            {
+                "brand_name": "corpamalgamalg #8",
+                "quantity_sold": 5264.0
+            },
+            {
+                "brand_name": "importounivamalg #16",
+                "quantity_sold": 5229.0
+            },
+            {
+                "brand_name": "importoamalgamalg #3",
+                "quantity_sold": 5176.0
+            },
+            {
+                "brand_name": "namelessmaxi #5",
+                "quantity_sold": 5175.0
+            },
+            {
+                "brand_name": "univbrand #5",
+                "quantity_sold": 5167.0
+            },
+            {
+                "brand_name": "importonameless #1",
+                "quantity_sold": 5106.0
+            },
+            {
+                "brand_name": "importoamalgamalg #15",
+                "quantity_sold": 5051.0
+            },
+            {
+                "brand_name": "edu packunivamalg #10",
+                "quantity_sold": 5002.0
+            },
+            {
+                "brand_name": "edu packamalgamalg #3",
+                "quantity_sold": 4954.0
+            },
+            {
+                "brand_name": "maxiunivamalg #4",
+                "quantity_sold": 4954.0
+            },
+            {
+                "brand_name": "brandmaxi #11",
+                "quantity_sold": 4782.0
+            },
+            {
+                "brand_name": "namelessnameless #3",
+                "quantity_sold": 3829.0
+            },
+            {
+                "brand_name": "namelessunivamalg #14",
+                "quantity_sold": 3798.0
+            },
+            {
+                "brand_name": "amalgamalgamalg #12",
+                "quantity_sold": 3721.0
+            },
+            {
+                "brand_name": "edu packcorp #3",
+                "quantity_sold": 3673.0
+            },
+            {
+                "brand_name": "brandnameless #9",
+                "quantity_sold": 3657.0
+            },
+            {
+                "brand_name": "corpbrand #3",
+                "quantity_sold": 3605.0
+            },
+            {
+                "brand_name": "corpamalgamalg #16",
+                "quantity_sold": 3604.0
+            },
+            {
+                "brand_name": "amalgmaxi #1",
+                "quantity_sold": 3566.0
+            },
+            {
+                "brand_name": "corpmaxi #7",
+                "quantity_sold": 3412.0
+            },
+            {
+                "brand_name": "corpunivamalg #17",
+                "quantity_sold": 3354.0
+            },
+            {
+                "brand_name": "scholarunivamalg #1",
+                "quantity_sold": 3340.0
+            },
+            {
+                "brand_name": "edu packamalgamalg #7",
+                "quantity_sold": 3280.0
+            },
+            {
+                "brand_name": "univunivamalg #1",
+                "quantity_sold": 3197.0
+            },
+            {
+                "brand_name": "scholaramalgamalg #2",
+                "quantity_sold": 3151.0
+            },
+            {
+                "brand_name": "edu packamalgamalg #10",
+                "quantity_sold": 3132.0
+            },
+            {
+                "brand_name": "univnameless #1",
+                "quantity_sold": 3063.0
+            },
+            {
+                "brand_name": "importoamalgamalg #9",
+                "quantity_sold": 2994.0
+            },
+            {
+                "brand_name": "amalgbrand #1",
+                "quantity_sold": 2972.0
+            },
+            {
+                "brand_name": "brandnameless #7",
+                "quantity_sold": 2935.0
+            },
+            {
+                "brand_name": "importobrand #5",
+                "quantity_sold": 2900.0
+            },
+            {
+                "brand_name": "maximaxi #7",
+                "quantity_sold": 2884.0
+            },
+            {
+                "brand_name": "brandmaxi #7",
+                "quantity_sold": 2869.0
+            },
+            {
+                "brand_name": "amalgamalgamalg #9",
+                "quantity_sold": 2862.0
+            },
+            {
+                "brand_name": "importoamalgamalg #11",
+                "quantity_sold": 2731.0
+            },
+            {
+                "brand_name": "exportibrand #5",
+                "quantity_sold": 2705.0
+            },
+            {
+                "brand_name": "importonameless #3",
+                "quantity_sold": 2619.0
+            },
+            {
+                "brand_name": "exportimaxi #7",
+                "quantity_sold": 2617.0
+            },
+            {
+                "brand_name": "importocorp #1",
+                "quantity_sold": 2551.0
+            },
+            {
+                "brand_name": "univbrand #1",
+                "quantity_sold": 2468.0
+            },
+            {
+                "brand_name": "corpamalgamalg #17",
+                "quantity_sold": 2457.0
+            },
+            {
+                "brand_name": "exportibrand #9",
+                "quantity_sold": 2391.0
+            },
+            {
+                "brand_name": "univamalgamalg #7",
+                "quantity_sold": 2264.0
+            },
+            {
+                "brand_name": "edu packmaxi #1",
+                "quantity_sold": 2027.0
+            }
+        ],
+        "result_count": 518,
+        "error_details": null
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 9,
+        "question": "Compare total sales from preferred customers versus non-preferred customers, ordered by total sales",
+        "duration_s": 62.06,
+        "sql_query": "Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)",
+        "attempts": null,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "AI Error: Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)"
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 10,
+        "question": "What is the total return amount for each city where stores are located, ordered alphabetically by city name.",
+        "duration_s": 103.92,
+        "sql_query": "WITH StoreReturnsByCity AS (\n    SELECT \n        s.s_city,\n        SUM(sr.sr_return_amt) as total_returns\n    FROM store_returns sr\n    JOIN store s ON sr.sr_store_sk = s.s_store_sk\n    GROUP BY s.s_city\n)\nSELECT \n    COALESCE(s.s_city, 'Unknown') AS city_name,\n    COALESCE(total_returns, 0) AS total_return_amount\nFROM StoreReturnsByCity ss\nFULL OUTER JOIN (SELECT DISTINCT s_city FROM store) s ON ss.s_city = s.s_city\nGROUP BY ALL\nORDER BY city_name;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "city_name": "Midway",
+                "total_return_amount": 26153478.62
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 11,
+        "question": "What is the net sales for each store name, order by net sales.",
+        "duration_s": 62.05,
+        "sql_query": "Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)",
+        "attempts": null,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "AI Error: Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)"
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 12,
+        "question": "Calculate the return rate for each item category, ordered alphabetically by item category name.",
+        "duration_s": 62.08,
+        "sql_query": "Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)",
+        "attempts": null,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "AI Error: Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)"
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 13,
+        "question": "What is the monthly trend of net sales during the year 2001, order by net sales desc",
+        "duration_s": 66.11,
+        "sql_query": "Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)",
+        "attempts": null,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "AI Error: Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)"
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 14,
+        "question": "Which customer birth country exhibits the highest average return rate Order by average return rate descending ? show only the top country and the return rate",
+        "duration_s": 103.5,
+        "sql_query": "WITH CustomerReturnRate AS (\n    SELECT\n        c.c_birth_country,\n        AVG(\n            (sr.sr_return_amt / NULLIF(ss.ss_sales_price * ss.ss_quantity, 0)) * 100\n        ) AS avg_return_rate\n    FROM store_returns sr\n    JOIN customer c ON sr.sr_customer_sk = c.c_customer_sk\n    JOIN store_sales ss ON sr.sr_store_sk = ss.ss_store_sk AND sr.sr_item_sk = ss.ss_item_sk\n    GROUP BY c.c_birth_country\n)\nSELECT\n    c_birth_country AS birth_country,\n    avg_return_rate\nFROM CustomerReturnRate\nORDER BY avg_return_rate DESC\nLIMIT 1;",
+        "attempts": 2,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "birth_country": "CHILE",
+                "avg_return_rate": 1594.582680900369
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 15,
+        "question": "List all item product names , total sales that have a return rate greater than 5% , ordered by item product name alphabetically.",
+        "duration_s": 62.06,
+        "sql_query": "Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)",
+        "attempts": null,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "AI Error: Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)"
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 16,
+        "question": "For each store, what was the percentage change in net sales between two consecutive recent years (e.g., 2001 and 2002), ordered alphabetically by store name.",
+        "duration_s": 62.07,
+        "sql_query": "Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)",
+        "attempts": null,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "AI Error: Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)"
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 17,
+        "question": "What is the return rate for items sold on weekends versus weekdays, broken down by customer age groups (e.g., under 30, 30-45, over 45), ordered by age group.",
+        "duration_s": 62.07,
+        "sql_query": "Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)",
+        "attempts": null,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "AI Error: Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)"
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 18,
+        "question": "Which item brand has shown the largest decrease in its return rate when comparing the average rate of 2001 to 2002, specifically for stores located in the 'TN' state? (Order by the decrease in return rate descending, and then by brand name alphabetically for ties).",
+        "duration_s": 62.08,
+        "sql_query": "Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)",
+        "attempts": null,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "AI Error: Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)"
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 19,
+        "question": "For each item class, compare the average net sales value per sales transaction between preferred and non-preferred customers. Order by average net sales descending, and then by item class name alphabetically for ties.",
+        "duration_s": 62.04,
+        "sql_query": "Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)",
+        "attempts": null,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "AI Error: Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)"
+    },
+    {
+        "model": "rnj-1",
+        "SF": 0.1,
+        "timestamp": "20251212_144227",
+        "nbr": 20,
+        "question": "show all stores net sales , average net sales and percentage of net sales compared to average net sales for each store, ordered by percentage of net sales descending.",
+        "duration_s": 62.08,
+        "sql_query": "Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)",
+        "attempts": null,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "AI Error: Error connecting to Ollama/LM Studio. Tried ports 11434 and 1234. Last error: HTTPConnectionPool(host='127.0.0.1', port=1234): Read timed out. (read timeout=60)"
+    }
+]

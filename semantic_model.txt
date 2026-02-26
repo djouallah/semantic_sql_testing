@@ -44,6 +44,24 @@
 # ALWAYS use the CTE pattern shown in verified_queries for combining fact tables. 
 
 semantic_model:
+  # === REUSABLE EXPRESSIONS ===
+  # Use these expressions to avoid repetition in queries
+  expressions:
+    - name: age_group
+      description: "Categorizes customer age into standard demographic groups"
+      expression: |
+        CASE
+          WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'
+          WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'
+          WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'
+          WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'
+          WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'
+          WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'
+          ELSE 'Unknown'
+        END
+      requires_joins: [date_dim, customer]
+      note: "Requires d.d_year from date_dim and c.c_birth_year from customer"
+
   measures:
     - name: total_sales
       expression: SUM(store_sales.ss_sales_price * store_sales.ss_quantity)
@@ -55,11 +73,15 @@ semantic_model:
       expression: SUM(store_returns.sr_return_amt)
       description: "Total value of returned items."
     - name: net_sales
-      expression: SUM(store_sales.ss_sales_price * store_sales.ss_quantity) - SUM(store_returns.sr_return_amt)
+      expression: COALESCE(total_sales, 0) - COALESCE(total_returns, 0)
       description: "Net sales revenue after accounting for returns."
+      requires_cte: true
+      note: "COMPOSITE MEASURE - requires separate CTEs for total_sales and total_returns, then FULL OUTER JOIN on shared dimensions. See verified_queries for correct pattern."
     - name: return_rate
-      expression: (SUM(store_returns.sr_return_amt) / NULLIF(SUM(store_sales.ss_sales_price * store_sales.ss_quantity), 0)) * 100
+      expression: (COALESCE(total_returns, 0) / NULLIF(COALESCE(total_sales, 0), 0)) * 100
       description: "Return amount as a percentage of total sales."
+      requires_cte: true
+      note: "COMPOSITE MEASURE - requires separate CTEs for total_sales and total_returns, then FULL OUTER JOIN on shared dimensions. See verified_queries for correct pattern."
 
   dimensions:
     date_dim:
@@ -68,63 +90,81 @@ semantic_model:
         - name: d_year
           type: integer
           sample_values: [2001, 2010, 2023]
+          description: "Calendar year (4-digit)"
         - name: d_moy
           type: integer
           sample_values: [1, 6, 12]
+          description: "Month of year (1-12)"
         - name: d_dow
           type: integer
           sample_values: [1, 4, 7]
+          description: "Day of week (1=Sunday, 7=Saturday)"
         - name: d_dom
           type: integer
           sample_values: [5, 15, 25]
+          description: "Day of month (1-31)"
         - name: d_qoy
           type: integer
           sample_values: [1, 2, 4]
+          description: "Quarter of year (1-4)"
         - name: d_holiday
-          type: boolean
+          type: string
           sample_values: ["Y", "N"]
+          description: "Holiday indicator flag (Y=holiday, N=non-holiday)"
         - name: d_weekend
-          type: boolean
+          type: string
           sample_values: ["Y", "N"]
+          description: "Weekend indicator flag (Y=weekend, N=weekday)"
     store:
       primary_key: s_store_sk
       columns:
         - name: s_store_name
           type: string
           sample_values: ["SuperMart", "MegaStore", "MarketY"]
+          description: "Store display name"
         - name: s_number_employees
           type: integer
           sample_values: [120, 245, 300]
+          description: "Number of employees at the store"
         - name: s_floor_space
           type: integer
           sample_values: [4500000, 5250760, 6000000]
+          description: "Total floor space in square feet"
         - name: s_hours
           type: string
           sample_values: ["9AM-5PM", "8AM-4PM", "10AM-6PM"]
+          description: "Store operating hours"
         - name: s_manager
           type: string
           sample_values: ["Emily Johnson", "Michael Smith", "William Ward"]
+          description: "Name of the store manager"
         - name: s_city
           type: string
           sample_values: ["Centerville", "Midway", "Springfield"]
+          description: "City where the store is located"
         - name: s_state
           type: string
           sample_values: ["NY", "TN", "CA"]
+          description: "State/province code"
         - name: s_country
           type: string
           sample_values: ["United States", "Canada", "Mexico"]
+          description: "Country where the store is located"
     customer:
       primary_key: c_customer_sk
       columns:
         - name: c_birth_year
           type: integer
           sample_values: [1932, 1985, 2000]
+          description: "Customer birth year for age calculations"
         - name: c_birth_country
           type: string
           sample_values: ["UNITED STATES", "INDIA", "CAMEROON"]
+          description: "Country where the customer was born"
         - name: c_preferred_cust_flag
-          type: boolean
+          type: string
           sample_values: ["Y", "N"]
+          description: "Preferred customer indicator (Y=preferred, N=standard)"
     item:
       primary_key: i_item_sk
       columns:
@@ -164,6 +204,19 @@ semantic_model:
   fact_tables:
     - name: store_sales
       description: "Fact table containing all store sales transactions."
+      columns:
+        - name: ss_sales_price
+          type: decimal
+          description: "Unit sales price of the item"
+        - name: ss_quantity
+          type: integer
+          description: "Quantity of items sold in this transaction"
+        - name: ss_ticket_number
+          type: integer
+          description: "Transaction ticket identifier"
+        - name: ss_ext_sales_price
+          type: decimal
+          description: "Extended sales price (price * quantity)"
       foreign_keys:
         - ss_store_sk → store.s_store_sk
         - ss_customer_sk → customer.c_customer_sk
@@ -171,6 +224,16 @@ semantic_model:
         - ss_sold_date_sk → date_dim.d_date_sk
     - name: store_returns
       description: "Fact table capturing product returns."
+      columns:
+        - name: sr_return_amt
+          type: decimal
+          description: "Amount refunded for the return"
+        - name: sr_return_quantity
+          type: integer
+          description: "Quantity of items returned"
+        - name: sr_ticket_number
+          type: integer
+          description: "Return ticket identifier"
       foreign_keys:
         - sr_store_sk → store.s_store_sk
         - sr_customer_sk → customer.c_customer_sk
@@ -276,8 +339,7 @@ semantic_model:
             ON ss.ss_customer_sk = c.c_customer_sk
           WHERE
             c.c_birth_year IS NOT NULL AND d.d_year IS NOT NULL -- Filter out records where age cannot be calculated
-          GROUP BY
-            1
+          GROUP BY ALL
         ), ReturnsAge AS (
           -- Calculate total returns per customer age group, determining age at the time of return
           SELECT
@@ -324,7 +386,6 @@ semantic_model:
         FROM SalesAge AS sa
         FULL OUTER JOIN ReturnsAge AS ra
           ON sa.age_group = ra.age_group -- Join on the calculated age group
-        GROUP BY ALL
         ORDER BY
           customer_age_group;
     
@@ -352,7 +413,6 @@ semantic_model:
             COALESCE(ss.total_sales, 0) - COALESCE(sr.total_returns, 0) AS net_sales -- Using the net_sales logic
         FROM store_sales_agg AS ss
         FULL OUTER JOIN store_returns_agg AS sr ON ss.s_store_name = sr.s_store_name
-        GROUP BY ALL
         ORDER BY store_name;
     - question: net sales
       sql: |  
