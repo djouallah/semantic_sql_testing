@@ -2,10 +2,10 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 1,
         "question": "What is the overall total sales revenue?",
-        "duration_s": 0.01,
+        "duration_s": 0.0,
         "sql_query": "-- What is the overall total sales revenue?\nSELECT SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\nFROM store_sales AS ss",
         "attempts": 1,
         "feedback_iterations": 0,
@@ -20,7 +20,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 2,
         "question": "What is the total number of items sold across all transactions?",
         "duration_s": 0.0,
@@ -38,7 +38,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 3,
         "question": "What is the total monetary value of all returned items?",
         "duration_s": 0.0,
@@ -56,7 +56,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 4,
         "question": "List the names of all stores, order by store name.",
         "duration_s": 0.0,
@@ -74,7 +74,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 5,
         "question": "What are the different item categories available? Order alphabetically by category name.",
         "duration_s": 0.0,
@@ -122,7 +122,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 6,
         "question": "Show total sales revenue for each year, ordered chronologically by year.",
         "duration_s": 0.01,
@@ -161,7 +161,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 7,
         "question": "Which store generated the most total sales revenue? show store and total sales (To ensure a deterministic result if there's a tie, you might order by revenue descending and then store name alphabetically).",
         "duration_s": 0.01,
@@ -180,7 +180,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 8,
         "question": "What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, and then by brand name alphabetically for ties.",
         "duration_s": 0.01,
@@ -2267,7 +2267,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 9,
         "question": "Compare total sales from preferred customers versus non-preferred customers, ordered by total sales",
         "duration_s": 0.01,
@@ -2290,7 +2290,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 10,
         "question": "What is the total return amount for each city where stores are located, ordered alphabetically by city name.",
         "duration_s": 0.0,
@@ -2309,7 +2309,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 11,
         "question": "What is the net sales for each store name, order by net sales.",
         "duration_s": 0.01,
@@ -2328,10 +2328,10 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 12,
         "question": "Calculate the return rate for each item category, ordered alphabetically by item category name.",
-        "duration_s": 0.02,
+        "duration_s": 0.01,
         "sql_query": "-- Calculate the return rate for each item category, ordered alphabetically by item category name.\nWITH sales_by_category AS (\n    SELECT i.i_category, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    GROUP BY i.i_category\n),\nreturns_by_category AS (\n    SELECT i.i_category, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    GROUP BY i.i_category\n)\nSELECT\n    COALESCE(sa.i_category, ra.i_category) AS item_category,\n    (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_by_category AS sa\nFULL OUTER JOIN returns_by_category AS ra ON sa.i_category = ra.i_category\nORDER BY item_category",
         "attempts": 1,
         "feedback_iterations": 0,
@@ -2391,7 +2391,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 13,
         "question": "What is the monthly trend of net sales during the year 2001, order by net sales desc",
         "duration_s": 0.01,
@@ -2454,7 +2454,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 14,
         "question": "Which customer birth country exhibits the highest average return rate Order by average return rate descending ? show only the top country and the return rate",
         "duration_s": 0.02,
@@ -2473,7 +2473,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 15,
         "question": "List all item product names , total sales that have a return rate greater than 5% , ordered by item product name alphabetically.",
         "duration_s": 0.02,
@@ -5948,10 +5948,10 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 16,
         "question": "For each store, what was the percentage change in net sales between two consecutive recent years (e.g., 2001 and 2002), ordered alphabetically by store name.",
-        "duration_s": 0.02,
+        "duration_s": 0.01,
         "sql_query": "-- For each store, percentage change in net sales between 2001 and 2002, ordered alphabetically by store name.\nWITH sales_by_store_year AS (\n    SELECT s.s_store_name, d.d_year, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    WHERE d.d_year IN (2001, 2002)\n    GROUP BY s.s_store_name, d.d_year\n),\nreturns_by_store_year AS (\n    SELECT s.s_store_name, d.d_year, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    WHERE d.d_year IN (2001, 2002)\n    GROUP BY s.s_store_name, d.d_year\n),\nnet_sales_by_year AS (\n    SELECT\n        COALESCE(sa.s_store_name, ra.s_store_name) AS s_store_name,\n        COALESCE(sa.d_year, ra.d_year) AS d_year,\n        COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0) AS net_sales\n    FROM sales_by_store_year AS sa\n    FULL OUTER JOIN returns_by_store_year AS ra\n        ON sa.s_store_name = ra.s_store_name AND sa.d_year = ra.d_year\n)\nSELECT\n    n1.s_store_name,\n    n1.net_sales AS net_sales_2001,\n    n2.net_sales AS net_sales_2002,\n    ROUND(((n2.net_sales - n1.net_sales) / NULLIF(n1.net_sales, 0)) * 100, 2) AS pct_change\nFROM net_sales_by_year AS n1\nJOIN net_sales_by_year AS n2 ON n1.s_store_name = n2.s_store_name\nWHERE n1.d_year = 2001 AND n2.d_year = 2002\nORDER BY n1.s_store_name",
         "attempts": 1,
         "feedback_iterations": 0,
@@ -5969,7 +5969,7 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 17,
         "question": "What is the return rate for items sold on weekends versus weekdays, broken down by customer age groups (e.g., under 30, 30-45, over 45), ordered by age group.",
         "duration_s": 0.02,
@@ -6026,10 +6026,10 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 18,
         "question": "Which item brand has shown the largest decrease in its return rate when comparing the average rate of 2001 to 2002, specifically for stores located in the 'TN' state? (Order by the decrease in return rate descending, and then by brand name alphabetically for ties).",
-        "duration_s": 0.03,
+        "duration_s": 0.02,
         "sql_query": "-- Which item brand has shown the largest decrease in its return rate from 2001 to 2002 for TN stores?\nWITH sales_by_brand_year AS (\n    SELECT i.i_brand, d.d_year, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    WHERE s.s_state = 'TN' AND d.d_year IN (2001, 2002)\n    GROUP BY i.i_brand, d.d_year\n),\nreturns_by_brand_year AS (\n    SELECT i.i_brand, d.d_year, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    WHERE s.s_state = 'TN' AND d.d_year IN (2001, 2002)\n    GROUP BY i.i_brand, d.d_year\n),\nrates_by_brand_year AS (\n    SELECT\n        COALESCE(sa.i_brand, ra.i_brand) AS i_brand,\n        COALESCE(sa.d_year, ra.d_year) AS d_year,\n        (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\n    FROM sales_by_brand_year AS sa\n    FULL OUTER JOIN returns_by_brand_year AS ra\n        ON sa.i_brand = ra.i_brand AND sa.d_year = ra.d_year\n)\nSELECT\n    r1.i_brand,\n    r1.return_rate - r2.return_rate AS decrease_in_return_rate\nFROM rates_by_brand_year AS r1\nJOIN rates_by_brand_year AS r2 ON r1.i_brand = r2.i_brand\nWHERE r1.d_year = 2001 AND r2.d_year = 2002\n  AND r1.return_rate IS NOT NULL AND r2.return_rate IS NOT NULL\n  AND r1.return_rate - r2.return_rate > 0\nORDER BY decrease_in_return_rate DESC, r1.i_brand",
         "attempts": 1,
         "feedback_iterations": 0,
@@ -6321,93 +6321,18 @@
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 19,
         "question": "For each item class, compare the average net sales value per sales transaction between preferred and non-preferred customers. Order by average net sales descending, and then by item class name alphabetically for ties.",
         "duration_s": 0.03,
-        "sql_query": "-- For each item class, compare average net sales per sales transaction between preferred and non-preferred customers.\nWITH sales_by_class_pref AS (\n    SELECT\n        i.i_class,\n        c.c_preferred_cust_flag,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales,\n        COUNT(DISTINCT ss.ss_ticket_number) AS txn_count\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_sk\n    GROUP BY i.i_class, c.c_preferred_cust_flag\n),\nreturns_by_class_pref AS (\n    SELECT\n        i.i_class,\n        c.c_preferred_cust_flag,\n        SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    JOIN customer AS c ON sr.sr_customer_sk = c.c_customer_sk\n    GROUP BY i.i_class, c.c_preferred_cust_flag\n)\nSELECT\n    COALESCE(sa.i_class, ra.i_class) AS i_class,\n    COALESCE(sa.c_preferred_cust_flag, ra.c_preferred_cust_flag) AS c_preferred_cust_flag,\n    (COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0)) / NULLIF(sa.txn_count, 0) AS avg_net_sales\nFROM sales_by_class_pref AS sa\nFULL OUTER JOIN returns_by_class_pref AS ra\n    ON sa.i_class = ra.i_class AND sa.c_preferred_cust_flag = ra.c_preferred_cust_flag\nORDER BY avg_net_sales DESC, i_class",
+        "sql_query": "-- For each item class, compare average net sales per sales transaction between preferred and non-preferred customers.\nWITH sales_by_class_pref AS (\n    SELECT\n        i.i_class,\n        c.c_preferred_cust_flag,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales,\n        COUNT(DISTINCT ss.ss_ticket_number) AS txn_count\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_sk\n    WHERE i.i_class IS NOT NULL AND c.c_preferred_cust_flag IS NOT NULL\n    GROUP BY i.i_class, c.c_preferred_cust_flag\n),\nreturns_by_class_pref AS (\n    SELECT\n        i.i_class,\n        c.c_preferred_cust_flag,\n        SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    JOIN customer AS c ON sr.sr_customer_sk = c.c_customer_sk\n    WHERE i.i_class IS NOT NULL AND c.c_preferred_cust_flag IS NOT NULL\n    GROUP BY i.i_class, c.c_preferred_cust_flag\n)\nSELECT\n    COALESCE(sa.i_class, ra.i_class) AS i_class,\n    COALESCE(sa.c_preferred_cust_flag, ra.c_preferred_cust_flag) AS c_preferred_cust_flag,\n    (COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0)) / NULLIF(sa.txn_count, 0) AS avg_net_sales\nFROM sales_by_class_pref AS sa\nFULL OUTER JOIN returns_by_class_pref AS ra\n    ON sa.i_class = ra.i_class AND sa.c_preferred_cust_flag = ra.c_preferred_cust_flag\nORDER BY avg_net_sales DESC, i_class",
         "attempts": 1,
         "feedback_iterations": 0,
         "result": [
             {
-                "i_class": "self-help",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2713.95
-            },
-            {
-                "i_class": "dresses",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2661.9130726256985
-            },
-            {
-                "i_class": "earings",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2532.885873015873
-            },
-            {
-                "i_class": "decor",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2529.54488372093
-            },
-            {
-                "i_class": "disk drives",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2510.580512820513
-            },
-            {
-                "i_class": "newborn",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2429.851136363636
-            },
-            {
-                "i_class": "toddlers",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2381.130252525252
-            },
-            {
-                "i_class": "custom",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2363.180714285714
-            },
-            {
-                "i_class": "monitors",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2342.0906153846154
-            },
-            {
-                "i_class": "diamonds",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2324.1898461538462
-            },
-            {
-                "i_class": "mens",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2307.5163428571427
-            },
-            {
-                "i_class": "sports-apparel",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2276.9493749999997
-            },
-            {
-                "i_class": "country",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2275.0168811881185
-            },
-            {
-                "i_class": "entertainments",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2248.2638983050847
-            },
-            {
                 "i_class": "decor",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 2243.3381363636363
-            },
-            {
-                "i_class": "semi-precious",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2233.3194642857143
             },
             {
                 "i_class": "school-uniforms",
@@ -6415,29 +6340,9 @@
                 "avg_net_sales": 2220.1133543771043
             },
             {
-                "i_class": "computers",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2216.9572727272725
-            },
-            {
-                "i_class": "rock",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2192.043909090909
-            },
-            {
                 "i_class": "decor",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 2172.7178672470077
-            },
-            {
-                "i_class": "cooking",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2163.4817857142857
-            },
-            {
-                "i_class": "jewelry boxes",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2153.7698484848484
             },
             {
                 "i_class": "sports-apparel",
@@ -6450,24 +6355,9 @@
                 "avg_net_sales": 2140.490968586387
             },
             {
-                "i_class": "infants",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2134.475294117647
-            },
-            {
                 "i_class": "pop",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 2125.8184405004367
-            },
-            {
-                "i_class": "mystery",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2121.1534782608696
-            },
-            {
-                "i_class": "swimwear",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2101.7746835443036
             },
             {
                 "i_class": "dresses",
@@ -6480,19 +6370,9 @@
                 "avg_net_sales": 2084.5824535073407
             },
             {
-                "i_class": "classical",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2082.669103448276
-            },
-            {
                 "i_class": "disk drives",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 2082.2328767123286
-            },
-            {
-                "i_class": null,
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2081.5913888888886
             },
             {
                 "i_class": "self-help",
@@ -6510,24 +6390,9 @@
                 "avg_net_sales": 2075.5173932188463
             },
             {
-                "i_class": "accessories",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2066.396304347826
-            },
-            {
-                "i_class": "pendants",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2058.6044444444447
-            },
-            {
                 "i_class": "mens",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 2049.430901729849
-            },
-            {
-                "i_class": "pants",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2046.055930232558
             },
             {
                 "i_class": "shirts",
@@ -6555,16 +6420,6 @@
                 "avg_net_sales": 2029.998972533062
             },
             {
-                "i_class": "musical",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2029.2795833333334
-            },
-            {
-                "i_class": "wallpaper",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2029.1463265306122
-            },
-            {
                 "i_class": "rock",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 2027.982788316772
@@ -6573,11 +6428,6 @@
                 "i_class": "sports",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 2027.6692457420927
-            },
-            {
-                "i_class": "womens watch",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2024.0465753424658
             },
             {
                 "i_class": "reference",
@@ -6605,19 +6455,9 @@
                 "avg_net_sales": 2016.372393162393
             },
             {
-                "i_class": "cameras",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2013.4261538461537
-            },
-            {
                 "i_class": "dresses",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 2009.2106696764483
-            },
-            {
-                "i_class": "bedding",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 2008.1656923076923
             },
             {
                 "i_class": "karoke",
@@ -6628,16 +6468,6 @@
                 "i_class": "diamonds",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 2001.5936886102402
-            },
-            {
-                "i_class": "kids",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1998.906348314607
-            },
-            {
-                "i_class": "lighting",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1996.5706666666665
             },
             {
                 "i_class": "kids",
@@ -6655,16 +6485,6 @@
                 "avg_net_sales": 1984.4725954198473
             },
             {
-                "i_class": "maternity",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1979.6305429864253
-            },
-            {
-                "i_class": "fishing",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1977.2096296296297
-            },
-            {
                 "i_class": "shirts",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1974.6956012558871
@@ -6680,16 +6500,6 @@
                 "avg_net_sales": 1971.0308012820515
             },
             {
-                "i_class": "bracelets",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1969.2760975609758
-            },
-            {
-                "i_class": "tables",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1963.47875
-            },
-            {
                 "i_class": "pop",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1960.1628858290305
@@ -6700,19 +6510,9 @@
                 "avg_net_sales": 1959.9745161290323
             },
             {
-                "i_class": "womens",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1957.07921875
-            },
-            {
                 "i_class": "diamonds",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1956.5541755888653
-            },
-            {
-                "i_class": "glassware",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1955.486829268293
             },
             {
                 "i_class": "infants",
@@ -6725,19 +6525,9 @@
                 "avg_net_sales": 1948.5292932862192
             },
             {
-                "i_class": "parenting",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1948.1303571428573
-            },
-            {
                 "i_class": "loose stones",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1948.0135247524752
-            },
-            {
-                "i_class": "furniture",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1947.425517241379
             },
             {
                 "i_class": "infants",
@@ -6778,11 +6568,6 @@
                 "i_class": "fragrances",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1934.083476041962
-            },
-            {
-                "i_class": "scanners",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1929.0175
             },
             {
                 "i_class": "automotive",
@@ -6840,11 +6625,6 @@
                 "avg_net_sales": 1906.668736608792
             },
             {
-                "i_class": "fiction",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1906.421411764706
-            },
-            {
                 "i_class": "science",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1905.5578448275862
@@ -6853,11 +6633,6 @@
                 "i_class": "travel",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1900.4108108108107
-            },
-            {
-                "i_class": null,
-                "c_preferred_cust_flag": "Y",
-                "avg_net_sales": 1900.1255212355213
             },
             {
                 "i_class": "computers",
@@ -6870,19 +6645,9 @@
                 "avg_net_sales": 1893.769130116959
             },
             {
-                "i_class": "athletic",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1893.1355045871558
-            },
-            {
                 "i_class": "womens watch",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1888.9637679558011
-            },
-            {
-                "i_class": "school-uniforms",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1887.3113333333333
             },
             {
                 "i_class": "mattresses",
@@ -6895,19 +6660,9 @@
                 "avg_net_sales": 1881.8564750378216
             },
             {
-                "i_class": "accent",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1879.9902777777777
-            },
-            {
                 "i_class": "entertainments",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1878.072286036036
-            },
-            {
-                "i_class": "reference",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1877.3164935064935
             },
             {
                 "i_class": "musical",
@@ -6923,11 +6678,6 @@
                 "i_class": "optics",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1868.456909518214
-            },
-            {
-                "i_class": "athletic shoes",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1865.7554166666666
             },
             {
                 "i_class": "fiction",
@@ -6950,29 +6700,14 @@
                 "avg_net_sales": 1863.2141554959785
             },
             {
-                "i_class": "history",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1861.9966666666667
-            },
-            {
                 "i_class": "athletic",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1861.468035826524
             },
             {
                 "i_class": "golf",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1859.3498000000002
-            },
-            {
-                "i_class": "golf",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1857.8174271229404
-            },
-            {
-                "i_class": null,
-                "c_preferred_cust_flag": "N",
-                "avg_net_sales": 1857.3655152671756
             },
             {
                 "i_class": "fishing",
@@ -6983,11 +6718,6 @@
                 "i_class": "travel",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1856.52092916984
-            },
-            {
-                "i_class": "loose stones",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1856.198947368421
             },
             {
                 "i_class": "furniture",
@@ -7010,11 +6740,6 @@
                 "avg_net_sales": 1851.2606414300737
             },
             {
-                "i_class": "pop",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1850.8332567049808
-            },
-            {
                 "i_class": "paint",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1849.7442345276872
@@ -7030,24 +6755,9 @@
                 "avg_net_sales": 1848.3077777777776
             },
             {
-                "i_class": "travel",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1845.407
-            },
-            {
-                "i_class": "romance",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1845.0483333333334
-            },
-            {
                 "i_class": "self-help",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1843.9963684913218
-            },
-            {
-                "i_class": "televisions",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1843.7245833333334
             },
             {
                 "i_class": "paint",
@@ -7070,19 +6780,9 @@
                 "avg_net_sales": 1837.9250750341066
             },
             {
-                "i_class": "sports",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1837.5095652173914
-            },
-            {
                 "i_class": "athletic",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1832.0468441995715
-            },
-            {
-                "i_class": "camping",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1830.781612903226
             },
             {
                 "i_class": "swimwear",
@@ -7113,11 +6813,6 @@
                 "i_class": "fitness",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1821.111833105335
-            },
-            {
-                "i_class": "gold",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1820.4035443037976
             },
             {
                 "i_class": "parenting",
@@ -7245,11 +6940,6 @@
                 "avg_net_sales": 1792.7560594512197
             },
             {
-                "i_class": "dvd/vcr players",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1791.9890291262136
-            },
-            {
                 "i_class": "bedding",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1791.1925822050289
@@ -7273,11 +6963,6 @@
                 "i_class": "blinds/shades",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1787.0185462097613
-            },
-            {
-                "i_class": "paint",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1786.7552830188679
             },
             {
                 "i_class": "pools",
@@ -7305,19 +6990,9 @@
                 "avg_net_sales": 1779.9056128293244
             },
             {
-                "i_class": "blinds/shades",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1779.8909090909092
-            },
-            {
                 "i_class": "cooking",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1779.5252408759125
-            },
-            {
-                "i_class": "audio",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1778.4311764705883
             },
             {
                 "i_class": "camcorders",
@@ -7333,11 +7008,6 @@
                 "i_class": "semi-precious",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1771.2240311804007
-            },
-            {
-                "i_class": "home repair",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1769.22
             },
             {
                 "i_class": "rings",
@@ -7375,19 +7045,9 @@
                 "avg_net_sales": 1759.4915993121238
             },
             {
-                "i_class": "automotive",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1759.3984722222222
-            },
-            {
                 "i_class": "golf",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1758.8183595800526
-            },
-            {
-                "i_class": "mens watch",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1755.2109803921567
             },
             {
                 "i_class": "archery",
@@ -7408,11 +7068,6 @@
                 "i_class": "costume",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1751.6538192419825
-            },
-            {
-                "i_class": "costume",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1751.6525806451614
             },
             {
                 "i_class": "athletic shoes",
@@ -7443,11 +7098,6 @@
                 "i_class": "custom",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1749.3515768194072
-            },
-            {
-                "i_class": "shirts",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1748.813896713615
             },
             {
                 "i_class": "hockey",
@@ -7510,29 +7160,14 @@
                 "avg_net_sales": 1721.4222675736962
             },
             {
-                "i_class": "curtains/drapes",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1720.61859375
-            },
-            {
                 "i_class": "dvd/vcr players",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1717.511482188295
             },
             {
-                "i_class": "tennis",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1714.3546428571428
-            },
-            {
                 "i_class": "mattresses",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1714.3024664879356
-            },
-            {
-                "i_class": "optics",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1710.237
             },
             {
                 "i_class": "earings",
@@ -7585,11 +7220,6 @@
                 "avg_net_sales": 1686.5634956709955
             },
             {
-                "i_class": "basketball",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1679.4600000000003
-            },
-            {
                 "i_class": "baseball",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1678.698978388998
@@ -7620,16 +7250,6 @@
                 "avg_net_sales": 1672.5056050955413
             },
             {
-                "i_class": "football",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1672.180322580645
-            },
-            {
-                "i_class": "rugs",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1667.9703125
-            },
-            {
                 "i_class": "sports",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1663.1893430656933
@@ -7638,11 +7258,6 @@
                 "i_class": "football",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1658.5753010033445
-            },
-            {
-                "i_class": "archery",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1657.412916666667
             },
             {
                 "i_class": "glassware",
@@ -7675,16 +7290,6 @@
                 "avg_net_sales": 1638.7742245989307
             },
             {
-                "i_class": "portable",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1637.0564705882352
-            },
-            {
-                "i_class": "estate",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1635.9379069767442
-            },
-            {
                 "i_class": "birdal",
                 "c_preferred_cust_flag": "N",
                 "avg_net_sales": 1633.1465395480227
@@ -7705,643 +7310,23 @@
                 "avg_net_sales": 1616.024564102564
             },
             {
-                "i_class": "memory",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1612.0407017543862
-            },
-            {
                 "i_class": "science",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1611.082918192918
             },
             {
-                "i_class": "baseball",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1609.1160606060607
-            },
-            {
                 "i_class": "home repair",
                 "c_preferred_cust_flag": "Y",
                 "avg_net_sales": 1608.217779433681
-            },
-            {
-                "i_class": "flatware",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1603.7461363636364
-            },
-            {
-                "i_class": "fragrances",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1597.515
-            },
-            {
-                "i_class": "guns",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1580.4837037037037
-            },
-            {
-                "i_class": "karoke",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1564.515138888889
-            },
-            {
-                "i_class": "bathroom",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1563.6788888888889
-            },
-            {
-                "i_class": "outdoor",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1558.666056338028
-            },
-            {
-                "i_class": "fitness",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1550.3481818181817
-            },
-            {
-                "i_class": "birdal",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1550.2890243902439
-            },
-            {
-                "i_class": "stereo",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1545.6648484848486
-            },
-            {
-                "i_class": "camcorders",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1535.4958536585366
-            },
-            {
-                "i_class": "personal",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1513.681111111111
-            },
-            {
-                "i_class": "business",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1498.9966666666667
-            },
-            {
-                "i_class": "science",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1480.275072463768
-            },
-            {
-                "i_class": "mattresses",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1457.5957894736841
-            },
-            {
-                "i_class": "pools",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1456.8942499999998
-            },
-            {
-                "i_class": "sailing",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1432.6971428571428
-            },
-            {
-                "i_class": "rings",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1401.3334375
-            },
-            {
-                "i_class": "wireless",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1316.9005357142855
-            },
-            {
-                "i_class": "consignment",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1272.8680952380953
-            },
-            {
-                "i_class": "hockey",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1242.5780555555555
-            },
-            {
-                "i_class": "arts",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": 1143.3172916666667
-            },
-            {
-                "i_class": "accent",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "accessories",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "archery",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "arts",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "athletic",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "athletic shoes",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "audio",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "automotive",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "baseball",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "basketball",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "bathroom",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "bedding",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "birdal",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "blinds/shades",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "bracelets",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "business",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "camcorders",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "cameras",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "camping",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "classical",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "computers",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "consignment",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "cooking",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "costume",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "country",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "curtains/drapes",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "custom",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "decor",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "diamonds",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "disk drives",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "dresses",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "dvd/vcr players",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "earings",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "entertainments",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "estate",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "fiction",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "fishing",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "fitness",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "flatware",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "football",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "fragrances",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "furniture",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "glassware",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "gold",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "golf",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "guns",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "history",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "hockey",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "home repair",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "infants",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "jewelry boxes",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "karoke",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "kids",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "lighting",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "loose stones",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "maternity",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "mattresses",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "memory",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "mens",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "mens watch",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "monitors",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "musical",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "mystery",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "newborn",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "optics",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "outdoor",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "paint",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "pants",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "parenting",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "pendants",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "personal",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "pools",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "pop",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "portable",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "reference",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "rings",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "rock",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "romance",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "rugs",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "sailing",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "scanners",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "school-uniforms",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "science",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "self-help",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "semi-precious",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "shirts",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "sports",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "sports-apparel",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "stereo",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "swimwear",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "tables",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "televisions",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "toddlers",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "travel",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "wallpaper",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "wireless",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "womens",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": "womens watch",
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": null,
-                "c_preferred_cust_flag": "Y",
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": null,
-                "c_preferred_cust_flag": "N",
-                "avg_net_sales": NaN
-            },
-            {
-                "i_class": null,
-                "c_preferred_cust_flag": null,
-                "avg_net_sales": NaN
             }
         ],
-        "result_count": 401,
+        "result_count": 198,
         "error_details": null
     },
     {
         "model": "claude-opus-4-6",
         "SF": 0.1,
-        "timestamp": "20260226_160054",
+        "timestamp": "20260226_163206",
         "nbr": 20,
         "question": "show all stores net sales , average net sales and percentage of net sales compared to average net sales for each store, ordered by percentage of net sales descending.",
         "duration_s": 0.01,
