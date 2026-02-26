@@ -2,6 +2,10 @@
 
 A benchmark for Small Language Models (SLMs) on SQL generation tasks. It uses a well-defined semantic model with verified SQL queries and sample values to evaluate how accurately local LLMs can generate SQL from natural language questions.
 
+## Results
+
+![Text to SQL: Duration vs Accuracy](chart.png)
+
 ## How It Works
 
 1. **Semantic Model** — A detailed schema definition (`semantic_model.txt`) describing a TPC-DS star schema (store_sales, store_returns, date_dim, store, customer, item) with measures, dimensions, anti-patterns, and verified example queries
