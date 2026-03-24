@@ -1,0 +1,53 @@
+{
+  "settings": {
+    "SF": 1,
+    "max_attempts": 3,
+    "TIMEOUT_SECONDS": 60,
+    "enable_feedback_loop": true,
+    "model0": "claude-opus-4-6"
+  },
+  "models": {
+    "qwen3-4b": {
+      "model_path": "C:/llm/models/Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+      "context_size": 8192,
+      "gpu_layers": 99,
+      "reasoning_budget": 0,
+      "flash_attn": "on",
+      "batch_size": 4096,
+      "temp": 0.7,
+      "top_p": 0.8,
+      "top_k": 20,
+      "min_p": 0.0,
+      "repeat_penalty": 1.05,
+      "description": "Qwen3-4B Instruct (4-bit) - Qwen recommended params, full GPU"
+    },
+    "qwen3.5-4b": {
+      "model_path": "C:/llm/models/Qwen3.5-4B-Q4_K_M.gguf",
+      "context_size": 8192,
+      "gpu_layers": 99,
+      "reasoning_budget": 0,
+      "flash_attn": "on",
+      "fit": true,
+      "batch_size": 2048,
+      "temp": 0.7,
+      "top_p": 0.8,
+      "top_k": 20,
+      "min_p": 0.0,
+      "repeat_penalty": 1.05,
+      "description": "Qwen3.5-4B (4-bit) - Qwen recommended params, full GPU, thinking OFF"
+    },
+    "nemotron3-nano-4b": {
+      "model_path": "C:/llm/models/NVIDIA-Nemotron3-Nano-4B-Q4_K_M.gguf",
+      "context_size": 8192,
+      "gpu_layers": 99,
+      "flash_attn": "on",
+      "batch_size": 4096,
+      "temp": 0.7,
+      "top_p": 0.95,
+      "top_k": 40,
+      "min_p": 0.0,
+      "repeat_penalty": 1.05,
+      "description": "NVIDIA Nemotron3 Nano 4B (4-bit Q4_K_M) - full GPU"
+    }
+  }
+}

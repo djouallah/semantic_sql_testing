@@ -53,6 +53,17 @@ def configure(**kwargs):
             raise ValueError(f"Unknown config key: {key}")
 
 
+def load_config(path=r'c:\llm\models_config.json'):
+    """Load MODEL_CONFIGS and settings from a JSON config file."""
+    with open(path, 'r', encoding='utf-8') as f:
+        cfg = json.load(f)
+    global MODEL_CONFIGS
+    MODEL_CONFIGS = cfg.get('models', {})
+    for key, value in cfg.get('settings', {}).items():
+        configure(**{key: value})
+    print(f"Loaded {len(MODEL_CONFIGS)} model(s) from {path}")
+
+
 def init():
     """Initialize database connection, timestamp, and load questions."""
     global con, timestamp, questions
@@ -204,7 +215,8 @@ def start_server(model_name):
     print(f"Path: {selected_config['model_path']}")
     print(f"Context: {selected_config['context_size']} tokens")
     print(f"GPU Layers: {selected_config['gpu_layers']}")
-    print(f"Flash Attention: {selected_config.get('flash_attn', 'auto')}")
+    flash_attn_val = selected_config.get('flash_attn', False)
+    print(f"Flash Attention: {'on' if flash_attn_val and str(flash_attn_val).lower() not in ('off', 'false', '0') else 'off'}")
     if selected_config.get('override_tensors'):
         for pattern, device in selected_config['override_tensors']:
             print(f"Override: {pattern} -> {device}")
@@ -238,8 +250,9 @@ def start_server(model_name):
     if 'reasoning_budget' in selected_config:
         cmd.extend(['--reasoning-budget', str(selected_config['reasoning_budget'])])
 
-    flash_attn = selected_config.get('flash_attn', 'auto')
-    cmd.extend(['--flash-attn', str(flash_attn)])
+    flash_attn = selected_config.get('flash_attn')
+    if flash_attn:
+        cmd.extend(['--flash-attn', str(flash_attn)])
 
     if selected_config['gpu_layers'] != 'auto':
         cmd.extend(['-ngl', str(selected_config['gpu_layers'])])
@@ -250,12 +263,16 @@ def start_server(model_name):
     if selected_config.get('chat_template_file'):
         cmd.extend(['--chat-template-file', selected_config['chat_template_file']])
 
-    if selected_config.get('fit'):
-        cmd.extend(['--fit', str(selected_config['fit'])])
+    fit = selected_config.get('fit')
+    if fit:
+        cmd.extend(['--fit', 'on' if fit is True else str(fit)])
 
     server_env = os.environ.copy()
     if 'enable_thinking' in selected_config and not selected_config.get('chat_template_file'):
         server_env['LLAMA_CHAT_TEMPLATE_KWARGS'] = _json.dumps({"enable_thinking": selected_config['enable_thinking']})
+
+    if 'batch_size' in selected_config:
+        cmd.extend(['-b', str(selected_config['batch_size'])])
 
     if selected_config.get('override_tensors'):
         for pattern, device in selected_config['override_tensors']:
@@ -271,9 +288,13 @@ def start_server(model_name):
     if 'LLAMA_CHAT_TEMPLATE_KWARGS' in server_env:
         print(f"   Env: LLAMA_CHAT_TEMPLATE_KWARGS={server_env['LLAMA_CHAT_TEMPLATE_KWARGS']}")
 
+    log_path = os.path.join(output_dir, 'llama_server.log')
+    print(f"   Log: {log_path}")
+    _log_file = open(log_path, 'w', encoding='utf-8')
     llama_server_process = subprocess.Popen(
         cmd,
-        creationflags=subprocess.CREATE_NEW_CONSOLE,
+        stdout=_log_file,
+        stderr=_log_file,
         env=server_env
     )
 
