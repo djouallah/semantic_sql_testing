@@ -25,3 +25,4 @@ generate_baseline.py
 # OS files
 Thumbs.db
 .DS_Store
+llama_server.log
