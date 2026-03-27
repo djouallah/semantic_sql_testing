@@ -553,18 +553,14 @@ def execute_sql_with_retry(query, test_model):
             time.sleep(0.1)
 
         if result_container["error"]:
-            error_message = result_container["error"].lower()
-            if "syntax" not in error_message and "parser" not in error_message and "binder" not in error_message:
-                return f"Non-syntax error: {result_container['error']}", attempt, current_query
-
             print(current_query)
-            print(f"Attempt {attempt}/{max_attempts} failed with syntax error: {result_container['error']}")
+            print(f"Attempt {attempt}/{max_attempts} failed with error: {result_container['error']}")
 
             if attempt == max_attempts:
                 return f"Max attempts reached. Last error: {result_container['error']}", attempt, current_query
 
             message = (
-                f"The following SQL query has a syntax error: '{current_query}'.\n"
+                f"The following SQL query failed: '{current_query}'.\n"
                 f"Error message: {result_container['error']}\n"
                 f"Please provide the corrected SQL query. Return only the corrected query without explanation."
             )
