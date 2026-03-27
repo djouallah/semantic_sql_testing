@@ -62,6 +62,7 @@ def load_config(path=r'c:\llm\models_config.json'):
     for key, value in cfg.get('settings', {}).items():
         configure(**{key: value})
     print(f"Loaded {len(MODEL_CONFIGS)} model(s) from {path}")
+    init()
 
 
 def init():
@@ -949,24 +950,156 @@ def analyze_results():
     return comparison_table
 
 
+def _compare_stored_results(ref_result, model_result, rtol=0.005):
+    """Compare two stored result lists (from JSON logs) without re-executing SQL."""
+    try:
+        ref_df = pd.DataFrame(ref_result) if ref_result else pd.DataFrame()
+        mod_df = pd.DataFrame(model_result) if model_result else pd.DataFrame()
+    except Exception:
+        return 'error'
+
+    if len(ref_df) == 0 and len(mod_df) == 0:
+        return 'exact'
+    if len(ref_df) != len(mod_df):
+        return 'row_mismatch'
+
+    n_rows = len(ref_df)
+    n_ref_cols = len(ref_df.columns)
+
+    ref_sorted = ref_df.sort_values(by=list(ref_df.columns)).reset_index(drop=True)
+    mod_sorted = mod_df.sort_values(by=list(mod_df.columns)).reset_index(drop=True)
+
+    def columns_match(ref_col, mod_col):
+        matches = 0
+        for rv, mv in zip(ref_col, mod_col):
+            if pd.isna(rv) and pd.isna(mv):
+                matches += 1
+                continue
+            if pd.isna(rv) or pd.isna(mv):
+                continue
+            try:
+                rv_f, mv_f = float(rv), float(mv)
+                denom = max(abs(rv_f), abs(mv_f))
+                if denom == 0:
+                    if rv_f == mv_f:
+                        matches += 1
+                elif abs(rv_f - mv_f) / denom <= rtol:
+                    matches += 1
+                continue
+            except (ValueError, TypeError):
+                pass
+            if str(rv).strip() == str(mv).strip():
+                matches += 1
+        return matches / max(n_rows, 1)
+
+    used_mod_cols = set()
+    matched = 0
+    for ref_col in ref_sorted.columns:
+        for mod_col in mod_sorted.columns:
+            if mod_col in used_mod_cols:
+                continue
+            if columns_match(ref_sorted[ref_col], mod_sorted[mod_col]) == 1.0:
+                used_mod_cols.add(mod_col)
+                matched += 1
+                break
+    return 'exact' if matched == n_ref_cols else 'wrong'
+
+
+def analyze_all_runs():
+    """Load and score ALL historical runs using stored results (no SQL re-execution)."""
+    import glob as _glob
+    from collections import defaultdict
+
+    baseline = model0
+
+    # Load all log files directly — stored results are already there, no need to re-run SQL
+    all_records = []
+    for f in _glob.glob(os.path.join(output_dir, 'log', '*.json')):
+        with open(f, 'r', encoding='utf-8') as fh:
+            all_records.extend(json.load(fh))
+    all_records = [r for r in all_records if str(r.get('SF', '')) == str(SF)]
+
+    # Build baseline reference map (latest run)
+    baseline_records = [r for r in all_records if r.get('model') == baseline]
+    latest_ts = max(r['timestamp'] for r in baseline_records)
+    ref_map = {
+        r['nbr']: r.get('result', [])
+        for r in baseline_records
+        if r['timestamp'] == latest_ts
+        and not r.get('error_details')
+    }
+
+    # Group model runs by (model, timestamp)
+    runs = defaultdict(list)
+    for r in all_records:
+        if r.get('model') != baseline:
+            runs[(r['model'], r['timestamp'])].append(r)
+
+    all_summaries = []
+    for (run_model, run_ts), records in sorted(runs.items()):
+        scores = []
+        for r in records:
+            if r.get('error_details'):
+                correct = False
+            elif r['nbr'] not in ref_map:
+                correct = False
+            else:
+                correct = _compare_stored_results(ref_map[r['nbr']], r.get('result', [])) == 'exact'
+            scores.append({'correct': correct, 'duration_s': r.get('duration_s', 0)})
+
+        if not scores:
+            continue
+        n_correct = sum(s['correct'] for s in scores)
+        n_total = len(scores)
+        all_summaries.append({
+            'model': run_model,
+            'timestamp': run_ts,
+            'accuracy_percent': round(n_correct / max(n_total, 1) * 100, 1),
+            'avg_duration_per_question': round(sum(s['duration_s'] for s in scores) / max(n_total, 1), 2),
+        })
+
+    return pd.DataFrame(all_summaries)
+
+
 def plot_results(comparison_table):
-    """Plot scatter chart of Speed vs Accuracy and save to chart.png."""
+    """Plot scatter chart of Speed vs Accuracy and save to chart.png.
+
+    Accepts either:
+    - a single-row-per-model table (columns: model, accuracy_percent, avg_duration_per_question)
+    - an all-runs table from analyze_all_runs() (adds a 'timestamp' column)
+    """
     import matplotlib.pyplot as plt
 
-    models = comparison_table['model'].tolist()
-    accuracy = comparison_table['accuracy_percent'].tolist()
-    avg_time = comparison_table['avg_duration_per_question'].tolist()
-
-    plt.figure(figsize=(10, 6))
-
     base_colors = ['#1f77b4', '#2e8b57', '#ff8c00', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
-    colors = (base_colors * ((len(models) // len(base_colors)) + 1))[:len(models)]
+    has_all_runs = 'timestamp' in comparison_table.columns
 
-    plt.scatter(avg_time, accuracy, c=colors, s=150, alpha=0.7, edgecolors='black', linewidth=2)
+    plt.figure(figsize=(12, 7))
 
-    for i, model in enumerate(models):
-        plt.annotate(model, (avg_time[i], accuracy[i]),
-                    xytext=(5, 5), textcoords='offset points', fontsize=10)
+    if has_all_runs:
+        unique_models = sorted(comparison_table['model'].unique())
+        model_color = {m: base_colors[i % len(base_colors)] for i, m in enumerate(unique_models)}
+
+        for model in unique_models:
+            mdf = comparison_table[comparison_table['model'] == model].sort_values('timestamp')
+            x = mdf['avg_duration_per_question'].tolist()
+            y = mdf['accuracy_percent'].tolist()
+            color = model_color[model]
+            plt.scatter(x, y, c=color, s=150, alpha=0.7, edgecolors='black', linewidth=1.5, label=model, zorder=3)
+
+        plt.legend(loc='lower right', fontsize=10)
+        n_label = f'{len(unique_models)} models, {len(comparison_table)} runs'
+        all_times = comparison_table['avg_duration_per_question'].tolist()
+    else:
+        models = comparison_table['model'].tolist()
+        accuracy = comparison_table['accuracy_percent'].tolist()
+        avg_time = comparison_table['avg_duration_per_question'].tolist()
+        colors = (base_colors * ((len(models) // len(base_colors)) + 1))[:len(models)]
+        plt.scatter(avg_time, accuracy, c=colors, s=150, alpha=0.7, edgecolors='black', linewidth=2)
+        for i, model in enumerate(models):
+            plt.annotate(model, (avg_time[i], accuracy[i]),
+                        xytext=(5, 5), textcoords='offset points', fontsize=10)
+        n_label = f'{len(models)} models'
+        all_times = avg_time
 
     plt.xlabel('Avg Duration (seconds) - lower is better', fontsize=12, fontweight='bold')
     plt.ylabel('Accuracy (%)', fontsize=12, fontweight='bold')
@@ -975,9 +1108,9 @@ def plot_results(comparison_table):
         llama_version = 'b' + open(r'c:\llm\llama\version.txt').read().strip()
     except Exception:
         pass
-    plt.title(f'Text to SQL: Duration vs Accuracy ({len(models)} models)\n(NVIDIA RTX 2000 Mobile, 4GB VRAM, 32GB RAM, llama.cpp {llama_version})', fontsize=14, fontweight='bold')
+    plt.title(f'Text to SQL: Duration vs Accuracy ({n_label})\n(NVIDIA RTX 2000 Mobile, 4GB VRAM, 32GB RAM, llama.cpp {llama_version})', fontsize=14, fontweight='bold')
     plt.grid(True, alpha=0.3)
-    plt.xlim(0, max(avg_time) * 1.1 if avg_time and max(avg_time) > 0 else 10)
+    plt.xlim(0, max(all_times) * 1.1 if all_times and max(all_times) > 0 else 10)
     plt.ylim(0, 105)
     plt.tight_layout()
     chart_path = os.path.join(output_dir, 'chart.png')
