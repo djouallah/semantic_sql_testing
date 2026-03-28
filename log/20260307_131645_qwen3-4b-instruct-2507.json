@@ -1,6 +1,6 @@
 [
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 1,
@@ -18,7 +18,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 2,
@@ -36,7 +36,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 3,
@@ -54,7 +54,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 4,
@@ -93,7 +93,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 5,
@@ -141,7 +141,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 6,
@@ -180,7 +180,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 7,
@@ -219,7 +219,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 8,
@@ -3082,7 +3082,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 9,
@@ -3105,7 +3105,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 10,
@@ -3128,7 +3128,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 11,
@@ -3167,7 +3167,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 12,
@@ -3222,7 +3222,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 13,
@@ -3285,7 +3285,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 14,
@@ -3304,7 +3304,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 15,
@@ -38763,7 +38763,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 16,
@@ -38814,7 +38814,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 17,
@@ -53389,7 +53389,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 18,
@@ -53988,7 +53988,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 19,
@@ -54993,7 +54993,7 @@
         "error_details": null
     },
     {
-        "model": "qwen3-4b",
+        "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "timestamp": "20260307_131645",
         "nbr": 20,

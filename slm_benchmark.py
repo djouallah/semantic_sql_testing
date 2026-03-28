@@ -201,6 +201,39 @@ def kill_process_on_port(port):
     return False
 
 
+def download_model_if_missing(model_name):
+    """Download model GGUF from Hugging Face if not present locally."""
+    config = MODEL_CONFIGS[model_name]
+    model_path = config['model_path']
+    if os.path.exists(model_path):
+        return
+    hf_repo = config.get('hf_repo')
+    if not hf_repo:
+        raise FileNotFoundError(
+            f"Model file not found: {model_path}\n"
+            f"Add 'hf_repo' to the model config to enable auto-download."
+        )
+    filename = os.path.basename(model_path)
+    url = f"https://huggingface.co/{hf_repo}/resolve/main/{filename}"
+    print(f"Model not found locally. Downloading from Hugging Face...")
+    print(f"  Repo : {hf_repo}")
+    print(f"  File : {filename}")
+    print(f"  Dest : {model_path}")
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    with requests.get(url, stream=True, timeout=30) as r:
+        r.raise_for_status()
+        total = int(r.headers.get('content-length', 0))
+        downloaded = 0
+        with open(model_path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8 * 1024 * 1024):
+                f.write(chunk)
+                downloaded += len(chunk)
+                if total:
+                    pct = downloaded / total * 100
+                    print(f"\r  Progress: {pct:.1f}% ({downloaded // 1024 // 1024} / {total // 1024 // 1024} MB)", end='', flush=True)
+    print(f"\nDownload complete: {model_path}")
+
+
 def start_server(model_name):
     """Start llama-server with the specified model configuration."""
     global llama_server_process
@@ -208,6 +241,8 @@ def start_server(model_name):
     if model_name not in MODEL_CONFIGS:
         available = ', '.join(MODEL_CONFIGS.keys())
         raise ValueError(f"Unknown model '{model_name}'. Available: {available}")
+
+    download_model_if_missing(model_name)
 
     selected_config = MODEL_CONFIGS[model_name]
 
