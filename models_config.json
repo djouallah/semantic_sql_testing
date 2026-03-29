@@ -37,6 +37,20 @@
       "repeat_penalty": 1.05,
       "description": "Qwen3.5-4B (4-bit) - Qwen recommended params, full GPU, thinking OFF"
     },
+    "gemma3-4b": {
+      "model_path": "C:/llm/models/gemma-3-4b-it-Q4_K_M.gguf",
+      "hf_repo": "unsloth/gemma-3-4b-it-GGUF",
+      "context_size": 8192,
+      "gpu_layers": 99,
+      "flash_attn": "on",
+      "batch_size": 4096,
+      "temp": 1.0,
+      "top_p": 0.95,
+      "top_k": 64,
+      "min_p": 0.0,
+      "repeat_penalty": 1.0,
+      "description": "Gemma 3 4B IT (4-bit Q4_K_M) - Google recommended params, full GPU"
+    },
     "nemotron3-nano-4b": {
       "model_path": "C:/llm/models/NVIDIA-Nemotron3-Nano-4B-Q4_K_M.gguf",
       "hf_repo": "nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF",

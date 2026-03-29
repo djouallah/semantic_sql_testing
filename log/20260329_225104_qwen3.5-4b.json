@@ -2,11 +2,14 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 1,
         "question": "What is the overall total sales revenue?",
-        "duration_s": 6.24,
-        "sql_query": "SELECT SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales_revenue\nFROM store_sales AS ss\nWHERE ss.ss_sales_price IS NOT NULL AND ss.ss_quantity IS NOT NULL;",
+        "duration_s": 12.35,
+        "completion_tokens": 32,
+        "generation_s": 1.07,
+        "tokens_per_s": 29.9,
+        "sql_query": "SELECT SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales_revenue\nFROM store_sales AS ss;",
         "attempts": 1,
         "feedback_iterations": 0,
         "result": [
@@ -20,11 +23,14 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 2,
         "question": "What is the total number of items sold across all transactions?",
-        "duration_s": 2.22,
-        "sql_query": "SELECT SUM(ss.ss_quantity) AS total_items_sold\nFROM store_sales AS ss;",
+        "duration_s": 2.71,
+        "completion_tokens": 38,
+        "generation_s": 1.33,
+        "tokens_per_s": 28.6,
+        "sql_query": "SELECT SUM(ss.ss_quantity) AS total_items_sold\nFROM store_sales AS ss\nWHERE ss.ss_quantity IS NOT NULL",
         "attempts": 1,
         "feedback_iterations": 0,
         "result": [
@@ -38,16 +44,19 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 3,
         "question": "What is the total monetary value of all returned items?",
-        "duration_s": 3.49,
-        "sql_query": "/* What is the total monetary value of all returned items? */\nSELECT SUM(sr.sr_return_amt) AS total_returned_value\nFROM store_returns AS sr;",
-        "attempts": 2,
-        "feedback_iterations": 1,
+        "duration_s": 2.69,
+        "completion_tokens": 38,
+        "generation_s": 1.29,
+        "tokens_per_s": 29.5,
+        "sql_query": "SELECT SUM(sr.sr_return_amt) AS total_return_value\nFROM store_returns AS sr\nWHERE sr.sr_return_amt IS NOT NULL;",
+        "attempts": 1,
+        "feedback_iterations": 0,
         "result": [
             {
-                "total_returned_value": 270824609.25
+                "total_return_value": 270824609.25
             }
         ],
         "result_count": 1,
@@ -56,11 +65,14 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 4,
         "question": "List the names of all stores, order by store name.",
-        "duration_s": 4.84,
-        "sql_query": "SELECT DISTINCT s.s_store_name FROM store AS s ORDER BY s.s_store_name;",
+        "duration_s": 5.58,
+        "completion_tokens": 89,
+        "generation_s": 3.05,
+        "tokens_per_s": 29.2,
+        "sql_query": "SELECT DISTINCT s_store_name \nFROM store \nORDER BY s_store_name;",
         "attempts": 4,
         "feedback_iterations": 3,
         "result": [
@@ -95,11 +107,14 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 5,
-        "question": "What are the different item categories available? Order alphabetically by category name.",
-        "duration_s": 5.85,
-        "sql_query": "SELECT DISTINCT i.i_category\nFROM item AS i\nWHERE i.i_category IS NOT NULL\nORDER BY i.i_category;",
+        "question": "What are the different item categories available? Remove null values. Order alphabetically by category name.",
+        "duration_s": 10.75,
+        "completion_tokens": 205,
+        "generation_s": 7.2,
+        "tokens_per_s": 28.5,
+        "sql_query": "SELECT DISTINCT i.i_category\nFROM store_sales AS ss\nJOIN item AS i ON ss.ss_item_sk = i.i_item_sk\nWHERE i.i_category IS NOT NULL\nORDER BY i.i_category ASC;",
         "attempts": 4,
         "feedback_iterations": 3,
         "result": [
@@ -140,36 +155,39 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 6,
         "question": "Show total sales revenue for each year, ordered chronologically by year.",
-        "duration_s": 10.72,
-        "sql_query": "SELECT d.d_year AS sale_year, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\nFROM store_sales AS ss\nJOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\nWHERE ss.ss_sales_price IS NOT NULL AND ss.ss_quantity IS NOT NULL\nGROUP BY d.d_year\nORDER BY d.d_year;",
-        "attempts": 4,
-        "feedback_iterations": 3,
+        "duration_s": 4.42,
+        "completion_tokens": 86,
+        "generation_s": 3.02,
+        "tokens_per_s": 28.5,
+        "sql_query": "SELECT d.d_year AS year, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\nFROM store_sales AS ss\nJOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\nGROUP BY d.d_year\nORDER BY d.d_year;",
+        "attempts": 1,
+        "feedback_iterations": 0,
         "result": [
             {
-                "sale_year": 1998,
+                "year": 1998,
                 "total_sales": 1019051668.9
             },
             {
-                "sale_year": 1999,
+                "year": 1999,
                 "total_sales": 1001288731.68
             },
             {
-                "sale_year": 2000,
+                "year": 2000,
                 "total_sales": 1024199559.82
             },
             {
-                "sale_year": 2001,
+                "year": 2001,
                 "total_sales": 1006887594.97
             },
             {
-                "sale_year": 2002,
+                "year": 2002,
                 "total_sales": 1014023749.92
             },
             {
-                "sale_year": 2003,
+                "year": 2003,
                 "total_sales": 11094739.83
             }
         ],
@@ -179,50 +197,36 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 7,
-        "question": "Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties.",
-        "duration_s": 9.27,
-        "sql_query": "SELECT s.s_store_name AS store_name,\n       SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\nFROM store_sales AS ss\nJOIN store AS s ON ss.ss_store_sk = s.s_store_sk\nGROUP BY s.s_store_name\nORDER BY total_sales DESC, s.s_store_name ASC;",
+        "question": "Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties. Return only the top 1 row.",
+        "duration_s": 17.27,
+        "completion_tokens": 422,
+        "generation_s": 14.97,
+        "tokens_per_s": 28.2,
+        "sql_query": "WITH store_sales_agg AS (\n    SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    GROUP BY s.s_store_name\n)\nSELECT s_store_name, total_sales\nFROM store_sales_agg\nORDER BY total_sales DESC, s_store_name ASC\nLIMIT 1;",
         "attempts": 4,
         "feedback_iterations": 3,
         "result": [
             {
-                "store_name": "bar",
+                "s_store_name": "bar",
                 "total_sales": 848558075.98
-            },
-            {
-                "store_name": "eing",
-                "total_sales": 847111687.93
-            },
-            {
-                "store_name": "ese",
-                "total_sales": 846229388.43
-            },
-            {
-                "store_name": "able",
-                "total_sales": 845957048.01
-            },
-            {
-                "store_name": "ation",
-                "total_sales": 845235668.71
-            },
-            {
-                "store_name": "ought",
-                "total_sales": 843783381.6
             }
         ],
-        "result_count": 6,
+        "result_count": 1,
         "error_details": null
     },
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 8,
         "question": "What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, then by brand name alphabetically for ties.",
-        "duration_s": 13.23,
-        "sql_query": "WITH sales_agg AS (\n    SELECT i.i_brand, SUM(ss.ss_quantity) AS total_quantity\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_brand IS NOT NULL AND ss.ss_quantity IS NOT NULL\n    GROUP BY i.i_brand\n)\nSELECT i_brand, total_quantity\nFROM sales_agg\nORDER BY total_quantity DESC, i_brand ASC;",
+        "duration_s": 17.37,
+        "completion_tokens": 417,
+        "generation_s": 15.09,
+        "tokens_per_s": 27.6,
+        "sql_query": "WITH brand_sales AS (\n    SELECT i.i_brand, SUM(ss.ss_quantity) AS total_quantity\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_brand IS NOT NULL\n      AND ss.ss_quantity IS NOT NULL\n    GROUP BY i.i_brand\n)\nSELECT i_brand, total_quantity\nFROM brand_sales\nORDER BY total_quantity DESC, i_brand ASC;",
         "attempts": 4,
         "feedback_iterations": 3,
         "result": [
@@ -3081,44 +3085,41 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 9,
         "question": "Show total sales for preferred customers (c_preferred_cust_flag = 'Y') versus non-preferred customers (c_preferred_cust_flag = 'N') as two rows. Exclude customers where the preferred flag is NULL. Order by total sales descending.",
-        "duration_s": 22.85,
-        "sql_query": "/* Show total sales for preferred customers versus non-preferred customers */\nWITH preferred_sales AS (\n    SELECT SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_sk\n    WHERE c.c_preferred_cust_flag = 'Y'\n      AND c.c_preferred_cust_flag IS NOT NULL\n),\nnon_preferred_sales AS (\n    SELECT SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_sk\n    WHERE c.c_preferred_cust_flag = 'N'\n      AND c.c_preferred_cust_flag IS NOT NULL\n)\nSELECT \n    'Preferred Customers' AS customer_type,\n    total_sales\nFROM preferred_sales\nUNION ALL\nSELECT \n    'Non-Preferred Customers' AS customer_type,\n    total_sales\nFROM non_preferred_sales\nORDER BY total_sales DESC;",
+        "duration_s": 14.59,
+        "completion_tokens": 376,
+        "generation_s": 13.33,
+        "tokens_per_s": 28.2,
+        "sql_query": "SELECT\n  SUM(CASE WHEN c.c_preferred_cust_flag = 'Y' THEN ss.ss_sales_price * ss.ss_quantity ELSE 0 END) AS preferred_sales,\n  SUM(CASE WHEN c.c_preferred_cust_flag = 'N' THEN ss.ss_sales_price * ss.ss_quantity ELSE 0 END) AS non_preferred_sales\nFROM store_sales AS ss\nJOIN customer AS c ON ss.ss_customer_sk = c.c_customer_id\nWHERE c.c_preferred_cust_flag IS NOT NULL\nGROUP BY c.c_preferred_cust_flag\nORDER BY preferred_sales DESC, non_preferred_sales DESC",
         "attempts": 3,
-        "feedback_iterations": 2,
-        "result": [
-            {
-                "customer_type": "Non-Preferred Customers",
-                "total_sales": 2493560166.78
-            },
-            {
-                "customer_type": "Preferred Customers",
-                "total_sales": 2408850335.04
-            }
-        ],
-        "result_count": 2,
-        "error_details": null
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "Execution Error: Max attempts reached. Last error: Conversion Error: Could not convert string 'AAAAAAAABAAAAAAA' to INT64 when casting from source column c_customer_id\n\nLINE 5: JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_id\n                                                  ^"
     },
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 10,
         "question": "What is the total return amount for each city where stores are located, ordered alphabetically by city name.",
-        "duration_s": 8.97,
-        "sql_query": "WITH returns_by_city AS (\n    SELECT \n        s.s_city,\n        SUM(sr.sr_return_amt) AS total_return_amount\n    FROM store_returns sr\n    JOIN store s ON sr.sr_store_sk = s.s_store_sk\n    WHERE s.s_city IS NOT NULL\n      AND sr.sr_return_amt IS NOT NULL\n    GROUP BY s.s_city\n)\nSELECT \n    s_city,\n    total_return_amount\nFROM returns_by_city\nORDER BY s_city ASC;",
-        "attempts": 2,
-        "feedback_iterations": 1,
+        "duration_s": 11.1,
+        "completion_tokens": 247,
+        "generation_s": 8.72,
+        "tokens_per_s": 28.3,
+        "sql_query": "SELECT s.s_city, SUM(sr.sr_return_amt) AS total_returns\nFROM store_returns sr\nJOIN store s ON sr.sr_store_sk = s.s_store_sk\nWHERE sr.sr_return_amt IS NOT NULL\nGROUP BY s.s_city\nORDER BY s.s_city ASC;",
+        "attempts": 4,
+        "feedback_iterations": 3,
         "result": [
             {
                 "s_city": "Fairview",
-                "total_return_amount": 44308839.18
+                "total_returns": 44308839.18
             },
             {
                 "s_city": "Midway",
-                "total_return_amount": 221569284.52
+                "total_returns": 221569284.52
             }
         ],
         "result_count": 2,
@@ -3127,13 +3128,16 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 11,
         "question": "What is the net sales for each store name, order by net sales.",
-        "duration_s": 25.88,
+        "duration_s": 9.44,
+        "completion_tokens": 225,
+        "generation_s": 8.02,
+        "tokens_per_s": 28.1,
         "sql_query": "WITH sales_agg AS (\n    SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    GROUP BY s.s_store_name\n), returns_agg AS (\n    SELECT s.s_store_name, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    GROUP BY s.s_store_name\n)\nSELECT COALESCE(sa.s_store_name, ra.s_store_name) AS store_name,\n       COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0) AS net_sales\nFROM sales_agg AS sa\nFULL OUTER JOIN returns_agg AS ra ON sa.s_store_name = ra.s_store_name\nORDER BY net_sales DESC NULLS LAST;",
-        "attempts": 4,
-        "feedback_iterations": 3,
+        "attempts": 1,
+        "feedback_iterations": 0,
         "result": [
             {
                 "store_name": "bar",
@@ -3166,25 +3170,31 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 12,
         "question": "Calculate the return rate for each item category (i_category). Show the category name and return rate, with one row per distinct category. Exclude NULL categories. Order alphabetically by category name.",
-        "duration_s": 24.39,
-        "sql_query": "WITH sales_agg AS (\n    SELECT \n        i.i_category,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_category IS NOT NULL\n    GROUP BY i.i_category\n),\nreturns_agg AS (\n    SELECT \n        i.i_category,\n        SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.ss_item_sk = i.i_item_sk\n    WHERE i.i_category IS NOT NULL\n    GROUP BY i.i_category\n)\nSELECT \n    COALESCE(sa.i_category, ra.i_category) AS category,\n    (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_agg AS sa\nFULL OUTER JOIN returns_agg AS ra ON sa.i_category = ra.i_category\nWHERE sa.i_category IS NOT NULL AND ra.i_category IS NOT NULL\nORDER BY category;",
+        "duration_s": 25.33,
+        "completion_tokens": 753,
+        "generation_s": 23.96,
+        "tokens_per_s": 31.4,
+        "sql_query": "WITH sales_agg AS (\n    SELECT i.i_category, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_category IS NOT NULL AND i.i_current_price IS NOT NULL\n    GROUP BY i.i_category\n),\nreturns_agg AS (\n    SELECT i.i_category, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.ss_item_sk = i.i_item_sk\n    WHERE i.i_category IS NOT NULL AND i.i_current_price IS NOT NULL\n    GROUP BY i.i_category\n)\nSELECT COALESCE(sa.i_category, ra.i_category) AS category,\n       (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.i_category = ra.i_category\nWHERE i.i_category IS NOT NULL\nORDER BY category;",
         "attempts": 3,
         "feedback_iterations": 0,
         "result": [],
         "result_count": 0,
-        "error_details": "Execution Error: Max attempts reached. Last error: Binder Error: Table \"sr\" does not have a column named \"ss_item_sk\"\n\nCandidate bindings: : \"sr_item_sk\"\n\nLINE 15:     JOIN item AS i ON sr.ss_item_sk = i.i_item_sk\n                               ^"
+        "error_details": "Execution Error: Max attempts reached. Last error: Binder Error: Table \"sr\" does not have a column named \"ss_item_sk\"\n\nCandidate bindings: : \"sr_item_sk\"\n\nLINE 11:     JOIN item AS i ON sr.ss_item_sk = i.i_item_sk\n                               ^"
     },
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 13,
         "question": "What is the monthly trend of net sales during the year 2001, order by net sales desc.",
-        "duration_s": 30.93,
-        "sql_query": "WITH sales_agg AS (\n    SELECT \n        d.d_moy,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    WHERE d.d_year = 2001\n    GROUP BY d.d_moy\n),\nreturns_agg AS (\n    SELECT \n        d.d_moy,\n        SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    WHERE d.d_year = 2001\n    GROUP BY d.d_moy\n)\nSELECT \n    COALESCE(sa.d_moy, ra.d_moy) AS month_of_year,\n    COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0) AS net_sales\nFROM sales_agg AS sa\nFULL OUTER JOIN returns_agg AS ra ON sa.d_moy = ra.d_moy\nORDER BY net_sales DESC;",
+        "duration_s": 27.53,
+        "completion_tokens": 966,
+        "generation_s": 25.76,
+        "tokens_per_s": 37.5,
+        "sql_query": "WITH sales_agg AS (\n    SELECT \n        d.d_moy,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    WHERE d.d_year = 2001\n    GROUP BY d.d_moy\n), returns_agg AS (\n    SELECT \n        d.d_moy,\n        SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    WHERE d.d_year = 2001\n    GROUP BY d.d_moy\n)\nSELECT \n    COALESCE(sa.d_moy, ra.d_moy) AS month_of_year,\n    (COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0)) AS net_sales\nFROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.d_moy = ra.d_moy\nORDER BY net_sales DESC;",
         "attempts": 4,
         "feedback_iterations": 3,
         "result": [
@@ -3243,25 +3253,90 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 14,
         "question": "Which customer birth country has the highest return rate? Show the country name and return rate. Order by return rate descending, then by country name alphabetically. Return only the top 1 row.",
-        "duration_s": 29.29,
-        "sql_query": "SELECT COALESCE(sa.c_birth_country, ra.c_birth_country) AS country_name,\n       (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.c_customer_id = ra.c_customer_id\nWHERE COALESCE(sa.c_birth_country, ra.c_birth_country) IS NOT NULL\nORDER BY return_rate DESC, country_name ASC\nLIMIT 1;\n\nWITH sales_agg AS (\n    SELECT c.c_birth_country,\n           SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales,\n           SUM(ss.ss_quantity) AS total_quantity\n    FROM store_sales AS ss\n    JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_id\n    WHERE c.c_birth_country IS NOT NULL\n      AND ss.ss_sales_price IS NOT NULL\n      AND ss.ss_quantity IS NOT NULL\n    GROUP BY c.c_birth_country\n\n),\nreturns_agg AS (\n    SELECT c.c_birth_country,\n           SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN customer AS c ON sr.sr_customer_sk = c.c_customer_id\n    WHERE c.c_birth_country IS NOT NULL\n      AND sr.sr_return_amt IS NOT NULL\n    GROUP BY c.c_birth_country\n)",
-        "attempts": 3,
-        "feedback_iterations": 0,
-        "result": [],
-        "result_count": 0,
-        "error_details": "Execution Error: Max attempts reached. Last error: Parser Error: syntax error at end of input"
+        "duration_s": 31.7,
+        "completion_tokens": 1127,
+        "generation_s": 29.93,
+        "tokens_per_s": 37.7,
+        "sql_query": "WITH sales_agg AS (\n    SELECT c.c_birth_country, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_sk\n    WHERE c.c_birth_country IS NOT NULL\n      AND ss.ss_sales_price IS NOT NULL\n      AND ss.ss_quantity IS NOT NULL\n    GROUP BY c.c_birth_country\n), returns_agg AS (\n    SELECT c.c_birth_country, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN customer AS c ON sr.sr_customer_sk = c.c_customer_sk\n    WHERE c.c_birth_country IS NOT NULL\n      AND sr.sr_return_amt IS NOT NULL\n    GROUP BY c.c_birth_country\n), country_data AS (\n    SELECT COALESCE(sa.c_birth_country, ra.c_birth_country) AS country_name,\n           (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\n    FROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.c_birth_country = ra.c_birth_country\n)\nSELECT country_name, return_rate\nFROM country_data\nORDER BY return_rate DESC, country_name ASC\nLIMIT 1;",
+        "attempts": 4,
+        "feedback_iterations": 3,
+        "result": [
+            {
+                "country_name": "FIJI",
+                "return_rate": 5.952938562856105
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
     },
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 15,
+        "question": "For each store, show the store name, its net sales, the overall average net sales across all stores, and the percentage calculated as (store net sales / average net sales) * 100. Order by percentage descending, then by store name alphabetically for ties.",
+        "duration_s": 35.33,
+        "completion_tokens": 1211,
+        "generation_s": 32.22,
+        "tokens_per_s": 37.6,
+        "sql_query": "SELECT store_name, net_sales,\n       AVG(net_sales) OVER () AS avg_net_sales,\n       (net_sales / NULLIF(AVG(net_sales) OVER (), 0)) * 100 AS percentage\nFROM (\n    WITH sales_agg AS (\n        SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n        FROM store_sales AS ss JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n        GROUP BY s.s_store_name\n    ), returns_agg AS (\n        SELECT s.s_store_name, SUM(sr.sr_return_amt) AS total_returns\n        FROM store_returns AS sr JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n        GROUP BY s.s_store_name\n    )\n    SELECT COALESCE(sa.s_store_name, ra.s_store_name) AS store_name,\n           COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0) AS net_sales\n    FROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.s_store_name = ra.s_store_name\n) AS net_sales\nORDER BY percentage DESC, store_name ASC;",
+        "attempts": 5,
+        "feedback_iterations": 3,
+        "result": [
+            {
+                "store_name": "bar",
+                "net_sales": 804421054.86,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 100.32278552221487
+            },
+            {
+                "store_name": "eing",
+                "net_sales": 802802848.75,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 100.12097212670083
+            },
+            {
+                "store_name": "ese",
+                "net_sales": 802346690.31,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 100.06408265934567
+            },
+            {
+                "store_name": "able",
+                "net_sales": 801418584.81,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 99.9483346584002
+            },
+            {
+                "store_name": "ation",
+                "net_sales": 800752820.38,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 99.86530433278195
+            },
+            {
+                "store_name": "ought",
+                "net_sales": 799255127.85,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 99.67852070055646
+            }
+        ],
+        "result_count": 6,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260329_225104",
+        "nbr": 16,
         "question": "List all item product names and total sales that have a return rate greater than 5%, ordered by item product name alphabetically.",
-        "duration_s": 48.23,
-        "sql_query": "WITH sales_agg AS (\n    SELECT i.i_product_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_product_name IS NOT NULL\n      AND ss.ss_sales_price IS NOT NULL\n      AND ss.ss_quantity IS NOT NULL\n    GROUP BY i.i_product_name\n), returns_agg AS (\n    SELECT i.i_product_name, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    WHERE i.i_product_name IS NOT NULL\n      AND sr.sr_return_amt IS NOT NULL\n    GROUP BY i.i_product_name\n)\nSELECT COALESCE(sa.i_product_name, ra.i_product_name) AS i_product_name,\n       COALESCE(sa.total_sales, 0) AS total_sales,\n       (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_agg AS sa\nFULL OUTER JOIN returns_agg AS ra ON sa.i_product_name = ra.i_product_name\nWHERE COALESCE(sa.total_sales, 0) > 0\n  AND (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 > 5\nORDER BY i_product_name;",
+        "duration_s": 36.14,
+        "completion_tokens": 1242,
+        "generation_s": 33.31,
+        "tokens_per_s": 37.3,
+        "sql_query": "WITH sales_agg AS (\n    SELECT i.i_product_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_product_name IS NOT NULL\n      AND ss.ss_sales_price IS NOT NULL\n      AND ss.ss_quantity IS NOT NULL\n    GROUP BY i.i_product_name\n), returns_agg AS (\n    SELECT i.i_product_name, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    WHERE i.i_product_name IS NOT NULL\n      AND sr.sr_return_amt IS NOT NULL\n    GROUP BY i.i_product_name\n)\nSELECT COALESCE(sa.i_product_name, ra.i_product_name) AS i_product_name,\n       COALESCE(sa.total_sales, 0) AS total_sales,\n       (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_agg AS sa\nFULL OUTER JOIN returns_agg AS ra ON sa.i_product_name = ra.i_product_name\nWHERE (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 > 5\nORDER BY COALESCE(sa.i_product_name, ra.i_product_name) ASC;",
         "attempts": 4,
         "feedback_iterations": 3,
         "result": [
@@ -47577,2130 +47652,752 @@
     {
         "model": "qwen3.5-4b",
         "SF": 1,
-        "timestamp": "20260324_230255",
-        "nbr": 16,
-        "question": "For each store, what was the percentage change in net sales from year 2001 to year 2002? Show store name, net sales for 2001, net sales for 2002, and percentage change. Order alphabetically by store name.",
-        "duration_s": 144.15,
-        "sql_query": "query runs forever",
-        "attempts": 3,
-        "feedback_iterations": 0,
-        "result": [],
-        "result_count": 0,
-        "error_details": "Execution Error: Query execution timed out after 60 seconds."
-    },
-    {
-        "model": "qwen3.5-4b",
-        "SF": 1,
-        "timestamp": "20260324_230255",
+        "timestamp": "20260329_225104",
         "nbr": 17,
-        "question": "What is the return rate for items sold on weekends (d_weekend = 'Y') versus weekdays (d_weekend = 'N'), broken down by customer age group? Use these age groups based on (d_year - c_birth_year): '< 20', '20-29', '30-39', '40-49', '50-59', '60+'. Show age group, weekend flag, and return rate. Order by age group, then by weekend flag.",
-        "duration_s": 93.45,
-        "sql_query": "WITH sales_by_age_weekend AS (\n    SELECT \n        CASE\n            WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n            WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'\n        END AS age_group,\n        d.d_weekend AS weekend_flag,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales ss\n    JOIN customer c ON ss.ss_customer_sk = c.c_customer_sk\n    JOIN date_dim d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN item i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_category IS NOT NULL\n    GROUP BY age_group, d.d_weekend\n),\nreturns_by_age_weekend AS (\n    SELECT \n        CASE\n            WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n            WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'\n        END AS age_group,\n        d.d_weekend AS weekend_flag,\n        SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns sr\n    JOIN customer c ON sr.sr_customer_sk = c.c_customer_sk\n    JOIN date_dim d ON sr.sr_returned_date_sk = d.d_date_sk\n    JOIN item i ON sr.sr_item_sk = i.i_item_sk\n    WHERE i.i_category IS NOT NULL\n    GROUP BY age_group, d.d_weekend\n)\nSELECT \n    COALESCE(s.age_group, r.age_group) AS age_group,\n    COALESCE(s.weekend_flag, r.weekend_flag) AS weekend_flag,\n    (COALESCE(r.total_returns, 0) / NULLIF(COALESCE(s.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_by_age_weekend s\nFULL OUTER JOIN returns_by_age_weekend r ON s.age_group = r.age_group AND s.weekend_flag = r.weekend_flag\nORDER BY s.age_group, s.weekend_flag;",
-        "attempts": 3,
-        "feedback_iterations": 1,
+        "question": "For each store, what was the percentage change in net sales from year 2001 to year 2002? Show store name, net sales for 2001, net sales for 2002, and percentage change rounded to 2 decimal places. Order alphabetically by store name.",
+        "duration_s": 78.94,
+        "completion_tokens": 2537,
+        "generation_s": 74.46,
+        "tokens_per_s": 34.1,
+        "sql_query": "/* For each store, what was the percentage change in net sales from year 2001 to year 2002? */\nWITH sales_2001 AS (\n    SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) - COALESCE(SUM(sr.sr_return_amt), 0) AS net_sales\n    FROM store_sales ss\n    LEFT JOIN store_returns sr ON ss.ss_customer_sk = sr.sr_customer_sk AND ss.ss_item_sk = sr.sr_item_sk\n    JOIN date_dim d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN store s ON ss.ss_store_sk = s.s_store_sk\n    WHERE d.d_year = 2001\n    GROUP BY s.s_store_name\n),\nsales_2002 AS (\n    SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) - COALESCE(SUM(sr.sr_return_amt), 0) AS net_sales\n    FROM store_sales ss\n    LEFT JOIN store_returns sr ON ss.ss_customer_sk = sr.sr_customer_sk AND ss.ss_item_sk = sr.sr_item_sk\n    JOIN date_dim d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN store s ON ss.ss_store_sk = s.s_store_sk\n    WHERE d.d_year = 2002\n    GROUP BY s.s_store_name\n)\nSELECT COALESCE(s2001.s_store_name, s2002.s_store_name) AS store_name,\n       COALESCE(s2001.net_sales, 0) AS net_sales_2001,\n       COALESCE(s2002.net_sales, 0) AS net_sales_2002,\n       ROUND(\n           (COALESCE(s2002.net_sales, 0) - COALESCE(s2001.net_sales, 0)) * 1.0 / NULLIF(COALESCE(s2001.net_sales, 0), 0) * 100,\n           2\n       ) AS percentage_change\nFROM sales_2001 s2001\nFULL OUTER JOIN sales_2002 s2002 ON s2001.s_store_name = s2002.s_store_name\nORDER BY store_name;",
+        "attempts": 5,
+        "feedback_iterations": 3,
         "result": [
-            {
-                "age_group": "20-29",
-                "weekend_flag": "N",
-                "return_rate": 5.1773267812819785
-            },
-            {
-                "age_group": "20-29",
-                "weekend_flag": "Y",
-                "return_rate": 5.458149266736504
-            },
-            {
-                "age_group": "30-39",
-                "weekend_flag": "N",
-                "return_rate": 5.270638432612827
-            },
-            {
-                "age_group": "30-39",
-                "weekend_flag": "Y",
-                "return_rate": 5.293823383194566
-            },
-            {
-                "age_group": "40-49",
-                "weekend_flag": "N",
-                "return_rate": 5.22188034900783
-            },
-            {
-                "age_group": "40-49",
-                "weekend_flag": "Y",
-                "return_rate": 5.157459508482988
-            },
-            {
-                "age_group": "50-59",
-                "weekend_flag": "N",
-                "return_rate": 5.244192968702314
-            },
-            {
-                "age_group": "50-59",
-                "weekend_flag": "Y",
-                "return_rate": 5.260036218597996
-            },
-            {
-                "age_group": "60+",
-                "weekend_flag": "N",
-                "return_rate": 5.3436500220576075
-            },
-            {
-                "age_group": "60+",
-                "weekend_flag": "Y",
-                "return_rate": 5.263403764869451
-            },
-            {
-                "age_group": "< 20",
-                "weekend_flag": "N",
-                "return_rate": 5.026477380473606
-            },
-            {
-                "age_group": "< 20",
-                "weekend_flag": "Y",
-                "return_rate": 5.03086995259951
-            },
-            {
-                "age_group": null,
-                "weekend_flag": "N",
-                "return_rate": 0.0
-            },
-            {
-                "age_group": null,
-                "weekend_flag": "Y",
-                "return_rate": 0.0
-            },
-            {
-                "age_group": null,
-                "weekend_flag": "Y",
-                "return_rate": NaN
-            },
-            {
-                "age_group": null,
-                "weekend_flag": "N",
-                "return_rate": NaN
-            }
-        ],
-        "result_count": 16,
-        "error_details": null
-    },
-    {
-        "model": "qwen3.5-4b",
-        "SF": 1,
-        "timestamp": "20260324_230255",
-        "nbr": 18,
-        "question": "Which item brands had a decrease in return rate from 2001 to 2002 for stores in the 'TN' state? Show the brand name and decrease amount (2001 rate minus 2002 rate). Only include brands where the return rate decreased (positive difference). Order by decrease descending, then by brand name alphabetically.",
-        "duration_s": 142.56,
-        "sql_query": "WITH sales_2001 AS (\n    SELECT i.i_brand, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales_2001\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    WHERE d.d_year = 2001 AND s.s_state = 'TN' AND i.i_brand IS NOT NULL\n    GROUP BY i.i_brand\n),\nsales_2002 AS (\n    SELECT i.i_brand, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales_2002\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    WHERE d.d_year = 2002 AND s.s_state = 'TN' AND i.i_brand IS NOT NULL\n    GROUP BY i.i_brand\n),\nreturns_2001 AS (\n    SELECT i.i_brand, SUM(sr.sr_return_amt) AS total_returns_2001\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    WHERE d.d_year = 2001 AND s.s_state = 'TN' AND i.i_brand IS NOT NULL\n    GROUP BY i.i_brand\n),\nreturns_2002 AS (\n    SELECT i.i_brand, SUM(sr.sr_return_amt) AS total_returns_2002\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    WHERE d.d_year = 2002 AND s.s_state = 'TN' AND i.i_brand IS NOT NULL\n    GROUP BY i.i_brand\n)\nSELECT COALESCE(s2001.i_brand, r2002.i_brand) AS brand_name,\n       (COALESCE(s2001.total_sales_2001, 0) / NULLIF(COALESCE(r2001.total_returns_2001, 0), 0)) * 100 -\n       (COALESCE(s2002.total_sales_2002, 0) / NULLIF(COALESCE(r2002.total_returns_2002, 0), 0)) * 100 AS decrease_amount\nFROM sales_2001 s2001\nFULL OUTER JOIN returns_2001 r2001 ON s2001.i_brand = r2001.i_brand\nFULL OUTER JOIN sales_2002 s2002 ON s2001.i_brand = s2002.i_brand\nFULL OUTER JOIN returns_2002 r2002 ON s2001.i_brand = r2002.i_brand\nWHERE (COALESCE(s2001.total_sales_2001, 0) / NULLIF(COALESCE(r2001.total_returns_2001, 0), 0)) * 100 > 0\n   OR (COALESCE(s2002.total_sales_2002, 0) / NULLIF(COALESCE(r2002.total_returns_2002, 0), 0)) * 100 > 0\nORDER BY decrease_amount DESC, brand_name ASC;",
-        "attempts": 1,
-        "feedback_iterations": 0,
-        "result": [
-            {
-                "brand_name": "maxiunivamalg #11",
-                "decrease_amount": 20726.63949309412
-            },
-            {
-                "brand_name": "edu packunivamalg #16",
-                "decrease_amount": 10638.31848312754
-            },
-            {
-                "brand_name": "exportiunivamalg #4",
-                "decrease_amount": 8270.514844515234
-            },
-            {
-                "brand_name": "importounivamalg #13",
-                "decrease_amount": 6961.049858600016
-            },
-            {
-                "brand_name": "edu packunivamalg #5",
-                "decrease_amount": 4840.6450656593615
-            },
-            {
-                "brand_name": "brandunivamalg #6",
-                "decrease_amount": 4819.196688075258
-            },
-            {
-                "brand_name": "importoamalgamalg #15",
-                "decrease_amount": 4762.72156063088
-            },
-            {
-                "brand_name": "maximaxi #4",
-                "decrease_amount": 4368.287370507749
-            },
-            {
-                "brand_name": "corpamalgamalg #16",
-                "decrease_amount": 4265.2492309056315
-            },
-            {
-                "brand_name": "exportiunivamalg #11",
-                "decrease_amount": 4148.051605601477
-            },
-            {
-                "brand_name": "scholaramalgamalg #11",
-                "decrease_amount": 3943.8262742222805
-            },
-            {
-                "brand_name": "univamalgamalg #10",
-                "decrease_amount": 3474.374217428048
-            },
-            {
-                "brand_name": "edu packunivamalg #1",
-                "decrease_amount": 3453.641951896315
-            },
-            {
-                "brand_name": "univamalgamalg #16",
-                "decrease_amount": 3348.2679974472894
-            },
-            {
-                "brand_name": "exportiamalgamalg #13",
-                "decrease_amount": 3340.3211896053417
-            },
-            {
-                "brand_name": "edu packamalgamalg #12",
-                "decrease_amount": 3271.853338022984
-            },
-            {
-                "brand_name": "brandunivamalg #5",
-                "decrease_amount": 3238.17845627655
-            },
-            {
-                "brand_name": "univunivamalg #10",
-                "decrease_amount": 3163.6260819607332
-            },
-            {
-                "brand_name": "edu packmaxi #12",
-                "decrease_amount": 3140.168142807996
-            },
-            {
-                "brand_name": "brandmaxi #10",
-                "decrease_amount": 2959.2747750474464
-            },
-            {
-                "brand_name": "corpamalgamalg #10",
-                "decrease_amount": 2805.66807436987
-            },
-            {
-                "brand_name": "importounivamalg #12",
-                "decrease_amount": 2758.7758603205034
-            },
-            {
-                "brand_name": "univamalgamalg #1",
-                "decrease_amount": 2629.115684775537
-            },
-            {
-                "brand_name": "brandmaxi #6",
-                "decrease_amount": 2623.441469475832
-            },
-            {
-                "brand_name": "namelesscorp #8",
-                "decrease_amount": 2524.8186706341467
-            },
-            {
-                "brand_name": "edu packamalgamalg #3",
-                "decrease_amount": 2471.6051013046717
-            },
-            {
-                "brand_name": "univunivamalg #6",
-                "decrease_amount": 2451.083123575118
-            },
-            {
-                "brand_name": "amalgunivamalg #14",
-                "decrease_amount": 2315.0239291609646
-            },
-            {
-                "brand_name": "univunivamalg #12",
-                "decrease_amount": 2205.8965476285775
-            },
-            {
-                "brand_name": "exportiunivamalg #17",
-                "decrease_amount": 2182.098632428496
-            },
-            {
-                "brand_name": "corpamalgamalg #6",
-                "decrease_amount": 2153.2338480849894
-            },
-            {
-                "brand_name": "brandbrand #4",
-                "decrease_amount": 2115.3480865693223
-            },
-            {
-                "brand_name": "amalgunivamalg #12",
-                "decrease_amount": 2094.590086427241
-            },
-            {
-                "brand_name": "exportiunivamalg #6",
-                "decrease_amount": 2092.2074865383265
-            },
-            {
-                "brand_name": "scholaramalgamalg #4",
-                "decrease_amount": 2066.821131353153
-            },
-            {
-                "brand_name": "namelessmaxi #12",
-                "decrease_amount": 2066.052908908714
-            },
-            {
-                "brand_name": "importounivamalg #4",
-                "decrease_amount": 2049.51669038464
-            },
-            {
-                "brand_name": "namelessunivamalg #3",
-                "decrease_amount": 2048.270383416663
-            },
-            {
-                "brand_name": "maximaxi #6",
-                "decrease_amount": 2039.2930429899468
-            },
-            {
-                "brand_name": "importoamalgamalg #17",
-                "decrease_amount": 2035.4907925200164
-            },
-            {
-                "brand_name": "corpunivamalg #10",
-                "decrease_amount": 2022.827895938031
-            },
-            {
-                "brand_name": "corpmaxi #12",
-                "decrease_amount": 2003.7215076804184
-            },
-            {
-                "brand_name": "brandunivamalg #3",
-                "decrease_amount": 1997.5372755164672
-            },
-            {
-                "brand_name": "scholarmaxi #12",
-                "decrease_amount": 1982.0388284014073
-            },
-            {
-                "brand_name": "amalgmaxi #12",
-                "decrease_amount": 1967.8994311084004
-            },
-            {
-                "brand_name": "corpamalgamalg #2",
-                "decrease_amount": 1937.0980301911127
-            },
-            {
-                "brand_name": "amalgamalgamalg #15",
-                "decrease_amount": 1898.0935455250433
-            },
-            {
-                "brand_name": "exporticorp #6",
-                "decrease_amount": 1837.3805900143168
-            },
-            {
-                "brand_name": "brandnameless #8",
-                "decrease_amount": 1834.4110954006283
-            },
-            {
-                "brand_name": "scholaramalgamalg #14",
-                "decrease_amount": 1827.6767139738654
-            },
-            {
-                "brand_name": "brandbrand #8",
-                "decrease_amount": 1798.1800895458023
-            },
-            {
-                "brand_name": "brandbrand #6",
-                "decrease_amount": 1773.73720551851
-            },
-            {
-                "brand_name": "exportibrand #10",
-                "decrease_amount": 1772.061395180511
-            },
-            {
-                "brand_name": "scholarnameless #6",
-                "decrease_amount": 1770.5402856086657
-            },
-            {
-                "brand_name": "maxibrand #8",
-                "decrease_amount": 1738.4773931336333
-            },
-            {
-                "brand_name": "scholarbrand #10",
-                "decrease_amount": 1727.395367789505
-            },
-            {
-                "brand_name": "namelesscorp #6",
-                "decrease_amount": 1698.4670085036507
-            },
-            {
-                "brand_name": "brandunivamalg #16",
-                "decrease_amount": 1686.4792652967503
-            },
-            {
-                "brand_name": "edu packmaxi #10",
-                "decrease_amount": 1663.0913137182872
-            },
-            {
-                "brand_name": "edu packnameless #8",
-                "decrease_amount": 1658.6697628087506
-            },
-            {
-                "brand_name": "importomaxi #12",
-                "decrease_amount": 1646.0381402648554
-            },
-            {
-                "brand_name": "amalgnameless #8",
-                "decrease_amount": 1638.6915880888553
-            },
-            {
-                "brand_name": "brandmaxi #12",
-                "decrease_amount": 1636.9408590980295
-            },
-            {
-                "brand_name": "corpamalgamalg #8",
-                "decrease_amount": 1636.6420673206421
-            },
-            {
-                "brand_name": "univunivamalg #4",
-                "decrease_amount": 1634.5054529210406
-            },
-            {
-                "brand_name": "importomaxi #10",
-                "decrease_amount": 1609.3364975454301
-            },
-            {
-                "brand_name": "amalgunivamalg #6",
-                "decrease_amount": 1601.566728277016
-            },
-            {
-                "brand_name": "amalgunivamalg #11",
-                "decrease_amount": 1586.8468450723226
-            },
-            {
-                "brand_name": "namelessmaxi #6",
-                "decrease_amount": 1570.173350712248
-            },
-            {
-                "brand_name": "exportimaxi #12",
-                "decrease_amount": 1556.2888628372427
-            },
-            {
-                "brand_name": "maxiunivamalg #16",
-                "decrease_amount": 1543.555568950192
-            },
-            {
-                "brand_name": "maxiunivamalg #5",
-                "decrease_amount": 1539.1858605427938
-            },
-            {
-                "brand_name": "scholarcorp #2",
-                "decrease_amount": 1511.0816194166744
-            },
-            {
-                "brand_name": "namelessnameless #8",
-                "decrease_amount": 1505.6616750343776
-            },
-            {
-                "brand_name": "importoamalgamalg #5",
-                "decrease_amount": 1501.38040902408
-            },
-            {
-                "brand_name": "corpunivamalg #13",
-                "decrease_amount": 1496.2069364275662
-            },
-            {
-                "brand_name": "edu packunivamalg #4",
-                "decrease_amount": 1467.3131659563028
-            },
-            {
-                "brand_name": "amalgamalgamalg #17",
-                "decrease_amount": 1464.4042619581621
-            },
-            {
-                "brand_name": "edu packcorp #6",
-                "decrease_amount": 1443.918225670387
-            },
-            {
-                "brand_name": "edu packunivamalg #6",
-                "decrease_amount": 1435.242755810551
-            },
-            {
-                "brand_name": "amalgunivamalg #4",
-                "decrease_amount": 1430.0105697566773
-            },
-            {
-                "brand_name": "univnameless #6",
-                "decrease_amount": 1416.6915173700008
-            },
-            {
-                "brand_name": "scholarunivamalg #12",
-                "decrease_amount": 1392.0938770973773
-            },
-            {
-                "brand_name": "namelessbrand #8",
-                "decrease_amount": 1382.356490345933
-            },
-            {
-                "brand_name": "exportiunivamalg #16",
-                "decrease_amount": 1380.3030776907822
-            },
-            {
-                "brand_name": "edu packcorp #2",
-                "decrease_amount": 1375.9340130219377
-            },
-            {
-                "brand_name": "amalgmaxi #4",
-                "decrease_amount": 1359.6718800954286
-            },
-            {
-                "brand_name": "importomaxi #8",
-                "decrease_amount": 1343.7545361364284
-            },
-            {
-                "brand_name": "maxicorp #4",
-                "decrease_amount": 1342.297645081461
-            },
-            {
-                "brand_name": "corpunivamalg #12",
-                "decrease_amount": 1330.5505018567956
-            },
-            {
-                "brand_name": "scholaramalgamalg #7",
-                "decrease_amount": 1313.093963510345
-            },
-            {
-                "brand_name": "namelessunivamalg #5",
-                "decrease_amount": 1312.551655035521
-            },
-            {
-                "brand_name": "amalgmaxi #8",
-                "decrease_amount": 1291.171712678047
-            },
-            {
-                "brand_name": "amalgnameless #4",
-                "decrease_amount": 1285.133638261469
-            },
-            {
-                "brand_name": "importounivamalg #10",
-                "decrease_amount": 1284.4211511107076
-            },
-            {
-                "brand_name": "maxiunivamalg #10",
-                "decrease_amount": 1269.5136910320737
-            },
-            {
-                "brand_name": "edu packunivamalg #15",
-                "decrease_amount": 1267.9509397837319
-            },
-            {
-                "brand_name": "amalgcorp #2",
-                "decrease_amount": 1256.908609089463
-            },
-            {
-                "brand_name": "univamalgamalg #2",
-                "decrease_amount": 1253.0024868352593
-            },
-            {
-                "brand_name": "corpnameless #10",
-                "decrease_amount": 1248.6176854902562
-            },
-            {
-                "brand_name": "importobrand #2",
-                "decrease_amount": 1246.8992319971833
-            },
-            {
-                "brand_name": "edu packamalgamalg #1",
-                "decrease_amount": 1243.220506565332
-            },
-            {
-                "brand_name": "maxiunivamalg #12",
-                "decrease_amount": 1239.6104249938658
-            },
-            {
-                "brand_name": "maxiunivamalg #7",
-                "decrease_amount": 1228.956879698231
-            },
-            {
-                "brand_name": "univmaxi #8",
-                "decrease_amount": 1228.5477421172657
-            },
-            {
-                "brand_name": "exportiamalgamalg #6",
-                "decrease_amount": 1227.347283308589
-            },
-            {
-                "brand_name": "scholarunivamalg #6",
-                "decrease_amount": 1206.129653264618
-            },
-            {
-                "brand_name": "exportibrand #4",
-                "decrease_amount": 1201.0900763167178
-            },
-            {
-                "brand_name": "maximaxi #12",
-                "decrease_amount": 1193.7367900060126
-            },
-            {
-                "brand_name": "edu packunivamalg #12",
-                "decrease_amount": 1189.332937030552
-            },
-            {
-                "brand_name": "scholaramalgamalg #9",
-                "decrease_amount": 1165.1408435961825
-            },
-            {
-                "brand_name": "corpnameless #6",
-                "decrease_amount": 1158.8365835932086
-            },
-            {
-                "brand_name": "univmaxi #4",
-                "decrease_amount": 1158.4189452131272
-            },
-            {
-                "brand_name": "brandnameless #2",
-                "decrease_amount": 1155.4462714446652
-            },
-            {
-                "brand_name": "corpmaxi #4",
-                "decrease_amount": 1140.8933448951313
-            },
-            {
-                "brand_name": "maxinameless #10",
-                "decrease_amount": 1128.4499657876686
-            },
-            {
-                "brand_name": "amalgamalgamalg #3",
-                "decrease_amount": 1127.5255862425377
-            },
-            {
-                "brand_name": "scholarbrand #2",
-                "decrease_amount": 1118.3966905976538
-            },
-            {
-                "brand_name": "exporticorp #4",
-                "decrease_amount": 1116.6690769942104
-            },
-            {
-                "brand_name": "univamalgamalg #13",
-                "decrease_amount": 1104.0958816325033
-            },
-            {
-                "brand_name": "namelessbrand #2",
-                "decrease_amount": 1077.0232153866782
-            },
-            {
-                "brand_name": "maxicorp #8",
-                "decrease_amount": 1068.1567461271995
-            },
-            {
-                "brand_name": "edu packbrand #2",
-                "decrease_amount": 1064.4398922777925
-            },
-            {
-                "brand_name": "brandunivamalg #11",
-                "decrease_amount": 1057.157504105188
-            },
-            {
-                "brand_name": "maxibrand #4",
-                "decrease_amount": 1056.5967053559496
-            },
-            {
-                "brand_name": "importobrand #10",
-                "decrease_amount": 1052.3855233238103
-            },
-            {
-                "brand_name": "importobrand #4",
-                "decrease_amount": 1023.3931776319223
-            },
-            {
-                "brand_name": "scholarunivamalg #17",
-                "decrease_amount": 1003.405438349876
-            },
-            {
-                "brand_name": "scholarcorp #4",
-                "decrease_amount": 989.7916766786673
-            },
-            {
-                "brand_name": "edu packbrand #8",
-                "decrease_amount": 987.9059839159008
-            },
-            {
-                "brand_name": "importoamalgamalg #8",
-                "decrease_amount": 986.8209866748487
-            },
-            {
-                "brand_name": "exportinameless #6",
-                "decrease_amount": 975.0618990024243
-            },
-            {
-                "brand_name": "importoamalg #2",
-                "decrease_amount": 971.4278344360241
-            },
-            {
-                "brand_name": "namelessbrand #4",
-                "decrease_amount": 966.4544335946166
-            },
-            {
-                "brand_name": "exportiedu pack #2",
-                "decrease_amount": 963.7760908571681
-            },
-            {
-                "brand_name": "edu packunivamalg #7",
-                "decrease_amount": 961.722143937739
-            },
-            {
-                "brand_name": "scholarmaxi #10",
-                "decrease_amount": 961.5571618268418
-            },
-            {
-                "brand_name": "importomaxi #2",
-                "decrease_amount": 961.0280651620187
-            },
-            {
-                "brand_name": "amalgnameless #2",
-                "decrease_amount": 949.8016934190989
-            },
-            {
-                "brand_name": "exportinameless #4",
-                "decrease_amount": 947.897619611442
-            },
-            {
-                "brand_name": "univnameless #4",
-                "decrease_amount": 942.0134159754991
-            },
-            {
-                "brand_name": "amalgamalgamalg #2",
-                "decrease_amount": 938.4442624205244
-            },
-            {
-                "brand_name": "edu packunivamalg #10",
-                "decrease_amount": 933.4730924387304
-            },
-            {
-                "brand_name": "exportinameless #2",
-                "decrease_amount": 929.9483444383018
-            },
-            {
-                "brand_name": "univamalgamalg #11",
-                "decrease_amount": 926.4583089815026
-            },
-            {
-                "brand_name": "amalgunivamalg #3",
-                "decrease_amount": 920.5658767671249
-            },
-            {
-                "brand_name": "amalgimporto #2",
-                "decrease_amount": 920.2451446704038
-            },
-            {
-                "brand_name": "univamalgamalg #5",
-                "decrease_amount": 918.4434691097098
-            },
-            {
-                "brand_name": "importoamalgamalg #2",
-                "decrease_amount": 904.2844919296426
-            },
-            {
-                "brand_name": "namelessbrand #10",
-                "decrease_amount": 902.4346700810208
-            },
-            {
-                "brand_name": "namelesscorp #2",
-                "decrease_amount": 901.0255972570255
-            },
-            {
-                "brand_name": "univmaxi #2",
-                "decrease_amount": 897.9295026416137
-            },
-            {
-                "brand_name": "maximaxi #2",
-                "decrease_amount": 894.4644643301281
-            },
-            {
-                "brand_name": "importonameless #10",
-                "decrease_amount": 889.6095480901861
-            },
-            {
-                "brand_name": "importounivamalg #6",
-                "decrease_amount": 888.178108637696
-            },
-            {
-                "brand_name": "scholarnameless #4",
-                "decrease_amount": 886.3316104533196
-            },
-            {
-                "brand_name": "univamalgamalg #15",
-                "decrease_amount": 877.2821749110253
-            },
-            {
-                "brand_name": "scholarmaxi #6",
-                "decrease_amount": 875.7632975902088
-            },
-            {
-                "brand_name": "importomaxi #6",
-                "decrease_amount": 872.8192401184726
-            },
-            {
-                "brand_name": "amalgunivamalg #10",
-                "decrease_amount": 872.3440079418879
-            },
-            {
-                "brand_name": "importoamalgamalg #10",
-                "decrease_amount": 867.6692312611094
-            },
-            {
-                "brand_name": "exportibrand #8",
-                "decrease_amount": 861.4826936230363
-            },
-            {
-                "brand_name": "univamalgamalg #14",
-                "decrease_amount": 830.2809130662165
-            },
-            {
-                "brand_name": "exporticorp #2",
-                "decrease_amount": 829.4522905928507
-            },
-            {
-                "brand_name": "maxinameless #2",
-                "decrease_amount": 828.0309856952085
-            },
-            {
-                "brand_name": "scholarmaxi #8",
-                "decrease_amount": 824.9166745078917
-            },
-            {
-                "brand_name": "edu packmaxi #6",
-                "decrease_amount": 824.7219141885448
-            },
-            {
-                "brand_name": "amalgbrand #6",
-                "decrease_amount": 814.858330587799
-            },
-            {
-                "brand_name": "exportimaxi #4",
-                "decrease_amount": 811.9408291416325
-            },
-            {
-                "brand_name": "corpamalgamalg #17",
-                "decrease_amount": 806.4165616488192
-            },
-            {
-                "brand_name": "corpnameless #4",
-                "decrease_amount": 803.9865577175826
-            },
-            {
-                "brand_name": "amalgscholar #2",
-                "decrease_amount": 799.1376063658579
-            },
-            {
-                "brand_name": "brandbrand #2",
-                "decrease_amount": 794.4302860019613
-            },
-            {
-                "brand_name": "importoedu pack #2",
-                "decrease_amount": 794.2517796801435
-            },
-            {
-                "brand_name": "importoamalgamalg #13",
-                "decrease_amount": 793.1677119092965
-            },
-            {
-                "brand_name": "maxibrand #10",
-                "decrease_amount": 789.0621896262974
-            },
-            {
-                "brand_name": "edu packbrand #4",
-                "decrease_amount": 774.7629366586552
-            },
-            {
-                "brand_name": "edu packnameless #10",
-                "decrease_amount": 774.6631901886465
-            },
-            {
-                "brand_name": "importoscholar #2",
-                "decrease_amount": 773.7182432163656
-            },
-            {
-                "brand_name": "edu packedu pack #2",
-                "decrease_amount": 770.9044670111946
-            },
-            {
-                "brand_name": "edu packamalgamalg #6",
-                "decrease_amount": 764.0539061552718
-            },
-            {
-                "brand_name": "scholarbrand #6",
-                "decrease_amount": 753.8908585078375
-            },
-            {
-                "brand_name": "amalgmaxi #6",
-                "decrease_amount": 752.7766133738004
-            },
-            {
-                "brand_name": "brandcorp #6",
-                "decrease_amount": 749.1591952504161
-            },
-            {
-                "brand_name": "corpcorp #8",
-                "decrease_amount": 748.5325443998634
-            },
-            {
-                "brand_name": "importocorp #2",
-                "decrease_amount": 748.3355208456355
-            },
-            {
-                "brand_name": "exportibrand #6",
-                "decrease_amount": 746.3420215850554
-            },
-            {
-                "brand_name": "exportiunivamalg #12",
-                "decrease_amount": 745.3661043925079
-            },
-            {
-                "brand_name": "univbrand #4",
-                "decrease_amount": 730.5548818236896
-            },
-            {
-                "brand_name": "exportiimporto #2",
-                "decrease_amount": 728.4040581991951
-            },
-            {
-                "brand_name": "importocorp #4",
-                "decrease_amount": 725.2877799618373
-            },
-            {
-                "brand_name": "amalgnameless #10",
-                "decrease_amount": 715.767161254766
-            },
-            {
-                "brand_name": "amalgbrand #4",
-                "decrease_amount": 714.9152527687336
-            },
-            {
-                "brand_name": "maxinameless #6",
-                "decrease_amount": 713.7010200798868
-            },
-            {
-                "brand_name": "scholaramalgamalg #13",
-                "decrease_amount": 712.4294957446843
-            },
-            {
-                "brand_name": "univbrand #2",
-                "decrease_amount": 711.8649001539654
-            },
-            {
-                "brand_name": "amalgexporti #2",
-                "decrease_amount": 708.0881202287396
-            },
-            {
-                "brand_name": "amalgcorp #6",
-                "decrease_amount": 701.6684624817697
-            },
-            {
-                "brand_name": "exportischolar #2",
-                "decrease_amount": 696.8919990326995
-            },
-            {
-                "brand_name": "edu packamalgamalg #10",
-                "decrease_amount": 696.7887528851229
-            },
-            {
-                "brand_name": "edu packscholar #2",
-                "decrease_amount": 694.8530210283438
-            },
-            {
-                "brand_name": "amalgbrand #8",
-                "decrease_amount": 693.395175462251
-            },
-            {
-                "brand_name": "scholarunivamalg #16",
-                "decrease_amount": 688.7012500767255
-            },
-            {
-                "brand_name": "exportiexporti #2",
-                "decrease_amount": 687.6153701384085
-            },
-            {
-                "brand_name": "edu packexporti #2",
-                "decrease_amount": 687.3135304216655
-            },
-            {
-                "brand_name": "corpbrand #4",
-                "decrease_amount": 684.9963706214617
-            },
-            {
-                "brand_name": "scholarnameless #8",
-                "decrease_amount": 682.6133926702755
-            },
-            {
-                "brand_name": "univbrand #8",
-                "decrease_amount": 669.4819429732793
-            },
-            {
-                "brand_name": "amalgbrand #10",
-                "decrease_amount": 667.6116607100446
-            },
-            {
-                "brand_name": "importoamalgamalg #9",
-                "decrease_amount": 665.0324720920426
-            },
-            {
-                "brand_name": "amalgedu pack #2",
-                "decrease_amount": 662.312888504254
-            },
-            {
-                "brand_name": "corpbrand #8",
-                "decrease_amount": 651.3813885477921
-            },
-            {
-                "brand_name": "brandcorp #8",
-                "decrease_amount": 651.197718096324
-            },
-            {
-                "brand_name": "univbrand #6",
-                "decrease_amount": 649.6434591605816
-            },
-            {
-                "brand_name": "importonameless #6",
-                "decrease_amount": 647.5464065782846
-            },
-            {
-                "brand_name": "corpmaxi #8",
-                "decrease_amount": 646.3044632573019
-            },
-            {
-                "brand_name": "exportimaxi #6",
-                "decrease_amount": 640.6751057514668
-            },
-            {
-                "brand_name": "exportimaxi #10",
-                "decrease_amount": 639.1376740286773
-            },
-            {
-                "brand_name": "exportibrand #2",
-                "decrease_amount": 635.3346386678722
-            },
-            {
-                "brand_name": "corpunivamalg #2",
-                "decrease_amount": 632.0251514905308
-            },
-            {
-                "brand_name": "corpcorp #6",
-                "decrease_amount": 630.5535913636502
-            },
-            {
-                "brand_name": "corpnameless #8",
-                "decrease_amount": 628.9976304435996
-            },
-            {
-                "brand_name": "scholarcorp #6",
-                "decrease_amount": 623.1358852622161
-            },
-            {
-                "brand_name": "importobrand #6",
-                "decrease_amount": 622.2271095259644
-            },
-            {
-                "brand_name": "importoimporto #2",
-                "decrease_amount": 619.9270434107391
-            },
-            {
-                "brand_name": "scholarbrand #4",
-                "decrease_amount": 619.8222280231914
-            },
-            {
-                "brand_name": "amalgunivamalg #13",
-                "decrease_amount": 610.7717860124192
-            },
-            {
-                "brand_name": "amalgunivamalg #17",
-                "decrease_amount": 601.7505257254529
-            },
-            {
-                "brand_name": "edu packamalgamalg #11",
-                "decrease_amount": 596.8587961795674
-            },
-            {
-                "brand_name": "namelessmaxi #8",
-                "decrease_amount": 596.0160046489198
-            },
-            {
-                "brand_name": "importoamalgamalg #6",
-                "decrease_amount": 592.8899371801226
-            },
-            {
-                "brand_name": "corpcorp #4",
-                "decrease_amount": 589.6775819850488
-            },
-            {
-                "brand_name": "amalgamalgamalg #7",
-                "decrease_amount": 587.602568341029
-            },
-            {
-                "brand_name": "edu packamalgamalg #13",
-                "decrease_amount": 587.0535771815498
-            },
-            {
-                "brand_name": "namelessunivamalg #13",
-                "decrease_amount": 586.2505473271547
-            },
-            {
-                "brand_name": "univnameless #2",
-                "decrease_amount": 577.7169549065629
-            },
-            {
-                "brand_name": "importonameless #2",
-                "decrease_amount": 576.8230772440477
-            },
-            {
-                "brand_name": "scholaramalgamalg #15",
-                "decrease_amount": 575.9938092211491
-            },
-            {
-                "brand_name": "edu packnameless #2",
-                "decrease_amount": 569.4932213389211
-            },
-            {
-                "brand_name": "scholarbrand #8",
-                "decrease_amount": 533.4889069265498
-            },
-            {
-                "brand_name": "edu packmaxi #2",
-                "decrease_amount": 528.6507429518178
-            },
-            {
-                "brand_name": "amalgamalg #2",
-                "decrease_amount": 527.1208321126733
-            },
-            {
-                "brand_name": "corpbrand #6",
-                "decrease_amount": 510.3868031444574
-            },
-            {
-                "brand_name": "importonameless #8",
-                "decrease_amount": 505.4559388919174
-            },
-            {
-                "brand_name": "amalgnameless #6",
-                "decrease_amount": 504.4170286513963
-            },
-            {
-                "brand_name": "namelessnameless #2",
-                "decrease_amount": 500.0066449844594
-            },
-            {
-                "brand_name": "univnameless #8",
-                "decrease_amount": 498.7735532161396
-            },
-            {
-                "brand_name": "namelesscorp #4",
-                "decrease_amount": 498.5236533688221
-            },
-            {
-                "brand_name": "edu packimporto #2",
-                "decrease_amount": 497.38173286675055
-            },
-            {
-                "brand_name": "importocorp #6",
-                "decrease_amount": 496.1487448888422
-            },
-            {
-                "brand_name": "amalgmaxi #2",
-                "decrease_amount": 489.00572185775263
-            },
-            {
-                "brand_name": "corpbrand #10",
-                "decrease_amount": 485.78119328117145
-            },
-            {
-                "brand_name": "edu packamalg #2",
-                "decrease_amount": 484.932271979789
-            },
-            {
-                "brand_name": "edu packcorp #4",
-                "decrease_amount": 478.1461660151915
-            },
-            {
-                "brand_name": "exporticorp #8",
-                "decrease_amount": 476.6932254798744
-            },
-            {
-                "brand_name": "edu packunivamalg #11",
-                "decrease_amount": 469.37981247726
-            },
-            {
-                "brand_name": "scholarunivamalg #10",
-                "decrease_amount": 466.47507273881956
-            },
-            {
-                "brand_name": "univamalgamalg #7",
-                "decrease_amount": 464.32050880961265
-            },
-            {
-                "brand_name": "exportiamalgamalg #4",
-                "decrease_amount": 460.3458978247311
-            },
-            {
-                "brand_name": "importoamalgamalg #1",
-                "decrease_amount": 459.1460637431751
-            },
-            {
-                "brand_name": "importoexporti #2",
-                "decrease_amount": 458.39114800681523
-            },
-            {
-                "brand_name": "maxiunivamalg #2",
-                "decrease_amount": 451.21670398423703
-            },
-            {
-                "brand_name": "corpnameless #2",
-                "decrease_amount": 437.0435442079065
-            },
-            {
-                "brand_name": "exportimaxi #8",
-                "decrease_amount": 432.3651415149984
-            },
-            {
-                "brand_name": "maxicorp #2",
-                "decrease_amount": 431.7046128755637
-            },
-            {
-                "brand_name": "exportiamalgamalg #11",
-                "decrease_amount": 431.033357568361
-            },
-            {
-                "brand_name": "exportiamalgamalg #10",
-                "decrease_amount": 426.10233480816714
-            },
-            {
-                "brand_name": "maxiunivamalg #6",
-                "decrease_amount": 414.62892955330335
-            },
-            {
-                "brand_name": "amalgbrand #2",
-                "decrease_amount": 402.5156601105182
-            },
-            {
-                "brand_name": "importocorp #8",
-                "decrease_amount": 401.89890139559793
-            },
-            {
-                "brand_name": "scholarmaxi #2",
-                "decrease_amount": 399.2687119312902
-            },
-            {
-                "brand_name": "edu packmaxi #8",
-                "decrease_amount": 398.3504971466591
-            },
-            {
-                "brand_name": "scholarcorp #8",
-                "decrease_amount": 396.6160276085923
-            },
-            {
-                "brand_name": "importoamalgamalg #12",
-                "decrease_amount": 395.30626514547794
-            },
-            {
-                "brand_name": "namelessnameless #10",
-                "decrease_amount": 387.05389373392563
-            },
-            {
-                "brand_name": "edu packunivamalg #2",
-                "decrease_amount": 385.71068550234077
-            },
-            {
-                "brand_name": "importoamalgamalg #16",
-                "decrease_amount": 384.6488214489973
-            },
-            {
-                "brand_name": "exportiunivamalg #10",
-                "decrease_amount": 374.2853414588808
-            },
-            {
-                "brand_name": "edu packunivamalg #13",
-                "decrease_amount": 372.8435653078636
-            },
-            {
-                "brand_name": "corpmaxi #6",
-                "decrease_amount": 370.68026913869244
-            },
-            {
-                "brand_name": "scholarmaxi #4",
-                "decrease_amount": 358.92150777730103
-            },
-            {
-                "brand_name": "univnameless #10",
-                "decrease_amount": 358.09591016279205
-            },
-            {
-                "brand_name": "importomaxi #4",
-                "decrease_amount": 356.62787206660096
-            },
-            {
-                "brand_name": "univmaxi #6",
-                "decrease_amount": 349.6129835050922
-            },
-            {
-                "brand_name": "scholarnameless #10",
-                "decrease_amount": 343.5335044028732
-            },
-            {
-                "brand_name": "exportiamalgamalg #9",
-                "decrease_amount": 343.5187649574523
-            },
-            {
-                "brand_name": "maxinameless #4",
-                "decrease_amount": 342.69449390963973
-            },
-            {
-                "brand_name": "edu packbrand #6",
-                "decrease_amount": 340.2639487434426
-            },
-            {
-                "brand_name": "scholarnameless #2",
-                "decrease_amount": 338.2704820138774
-            },
-            {
-                "brand_name": "edu packnameless #4",
-                "decrease_amount": 329.1036750320343
-            },
-            {
-                "brand_name": "brandnameless #10",
-                "decrease_amount": 326.52724447564856
-            },
-            {
-                "brand_name": "corpamalgamalg #11",
-                "decrease_amount": 302.67042117468554
-            },
-            {
-                "brand_name": "exportiamalg #2",
-                "decrease_amount": 299.4960055969857
-            },
-            {
-                "brand_name": "amalgamalgamalg #10",
-                "decrease_amount": 276.9972350006001
-            },
-            {
-                "brand_name": "namelessunivamalg #12",
-                "decrease_amount": 267.15753809943453
-            },
-            {
-                "brand_name": "amalgcorp #4",
-                "decrease_amount": 260.01997997092667
-            },
-            {
-                "brand_name": "importonameless #4",
-                "decrease_amount": 258.5407561974673
-            },
-            {
-                "brand_name": "namelessunivamalg #4",
-                "decrease_amount": 255.36574691242913
-            },
-            {
-                "brand_name": "namelessnameless #6",
-                "decrease_amount": 242.20081376945927
-            },
-            {
-                "brand_name": "importobrand #8",
-                "decrease_amount": 241.58109170647413
-            },
-            {
-                "brand_name": "amalgunivamalg #2",
-                "decrease_amount": 240.1505362237158
-            },
-            {
-                "brand_name": "univamalgamalg #9",
-                "decrease_amount": 233.25876707349562
-            },
-            {
-                "brand_name": "edu packamalgamalg #8",
-                "decrease_amount": 224.1609965481298
-            },
-            {
-                "brand_name": "importounivamalg #2",
-                "decrease_amount": 218.81209161437255
-            },
-            {
-                "brand_name": "brandunivamalg #15",
-                "decrease_amount": 202.1276527134646
-            },
-            {
-                "brand_name": "edu packunivamalg #8",
-                "decrease_amount": 200.38753850841567
-            },
-            {
-                "brand_name": "namelessnameless #4",
-                "decrease_amount": 190.68981191694297
-            },
-            {
-                "brand_name": "edu packmaxi #4",
-                "decrease_amount": 190.1350053748938
-            },
-            {
-                "brand_name": "corpamalgamalg #12",
-                "decrease_amount": 189.17887259814825
-            },
-            {
-                "brand_name": "scholaramalgamalg #1",
-                "decrease_amount": 187.68513886303958
-            },
-            {
-                "brand_name": "importounivamalg #14",
-                "decrease_amount": 187.26033077741386
-            },
-            {
-                "brand_name": "edu packamalgamalg #2",
-                "decrease_amount": 185.94318283392113
-            },
-            {
-                "brand_name": "edu packunivamalg #9",
-                "decrease_amount": 177.9345397581003
-            },
-            {
-                "brand_name": "brandunivamalg #8",
-                "decrease_amount": 174.96225422980228
-            },
-            {
-                "brand_name": "univamalgamalg #3",
-                "decrease_amount": 172.9231398763443
-            },
-            {
-                "brand_name": "brandunivamalg #14",
-                "decrease_amount": 167.60611966981787
-            },
-            {
-                "brand_name": "maxiunivamalg #1",
-                "decrease_amount": 157.4665459687992
-            },
-            {
-                "brand_name": "namelessunivamalg #8",
-                "decrease_amount": 145.27920467100876
-            },
-            {
-                "brand_name": "brandunivamalg #17",
-                "decrease_amount": 144.09249556168402
-            },
-            {
-                "brand_name": "exportiunivamalg #5",
-                "decrease_amount": 140.41546784572142
-            },
-            {
-                "brand_name": "amalgmaxi #10",
-                "decrease_amount": 133.92657747714043
-            },
-            {
-                "brand_name": "namelessmaxi #4",
-                "decrease_amount": 127.87913032375695
-            },
-            {
-                "brand_name": "exportinameless #10",
-                "decrease_amount": 113.76117292717868
-            },
-            {
-                "brand_name": "corpunivamalg #4",
-                "decrease_amount": 112.18872333742956
-            },
-            {
-                "brand_name": "namelessmaxi #10",
-                "decrease_amount": 95.43244990240419
-            },
-            {
-                "brand_name": "brandcorp #2",
-                "decrease_amount": 92.881515248288
-            },
-            {
-                "brand_name": "corpunivamalg #5",
-                "decrease_amount": 80.95473909013708
-            },
-            {
-                "brand_name": "brandcorp #4",
-                "decrease_amount": 80.59554128075206
-            },
-            {
-                "brand_name": "corpunivamalg #6",
-                "decrease_amount": 77.81934953797827
-            },
-            {
-                "brand_name": "amalgamalgamalg #1",
-                "decrease_amount": 73.05571531679061
-            },
-            {
-                "brand_name": "namelessbrand #6",
-                "decrease_amount": 69.78028271682479
-            },
-            {
-                "brand_name": "corpcorp #2",
-                "decrease_amount": 48.42878824186755
-            },
-            {
-                "brand_name": "brandunivamalg #1",
-                "decrease_amount": 43.423786887021606
-            },
-            {
-                "brand_name": "scholaramalgamalg #3",
-                "decrease_amount": 37.86914067330417
-            },
-            {
-                "brand_name": "corpamalgamalg #15",
-                "decrease_amount": 31.72584493276372
-            },
-            {
-                "brand_name": "brandnameless #4",
-                "decrease_amount": 20.465017425503447
-            },
-            {
-                "brand_name": "exportiunivamalg #14",
-                "decrease_amount": 13.024887706175832
-            },
-            {
-                "brand_name": "corpamalgamalg #7",
-                "decrease_amount": 11.499591693085222
-            },
-            {
-                "brand_name": "importoamalgamalg #3",
-                "decrease_amount": 9.149592033000317
-            },
-            {
-                "brand_name": "exportinameless #8",
-                "decrease_amount": -21.656590425958484
-            },
-            {
-                "brand_name": "importoamalgamalg #14",
-                "decrease_amount": -33.49023726165137
-            },
-            {
-                "brand_name": "maxicorp #6",
-                "decrease_amount": -35.396787141293544
-            },
-            {
-                "brand_name": "maxiunivamalg #17",
-                "decrease_amount": -38.149992202400426
-            },
-            {
-                "brand_name": "corpmaxi #2",
-                "decrease_amount": -39.96812912489327
-            },
-            {
-                "brand_name": "amalgamalgamalg #12",
-                "decrease_amount": -45.172508946888
-            },
-            {
-                "brand_name": "scholarunivamalg #2",
-                "decrease_amount": -50.19354507185085
-            },
-            {
-                "brand_name": "corpunivamalg #8",
-                "decrease_amount": -50.52895450250048
-            },
-            {
-                "brand_name": "edu packamalgamalg #16",
-                "decrease_amount": -51.13690131483372
-            },
-            {
-                "brand_name": "amalgunivamalg #5",
-                "decrease_amount": -51.82209020561686
-            },
-            {
-                "brand_name": "scholarunivamalg #4",
-                "decrease_amount": -61.06721717655478
-            },
-            {
-                "brand_name": "maxinameless #8",
-                "decrease_amount": -71.93228357410203
-            },
-            {
-                "brand_name": "exportiamalgamalg #12",
-                "decrease_amount": -72.69321402991397
-            },
-            {
-                "brand_name": "amalgunivamalg #15",
-                "decrease_amount": -85.80225377038164
-            },
-            {
-                "brand_name": "importounivamalg #17",
-                "decrease_amount": -98.6918828659534
-            },
-            {
-                "brand_name": "corpunivamalg #7",
-                "decrease_amount": -104.40754122516319
-            },
-            {
-                "brand_name": "importounivamalg #5",
-                "decrease_amount": -127.75610269025037
-            },
-            {
-                "brand_name": "amalgamalgamalg #8",
-                "decrease_amount": -132.15164594190378
-            },
-            {
-                "brand_name": "scholarunivamalg #8",
-                "decrease_amount": -138.69300627484017
-            },
-            {
-                "brand_name": "edu packnameless #6",
-                "decrease_amount": -148.0489148401059
-            },
-            {
-                "brand_name": "exportiamalgamalg #17",
-                "decrease_amount": -152.6478716797369
-            },
-            {
-                "brand_name": "exportimaxi #2",
-                "decrease_amount": -161.25501865779734
-            },
-            {
-                "brand_name": "exportiunivamalg #2",
-                "decrease_amount": -161.6651427552979
-            },
-            {
-                "brand_name": "corpamalgamalg #5",
-                "decrease_amount": -192.9132907397527
-            },
-            {
-                "brand_name": "maximaxi #10",
-                "decrease_amount": -203.94504267294587
-            },
-            {
-                "brand_name": "corpamalgamalg #14",
-                "decrease_amount": -215.00993455485855
-            },
-            {
-                "brand_name": "namelessunivamalg #7",
-                "decrease_amount": -221.55205204361755
-            },
-            {
-                "brand_name": "brandmaxi #8",
-                "decrease_amount": -223.20595828628393
-            },
-            {
-                "brand_name": "maxiunivamalg #3",
-                "decrease_amount": -223.40559638002878
-            },
-            {
-                "brand_name": "corpamalgamalg #9",
-                "decrease_amount": -229.4538651329733
-            },
-            {
-                "brand_name": "exportiunivamalg #13",
-                "decrease_amount": -232.6973151858142
-            },
-            {
-                "brand_name": "exportiunivamalg #8",
-                "decrease_amount": -254.7492304246682
-            },
-            {
-                "brand_name": "corpamalgamalg #1",
-                "decrease_amount": -291.19881058943497
-            },
-            {
-                "brand_name": "importounivamalg #8",
-                "decrease_amount": -291.27136668962703
-            },
-            {
-                "brand_name": "scholarunivamalg #13",
-                "decrease_amount": -298.53966191249856
-            },
-            {
-                "brand_name": "amalgamalgamalg #9",
-                "decrease_amount": -301.69731743757416
-            },
-            {
-                "brand_name": "univamalgamalg #17",
-                "decrease_amount": -309.94967128105236
-            },
-            {
-                "brand_name": "amalgcorp #8",
-                "decrease_amount": -321.845463008098
-            },
-            {
-                "brand_name": "brandunivamalg #13",
-                "decrease_amount": -325.3753270497275
-            },
-            {
-                "brand_name": "maximaxi #8",
-                "decrease_amount": -326.64585900557563
-            },
-            {
-                "brand_name": "maxiunivamalg #13",
-                "decrease_amount": -354.5010306890197
-            },
-            {
-                "brand_name": "corpunivamalg #11",
-                "decrease_amount": -355.78709299940783
-            },
-            {
-                "brand_name": "univunivamalg #2",
-                "decrease_amount": -356.919575906873
-            },
-            {
-                "brand_name": "corpamalgamalg #3",
-                "decrease_amount": -381.20912144463705
-            },
-            {
-                "brand_name": "univamalgamalg #6",
-                "decrease_amount": -381.37665030860126
-            },
-            {
-                "brand_name": "edu packcorp #8",
-                "decrease_amount": -384.86862384296774
-            },
-            {
-                "brand_name": "univmaxi #10",
-                "decrease_amount": -438.4427758987738
-            },
-            {
-                "brand_name": "edu packunivamalg #3",
-                "decrease_amount": -449.0374421815045
-            },
-            {
-                "brand_name": "namelessunivamalg #16",
-                "decrease_amount": -458.79332140764564
-            },
-            {
-                "brand_name": "corpbrand #2",
-                "decrease_amount": -458.7991903850457
-            },
-            {
-                "brand_name": "brandnameless #6",
-                "decrease_amount": -460.13275439302515
-            },
-            {
-                "brand_name": "brandbrand #10",
-                "decrease_amount": -464.7066862811314
-            },
-            {
-                "brand_name": "amalgunivamalg #8",
-                "decrease_amount": -491.0709958552284
-            },
-            {
-                "brand_name": "edu packamalgamalg #17",
-                "decrease_amount": -501.88878340344604
-            },
-            {
-                "brand_name": "namelessmaxi #2",
-                "decrease_amount": -512.0550318718904
-            },
-            {
-                "brand_name": "amalgamalgamalg #11",
-                "decrease_amount": -514.3008668772377
-            },
-            {
-                "brand_name": "brandmaxi #2",
-                "decrease_amount": -544.5462685513403
-            },
-            {
-                "brand_name": "maxibrand #6",
-                "decrease_amount": -545.3639108905218
-            },
-            {
-                "brand_name": "brandunivamalg #2",
-                "decrease_amount": -558.9709146336411
-            },
-            {
-                "brand_name": "namelessunivamalg #9",
-                "decrease_amount": -594.0460262303691
-            },
-            {
-                "brand_name": "amalgamalgamalg #16",
-                "decrease_amount": -603.8613123600774
-            },
-            {
-                "brand_name": "maxibrand #2",
-                "decrease_amount": -605.1087666777576
-            },
-            {
-                "brand_name": "importoamalgamalg #11",
-                "decrease_amount": -614.1978960612655
-            },
-            {
-                "brand_name": "namelessunivamalg #17",
-                "decrease_amount": -633.0357315842037
-            },
-            {
-                "brand_name": "univunivamalg #8",
-                "decrease_amount": -634.4734957290984
-            },
-            {
-                "brand_name": "corpmaxi #10",
-                "decrease_amount": -635.3455452849339
-            },
-            {
-                "brand_name": "brandunivamalg #4",
-                "decrease_amount": -659.0421812927389
-            },
-            {
-                "brand_name": "amalgamalgamalg #4",
-                "decrease_amount": -679.5311337804653
-            },
-            {
-                "brand_name": "amalgamalgamalg #14",
-                "decrease_amount": -688.9895664423184
-            },
-            {
-                "brand_name": "exportiamalgamalg #8",
-                "decrease_amount": -692.9650289670137
-            },
-            {
-                "brand_name": "edu packamalgamalg #5",
-                "decrease_amount": -730.1316148828319
-            },
-            {
-                "brand_name": "brandmaxi #4",
-                "decrease_amount": -750.3630612029197
-            },
-            {
-                "brand_name": "namelessunivamalg #6",
-                "decrease_amount": -772.4546796005527
-            },
-            {
-                "brand_name": "scholarunivamalg #14",
-                "decrease_amount": -791.9158038562862
-            },
-            {
-                "brand_name": "maxiunivamalg #8",
-                "decrease_amount": -808.5953289795912
-            },
-            {
-                "brand_name": "importounivamalg #15",
-                "decrease_amount": -820.9567230707785
-            },
-            {
-                "brand_name": "brandunivamalg #7",
-                "decrease_amount": -822.8736748374283
-            },
-            {
-                "brand_name": "exportiamalgamalg #1",
-                "decrease_amount": -823.1938120883899
-            },
-            {
-                "brand_name": "importounivamalg #9",
-                "decrease_amount": -846.8810649650891
-            },
-            {
-                "brand_name": "scholaramalgamalg #12",
-                "decrease_amount": -872.7865495358603
-            },
-            {
-                "brand_name": "namelessunivamalg #1",
-                "decrease_amount": -885.802956122257
-            },
-            {
-                "brand_name": "amalgunivamalg #7",
-                "decrease_amount": -918.4182546628094
-            },
-            {
-                "brand_name": "edu packunivamalg #14",
-                "decrease_amount": -947.5140150790876
-            },
-            {
-                "brand_name": "scholaramalgamalg #6",
-                "decrease_amount": -953.6961363206105
-            },
-            {
-                "brand_name": "scholarunivamalg #7",
-                "decrease_amount": -960.1099156019798
-            },
-            {
-                "brand_name": "maxiunivamalg #15",
-                "decrease_amount": -972.876831308891
-            },
-            {
-                "brand_name": "scholarunivamalg #1",
-                "decrease_amount": -980.1030413846456
-            },
-            {
-                "brand_name": "scholaramalgamalg #8",
-                "decrease_amount": -996.6868994509432
-            },
-            {
-                "brand_name": "corpunivamalg #3",
-                "decrease_amount": -1001.2837027723808
-            },
-            {
-                "brand_name": "scholaramalgamalg #17",
-                "decrease_amount": -1007.5149431330226
-            },
-            {
-                "brand_name": "edu packbrand #10",
-                "decrease_amount": -1026.4102541845132
-            },
-            {
-                "brand_name": "exportiamalgamalg #3",
-                "decrease_amount": -1040.2222581518663
-            },
-            {
-                "brand_name": "edu packamalgamalg #9",
-                "decrease_amount": -1046.900569555322
-            },
-            {
-                "brand_name": "brandunivamalg #10",
-                "decrease_amount": -1066.8116791027687
-            },
-            {
-                "brand_name": "namelessunivamalg #15",
-                "decrease_amount": -1067.5743522040032
-            },
-            {
-                "brand_name": "importoamalgamalg #7",
-                "decrease_amount": -1072.8889973420478
-            },
-            {
-                "brand_name": "exportiamalgamalg #15",
-                "decrease_amount": -1075.9048926404835
-            },
-            {
-                "brand_name": "corpamalgamalg #13",
-                "decrease_amount": -1079.2992113062028
-            },
-            {
-                "brand_name": "scholarunivamalg #15",
-                "decrease_amount": -1080.6236378574336
-            },
-            {
-                "brand_name": "univamalgamalg #4",
-                "decrease_amount": -1094.5605206963442
-            },
-            {
-                "brand_name": "importounivamalg #11",
-                "decrease_amount": -1108.2255803729545
-            },
-            {
-                "brand_name": "corpunivamalg #15",
-                "decrease_amount": -1327.9294662002094
-            },
-            {
-                "brand_name": "brandunivamalg #9",
-                "decrease_amount": -1378.6421107102765
-            },
-            {
-                "brand_name": "exportiunivamalg #9",
-                "decrease_amount": -1400.9142793568194
-            },
-            {
-                "brand_name": "exportiamalgamalg #2",
-                "decrease_amount": -1433.1033766643154
-            },
-            {
-                "brand_name": "importounivamalg #16",
-                "decrease_amount": -1443.3346332636333
-            },
-            {
-                "brand_name": "namelessunivamalg #10",
-                "decrease_amount": -1491.807288510267
-            },
-            {
-                "brand_name": "amalgunivamalg #1",
-                "decrease_amount": -1493.136916756329
-            },
-            {
-                "brand_name": "scholarunivamalg #9",
-                "decrease_amount": -1537.9453091202088
-            },
-            {
-                "brand_name": "edu packamalgamalg #7",
-                "decrease_amount": -1612.8661677174068
-            },
-            {
-                "brand_name": "exportiunivamalg #1",
-                "decrease_amount": -1855.0299353596279
-            },
-            {
-                "brand_name": "edu packamalgamalg #15",
-                "decrease_amount": -1859.7174033420154
-            },
-            {
-                "brand_name": "exportiunivamalg #7",
-                "decrease_amount": -1969.3647159028926
-            },
-            {
-                "brand_name": "exportiunivamalg #15",
-                "decrease_amount": -1983.1535425429513
-            },
-            {
-                "brand_name": "corpunivamalg #9",
-                "decrease_amount": -2044.5562324483385
-            },
-            {
-                "brand_name": "exportiamalgamalg #16",
-                "decrease_amount": -2045.3907216731975
-            },
-            {
-                "brand_name": "exportiamalgamalg #7",
-                "decrease_amount": -2077.981253740605
-            },
-            {
-                "brand_name": "scholarunivamalg #11",
-                "decrease_amount": -2139.07364406493
-            },
-            {
-                "brand_name": "amalgunivamalg #9",
-                "decrease_amount": -2190.266698288934
-            },
-            {
-                "brand_name": "importounivamalg #3",
-                "decrease_amount": -2232.707755503466
-            },
-            {
-                "brand_name": "importoamalgamalg #4",
-                "decrease_amount": -2539.5630065287596
-            },
-            {
-                "brand_name": "scholaramalgamalg #10",
-                "decrease_amount": -2545.1196059899935
-            },
-            {
-                "brand_name": "namelessunivamalg #14",
-                "decrease_amount": -2556.6424649198943
-            },
-            {
-                "brand_name": "univamalgamalg #8",
-                "decrease_amount": -2836.3672031234482
-            },
-            {
-                "brand_name": "amalgunivamalg #16",
-                "decrease_amount": -2925.3349747359625
-            },
-            {
-                "brand_name": "exportiamalgamalg #14",
-                "decrease_amount": -3019.1479233868813
-            },
-            {
-                "brand_name": "corpunivamalg #1",
-                "decrease_amount": -3035.5772605246084
-            },
-            {
-                "brand_name": "corpamalgamalg #4",
-                "decrease_amount": -3052.5207988999773
-            },
-            {
-                "brand_name": "exportiamalgamalg #5",
-                "decrease_amount": -3054.1492281298342
-            },
-            {
-                "brand_name": "maxiunivamalg #9",
-                "decrease_amount": -3098.5010167996916
-            },
-            {
-                "brand_name": "scholarunivamalg #3",
-                "decrease_amount": -3341.2748354708474
-            },
-            {
-                "brand_name": "amalgamalgamalg #13",
-                "decrease_amount": -3347.345614865021
-            },
-            {
-                "brand_name": "corpunivamalg #14",
-                "decrease_amount": -3359.755073305585
-            },
-            {
-                "brand_name": "exportiunivamalg #3",
-                "decrease_amount": -3756.7453675082515
-            },
-            {
-                "brand_name": "edu packunivamalg #17",
-                "decrease_amount": -3998.7267150855855
-            },
-            {
-                "brand_name": "importounivamalg #7",
-                "decrease_amount": -4325.234862058875
-            },
-            {
-                "brand_name": "scholarunivamalg #5",
-                "decrease_amount": -4372.664372982263
-            },
-            {
-                "brand_name": "importounivamalg #1",
-                "decrease_amount": -4380.314585240016
-            },
-            {
-                "brand_name": "edu packamalgamalg #14",
-                "decrease_amount": -4798.498034008084
-            },
-            {
-                "brand_name": "amalgamalgamalg #6",
-                "decrease_amount": -5819.881812519092
-            },
-            {
-                "brand_name": "corpunivamalg #17",
-                "decrease_amount": -7147.9137104133515
-            },
-            {
-                "brand_name": "corpunivamalg #16",
-                "decrease_amount": -7521.073457922947
-            },
-            {
-                "brand_name": "maxiunivamalg #4",
-                "decrease_amount": -7907.452163214796
-            },
-            {
-                "brand_name": "amalgamalgamalg #5",
-                "decrease_amount": -8150.846357324966
-            },
-            {
-                "brand_name": "namelessunivamalg #2",
-                "decrease_amount": -10282.02177340578
-            },
-            {
-                "brand_name": "scholaramalgamalg #16",
-                "decrease_amount": -21024.121433402037
-            }
-        ],
-        "result_count": 485,
-        "error_details": null
-    },
-    {
-        "model": "qwen3.5-4b",
-        "SF": 1,
-        "timestamp": "20260324_230255",
-        "nbr": 19,
-        "question": "For each item class and customer preferred flag (Y or N), show the average net sales per sales transaction (net sales divided by the number of distinct sales ticket numbers). Exclude rows where item class is NULL or preferred flag is NULL. Order by average net sales descending, then by item class alphabetically.",
-        "duration_s": 60.27,
-        "sql_query": "Error connecting to llama.cpp server at http://127.0.0.1:8080/v1/chat/completions: HTTPConnectionPool(host='127.0.0.1', port=8080): Read timed out. (read timeout=60)",
-        "attempts": null,
-        "feedback_iterations": 0,
-        "result": [],
-        "result_count": 0,
-        "error_details": "AI Error: Error connecting to llama.cpp server at http://127.0.0.1:8080/v1/chat/completions: HTTPConnectionPool(host='127.0.0.1', port=8080): Read timed out. (read timeout=60)"
-    },
-    {
-        "model": "qwen3.5-4b",
-        "SF": 1,
-        "timestamp": "20260324_230255",
-        "nbr": 20,
-        "question": "For each store, show the store name, its net sales, the overall average net sales across all stores, and the percentage calculated as (store net sales / average net sales) * 100. Order by percentage descending, then by store name alphabetically for ties.",
-        "duration_s": 110.34,
-        "sql_query": "WITH store_sales AS (\n    SELECT s.s_store_name,\n           SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store AS s\n    JOIN store_sales AS ss ON s.s_store_sk = ss.ss_store_sk\n    GROUP BY s.s_store_name\n),\nstore_returns AS (\n    SELECT s.s_store_name,\n           SUM(sr.sr_return_amt) AS total_returns\n    FROM store AS s\n    JOIN store_returns AS sr ON s.s_store_sk = sr.sr_store_sk\n    GROUP BY s.s_store_name\n),\nstore_net_sales AS (\n    SELECT COALESCE(ss.s_store_name, sr.s_store_name) AS store_name,\n           COALESCE(ss.total_sales, 0) - COALESCE(sr.total_returns, 0) AS net_sales\n    FROM store_sales AS ss\n    FULL OUTER JOIN store_returns AS sr ON ss.s_store_name = sr.s_store_name\n),\navg_net_sales AS (\n    SELECT AVG(net_sales) AS avg_value\n    FROM store_net_sales\n    WHERE net_sales IS NOT NULL\n)\nSELECT sn.store_name,\n       sn.net_sales,\n       avg_avg.avg_value AS average_net_sales,\n       (sn.net_sales / NULLIF(avg_avg.avg_value, 0)) * 100 AS percentage\nFROM store_net_sales AS sn\nCROSS JOIN avg_net_sales AS avg_avg\nORDER BY percentage DESC, sn.store_name ASC;",
-        "attempts": 1,
-        "feedback_iterations": 0,
-        "result": [
-            {
-                "store_name": "bar",
-                "net_sales": 804421054.86,
-                "average_net_sales": 801832854.4933333,
-                "percentage": 100.32278552221487
-            },
-            {
-                "store_name": "eing",
-                "net_sales": 802802848.75,
-                "average_net_sales": 801832854.4933333,
-                "percentage": 100.12097212670083
-            },
-            {
-                "store_name": "ese",
-                "net_sales": 802346690.31,
-                "average_net_sales": 801832854.4933333,
-                "percentage": 100.06408265934567
-            },
             {
                 "store_name": "able",
-                "net_sales": 801418584.81,
-                "average_net_sales": 801832854.4933333,
-                "percentage": 99.9483346584002
+                "net_sales_2001": 160125983.66,
+                "net_sales_2002": 163771811.19,
+                "percentage_change": 2.28
             },
             {
                 "store_name": "ation",
-                "net_sales": 800752820.38,
-                "average_net_sales": 801832854.4933333,
-                "percentage": 99.86530433278195
+                "net_sales_2001": 161010702.09,
+                "net_sales_2002": 157486097.93,
+                "percentage_change": -2.19
+            },
+            {
+                "store_name": "bar",
+                "net_sales_2001": 159392713.46,
+                "net_sales_2002": 162779737.76,
+                "percentage_change": 2.12
+            },
+            {
+                "store_name": "eing",
+                "net_sales_2001": 162588446.16,
+                "net_sales_2002": 162066408.94,
+                "percentage_change": -0.32
+            },
+            {
+                "store_name": "ese",
+                "net_sales_2001": 161253964.95,
+                "net_sales_2002": 162476919.01,
+                "percentage_change": 0.76
             },
             {
                 "store_name": "ought",
-                "net_sales": 799255127.85,
-                "average_net_sales": 801832854.4933333,
-                "percentage": 99.67852070055646
+                "net_sales_2001": 158043102.15,
+                "net_sales_2002": 160378934.64,
+                "percentage_change": 1.48
             }
         ],
         "result_count": 6,
         "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260329_225104",
+        "nbr": 18,
+        "question": "What is the return rate for items sold on weekends (d_weekend = 'Y') versus weekdays (d_weekend = 'N'), broken down by customer age group? Use these age groups based on (d_year - c_birth_year): '< 20', '20-29', '30-39', '40-49', '50-59', '60+'. Show age group, weekend flag, and return rate. Order by age group, then by weekend flag.",
+        "duration_s": 145.37,
+        "completion_tokens": 4413,
+        "generation_s": 140.02,
+        "tokens_per_s": 31.5,
+        "sql_query": "WITH sales_agg AS (\n    SELECT \n        CASE \n            WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n            WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'\n        END AS age_group,\n        d.d_weekend,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_sk\n    WHERE d.d_weekend IN ('Y', 'N')\n      AND d.d_year BETWEEN 1998 AND 2003\n      AND c.c_birth_year IS NOT NULL\n      AND d.d_weekend IS NOT NULL\n    GROUP BY \n        CASE \n            WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n            WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'\n        END,\n        d.d_weekend\n),\nreturns_agg AS (\n    SELECT \n        CASE \n            WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n            WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'\n        END AS age_group,\n        d.d_weekend,\n        SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    JOIN customer AS c ON sr.sr_customer_sk = c.c_customer_sk\n    WHERE d.d_weekend IN ('Y', 'N')\n      AND d.d_year BETWEEN 1998 AND 2003\n      AND c.c_birth_year IS NOT NULL\n      AND d.d_weekend IS NOT NULL\n    GROUP BY \n        CASE \n            WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n            WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'\n        END,\n        d.d_weekend\n)\nSELECT \n    COALESCE(sa.age_group, ra.age_group) AS age_group,\n    COALESCE(sa.d_weekend, ra.d_weekend) AS weekend_flag,\n    (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_agg AS sa \nFULL OUTER JOIN returns_agg AS ra ON sa.age_group = ra.age_group AND sa.d_weekend = ra.d_weekend\nORDER BY sa.age_group, sa.d_weekend;",
+        "attempts": 4,
+        "feedback_iterations": 3,
+        "result": [
+            {
+                "age_group": "20-29",
+                "weekend_flag": "N",
+                "return_rate": 5.1770899868034
+            },
+            {
+                "age_group": "20-29",
+                "weekend_flag": "Y",
+                "return_rate": 5.45234697965128
+            },
+            {
+                "age_group": "30-39",
+                "weekend_flag": "N",
+                "return_rate": 5.271531421379365
+            },
+            {
+                "age_group": "30-39",
+                "weekend_flag": "Y",
+                "return_rate": 5.293287222520307
+            },
+            {
+                "age_group": "40-49",
+                "weekend_flag": "N",
+                "return_rate": 5.224185002922424
+            },
+            {
+                "age_group": "40-49",
+                "weekend_flag": "Y",
+                "return_rate": 5.154697458358448
+            },
+            {
+                "age_group": "50-59",
+                "weekend_flag": "N",
+                "return_rate": 5.242373956536235
+            },
+            {
+                "age_group": "50-59",
+                "weekend_flag": "Y",
+                "return_rate": 5.258758786041589
+            },
+            {
+                "age_group": "60+",
+                "weekend_flag": "N",
+                "return_rate": 5.342442143632496
+            },
+            {
+                "age_group": "60+",
+                "weekend_flag": "Y",
+                "return_rate": 5.264606377218903
+            },
+            {
+                "age_group": "< 20",
+                "weekend_flag": "N",
+                "return_rate": 5.027449475892041
+            },
+            {
+                "age_group": "< 20",
+                "weekend_flag": "Y",
+                "return_rate": 5.035602302291778
+            }
+        ],
+        "result_count": 12,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260329_225104",
+        "nbr": 19,
+        "question": "Which item brands had a decrease in return rate from 2001 to 2002 for stores in the 'TN' state? Show the brand name and decrease amount (2001 rate minus 2002 rate). Return rates are expressed as percentages. Only include brands where the return rate decreased (positive difference). Order by decrease descending, then by brand name alphabetically.",
+        "duration_s": 120.33,
+        "completion_tokens": 3545,
+        "generation_s": 116.35,
+        "tokens_per_s": 30.5,
+        "sql_query": "/* Which item brands had a decrease in return rate from 2001 to 2002 for stores in the 'TN' state? */\n\nWITH sales_2001 AS (\n    SELECT i.i_brand, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    WHERE i.i_brand IS NOT NULL\n      AND d.d_year = 2001\n      AND s.s_state = 'TN'\n    GROUP BY i.i_brand\n),\nsales_2002 AS (\n    SELECT i.i_brand, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    WHERE i.i_brand IS NOT NULL\n      AND d.d_year = 2002\n      AND s.s_state = 'TN'\n    GROUP BY i.i_brand\n),\nreturns_2001 AS (\n    SELECT i.i_brand, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    WHERE i.i_brand IS NOT NULL\n      AND d.d_year = 2001\n      AND s.s_state = 'TN'\n    GROUP BY i.i_brand\n),\nreturns_2002 AS (\n    SELECT i.i_brand, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    WHERE i.i_brand IS NOT NULL\n      AND d.d_year = 2002\n      AND s.s_state = 'TN'\n    GROUP BY i.i_brand\n)\nSELECT COALESCE(s2001.i_brand, r2002.i_brand) AS brand_name,\n       (COALESCE(r2001.total_returns, 0) / NULLIF(COALESCE(s2001.total_sales, 0), 0)) * 100 -\n       (COALESCE(r2002.total_returns, 0) / NULLIF(COALESCE(s2002.total_sales, 0), 0)) * 100 AS decrease_amount\nFROM sales_2001 AS s2001\nFULL OUTER JOIN returns_2001 AS r2001 ON s2001.i_brand = r2001.i_brand\nFULL OUTER JOIN sales_2002 AS s2002 ON s2001.i_brand = s2002.i_brand\nFULL OUTER JOIN returns_2002 AS r2002 ON s2001.i_brand = r2002.i_brand\nWHERE (COALESCE(r2001.total_returns, 0) / NULLIF(COALESCE(s2001.total_sales, 0), 0)) * 100 -\n      (COALESCE(r2002.total_returns, 0) / NULLIF(COALESCE(s2002.total_sales, 0), 0)) * 100 > 0\nORDER BY decrease_amount DESC, COALESCE(s2001.i_brand, r2002.i_brand) ASC;",
+        "attempts": 4,
+        "feedback_iterations": 3,
+        "result": [
+            {
+                "brand_name": "exportiunivamalg #9",
+                "decrease_amount": 20.812102063998637
+            },
+            {
+                "brand_name": "corpunivamalg #3",
+                "decrease_amount": 15.805713594837107
+            },
+            {
+                "brand_name": "amalgamalgamalg #5",
+                "decrease_amount": 15.58653361436832
+            },
+            {
+                "brand_name": "maxiunivamalg #9",
+                "decrease_amount": 15.579875627758538
+            },
+            {
+                "brand_name": "edu packunivamalg #17",
+                "decrease_amount": 15.02297403829667
+            },
+            {
+                "brand_name": "scholarunivamalg #3",
+                "decrease_amount": 13.2957787452211
+            },
+            {
+                "brand_name": "importounivamalg #3",
+                "decrease_amount": 11.324015991102442
+            },
+            {
+                "brand_name": "scholarunivamalg #5",
+                "decrease_amount": 10.909733737809583
+            },
+            {
+                "brand_name": "corpunivamalg #9",
+                "decrease_amount": 10.795662005975156
+            },
+            {
+                "brand_name": "exportiamalgamalg #15",
+                "decrease_amount": 9.694591328652796
+            },
+            {
+                "brand_name": "maxiunivamalg #4",
+                "decrease_amount": 9.219588018467615
+            },
+            {
+                "brand_name": "amalgunivamalg #9",
+                "decrease_amount": 9.213211293748092
+            },
+            {
+                "brand_name": "namelessunivamalg #15",
+                "decrease_amount": 8.998419589131167
+            },
+            {
+                "brand_name": "univamalgamalg #4",
+                "decrease_amount": 7.868831503858212
+            },
+            {
+                "brand_name": "edu packamalgamalg #15",
+                "decrease_amount": 7.781468549990938
+            },
+            {
+                "brand_name": "corpunivamalg #16",
+                "decrease_amount": 7.7698543801221
+            },
+            {
+                "brand_name": "corpamalgamalg #4",
+                "decrease_amount": 7.4906561962499545
+            },
+            {
+                "brand_name": "exportiunivamalg #7",
+                "decrease_amount": 7.3429090615600465
+            },
+            {
+                "brand_name": "edu packamalgamalg #14",
+                "decrease_amount": 7.160680700289381
+            },
+            {
+                "brand_name": "corpunivamalg #15",
+                "decrease_amount": 7.042238065513871
+            },
+            {
+                "brand_name": "scholaramalgamalg #16",
+                "decrease_amount": 6.759631755860707
+            },
+            {
+                "brand_name": "importounivamalg #7",
+                "decrease_amount": 6.735066902945964
+            },
+            {
+                "brand_name": "corpunivamalg #1",
+                "decrease_amount": 6.6154366615066085
+            },
+            {
+                "brand_name": "importounivamalg #1",
+                "decrease_amount": 6.522259225845903
+            },
+            {
+                "brand_name": "scholaramalgamalg #10",
+                "decrease_amount": 6.513445810803859
+            },
+            {
+                "brand_name": "namelessunivamalg #14",
+                "decrease_amount": 6.500647518599335
+            },
+            {
+                "brand_name": "amalgunivamalg #16",
+                "decrease_amount": 6.049883088267375
+            },
+            {
+                "brand_name": "namelessunivamalg #17",
+                "decrease_amount": 5.635974395956432
+            },
+            {
+                "brand_name": "exportiamalgamalg #16",
+                "decrease_amount": 4.965397900022033
+            },
+            {
+                "brand_name": "corpunivamalg #14",
+                "decrease_amount": 4.9058361103100125
+            },
+            {
+                "brand_name": "scholaramalgamalg #12",
+                "decrease_amount": 4.890457139612909
+            },
+            {
+                "brand_name": "corpunivamalg #17",
+                "decrease_amount": 4.803796576989611
+            },
+            {
+                "brand_name": "importoamalgamalg #4",
+                "decrease_amount": 4.679855963617097
+            },
+            {
+                "brand_name": "exportiamalgamalg #5",
+                "decrease_amount": 4.57021812198453
+            },
+            {
+                "brand_name": "importounivamalg #11",
+                "decrease_amount": 4.519262798721994
+            },
+            {
+                "brand_name": "exportiamalgamalg #14",
+                "decrease_amount": 4.464372109176889
+            },
+            {
+                "brand_name": "exportiunivamalg #15",
+                "decrease_amount": 4.3684221260067
+            },
+            {
+                "brand_name": "scholaramalgamalg #8",
+                "decrease_amount": 4.260712343129509
+            },
+            {
+                "brand_name": "edu packamalgamalg #9",
+                "decrease_amount": 4.214949373332641
+            },
+            {
+                "brand_name": "exportiamalgamalg #7",
+                "decrease_amount": 4.201409242533937
+            },
+            {
+                "brand_name": "scholarunivamalg #14",
+                "decrease_amount": 4.02622590016384
+            },
+            {
+                "brand_name": "amalgamalgamalg #6",
+                "decrease_amount": 3.935392302170094
+            },
+            {
+                "brand_name": "scholarunivamalg #11",
+                "decrease_amount": 3.9076016156808033
+            },
+            {
+                "brand_name": "scholaramalgamalg #17",
+                "decrease_amount": 3.771744415934788
+            },
+            {
+                "brand_name": "brandunivamalg #7",
+                "decrease_amount": 3.5359891920463733
+            },
+            {
+                "brand_name": "exportiamalgamalg #2",
+                "decrease_amount": 3.358003428927045
+            },
+            {
+                "brand_name": "edu packunivamalg #14",
+                "decrease_amount": 3.3257335168019404
+            },
+            {
+                "brand_name": "namelessunivamalg #2",
+                "decrease_amount": 3.273688403488785
+            },
+            {
+                "brand_name": "amalgunivamalg #1",
+                "decrease_amount": 3.160059234321197
+            },
+            {
+                "brand_name": "importoamalgamalg #7",
+                "decrease_amount": 3.1498114692288617
+            },
+            {
+                "brand_name": "scholaramalgamalg #6",
+                "decrease_amount": 3.128177367376928
+            },
+            {
+                "brand_name": "exportiunivamalg #3",
+                "decrease_amount": 3.0665823265148626
+            },
+            {
+                "brand_name": "importounivamalg #16",
+                "decrease_amount": 2.997843471466497
+            },
+            {
+                "brand_name": "namelessunivamalg #6",
+                "decrease_amount": 2.9786240462632705
+            },
+            {
+                "brand_name": "scholarunivamalg #9",
+                "decrease_amount": 2.8690513279791054
+            },
+            {
+                "brand_name": "maxiunivamalg #8",
+                "decrease_amount": 2.5829114829438202
+            },
+            {
+                "brand_name": "namelessunivamalg #1",
+                "decrease_amount": 2.5566166761070273
+            },
+            {
+                "brand_name": "amalgamalgamalg #13",
+                "decrease_amount": 2.4489895110208906
+            },
+            {
+                "brand_name": "scholarunivamalg #1",
+                "decrease_amount": 2.3754063205099434
+            },
+            {
+                "brand_name": "scholarunivamalg #7",
+                "decrease_amount": 2.3689992426282527
+            },
+            {
+                "brand_name": "importoamalgamalg #11",
+                "decrease_amount": 2.210501983476301
+            },
+            {
+                "brand_name": "univamalgamalg #8",
+                "decrease_amount": 2.1898105540774297
+            },
+            {
+                "brand_name": "univunivamalg #8",
+                "decrease_amount": 2.1752627239092126
+            },
+            {
+                "brand_name": "maxiunivamalg #15",
+                "decrease_amount": 2.151375803048371
+            },
+            {
+                "brand_name": "edu packamalgamalg #5",
+                "decrease_amount": 2.1487322785039966
+            },
+            {
+                "brand_name": "univamalgamalg #17",
+                "decrease_amount": 2.0171441069018634
+            },
+            {
+                "brand_name": "brandunivamalg #13",
+                "decrease_amount": 2.00789411566077
+            },
+            {
+                "brand_name": "amalgamalgamalg #4",
+                "decrease_amount": 1.971648182253575
+            },
+            {
+                "brand_name": "edu packunivamalg #3",
+                "decrease_amount": 1.8944737560241292
+            },
+            {
+                "brand_name": "exportiamalgamalg #1",
+                "decrease_amount": 1.8885113754786578
+            },
+            {
+                "brand_name": "edu packamalgamalg #7",
+                "decrease_amount": 1.8793263539595135
+            },
+            {
+                "brand_name": "corpamalgamalg #13",
+                "decrease_amount": 1.8276349628249595
+            },
+            {
+                "brand_name": "exportiamalgamalg #3",
+                "decrease_amount": 1.7802343975470691
+            },
+            {
+                "brand_name": "exportiunivamalg #1",
+                "decrease_amount": 1.7786551607144756
+            },
+            {
+                "brand_name": "edu packbrand #10",
+                "decrease_amount": 1.7090692386289827
+            },
+            {
+                "brand_name": "namelessunivamalg #10",
+                "decrease_amount": 1.6133617516292729
+            },
+            {
+                "brand_name": "maxibrand #2",
+                "decrease_amount": 1.6021005050618005
+            },
+            {
+                "brand_name": "scholarunivamalg #13",
+                "decrease_amount": 1.569973352102303
+            },
+            {
+                "brand_name": "brandmaxi #2",
+                "decrease_amount": 1.5684131493224394
+            },
+            {
+                "brand_name": "amalgamalgamalg #14",
+                "decrease_amount": 1.5633541511071698
+            },
+            {
+                "brand_name": "importounivamalg #15",
+                "decrease_amount": 1.5529627904819594
+            },
+            {
+                "brand_name": "edu packamalgamalg #17",
+                "decrease_amount": 1.5162173247944715
+            },
+            {
+                "brand_name": "importounivamalg #9",
+                "decrease_amount": 1.5119658529977107
+            },
+            {
+                "brand_name": "maxibrand #6",
+                "decrease_amount": 1.4988794664054383
+            },
+            {
+                "brand_name": "maxiunivamalg #3",
+                "decrease_amount": 1.4731792428020496
+            },
+            {
+                "brand_name": "amalgcorp #8",
+                "decrease_amount": 1.4655037387196455
+            },
+            {
+                "brand_name": "exportiamalgamalg #8",
+                "decrease_amount": 1.4480602742259747
+            },
+            {
+                "brand_name": "maximaxi #8",
+                "decrease_amount": 1.4374148826723268
+            },
+            {
+                "brand_name": "namelessmaxi #2",
+                "decrease_amount": 1.4032177735600921
+            },
+            {
+                "brand_name": "corpamalgamalg #9",
+                "decrease_amount": 1.391003764628108
+            },
+            {
+                "brand_name": "scholarunivamalg #15",
+                "decrease_amount": 1.37602715346146
+            },
+            {
+                "brand_name": "amalgamalgamalg #16",
+                "decrease_amount": 1.3644621539145092
+            },
+            {
+                "brand_name": "corpamalgamalg #3",
+                "decrease_amount": 1.353032216792589
+            },
+            {
+                "brand_name": "brandunivamalg #10",
+                "decrease_amount": 1.3467675433133848
+            },
+            {
+                "brand_name": "corpamalgamalg #1",
+                "decrease_amount": 1.3275222543614813
+            },
+            {
+                "brand_name": "brandmaxi #4",
+                "decrease_amount": 1.2748366973677223
+            },
+            {
+                "brand_name": "brandunivamalg #2",
+                "decrease_amount": 1.2590481484200984
+            },
+            {
+                "brand_name": "brandunivamalg #9",
+                "decrease_amount": 1.2386724941696285
+            },
+            {
+                "brand_name": "corpmaxi #10",
+                "decrease_amount": 1.1624692792316873
+            },
+            {
+                "brand_name": "brandnameless #6",
+                "decrease_amount": 1.1408290146925717
+            },
+            {
+                "brand_name": "exportiunivamalg #13",
+                "decrease_amount": 1.0908093742584555
+            },
+            {
+                "brand_name": "namelessunivamalg #9",
+                "decrease_amount": 1.0807672250379494
+            },
+            {
+                "brand_name": "univamalgamalg #6",
+                "decrease_amount": 1.0540728364652265
+            },
+            {
+                "brand_name": "exportiunivamalg #8",
+                "decrease_amount": 1.049813630139293
+            },
+            {
+                "brand_name": "univmaxi #10",
+                "decrease_amount": 1.0448180723263132
+            },
+            {
+                "brand_name": "brandunivamalg #4",
+                "decrease_amount": 1.0432631162542814
+            },
+            {
+                "brand_name": "amalgunivamalg #7",
+                "decrease_amount": 1.0114499658646223
+            },
+            {
+                "brand_name": "brandbrand #10",
+                "decrease_amount": 0.9534215384024005
+            },
+            {
+                "brand_name": "amalgunivamalg #8",
+                "decrease_amount": 0.9190479358250805
+            },
+            {
+                "brand_name": "univunivamalg #2",
+                "decrease_amount": 0.9142848944768076
+            },
+            {
+                "brand_name": "importounivamalg #8",
+                "decrease_amount": 0.9048169913721456
+            },
+            {
+                "brand_name": "brandmaxi #8",
+                "decrease_amount": 0.8587420933151613
+            },
+            {
+                "brand_name": "exportiamalgamalg #12",
+                "decrease_amount": 0.8323290878273575
+            },
+            {
+                "brand_name": "corpamalgamalg #14",
+                "decrease_amount": 0.828047670385506
+            },
+            {
+                "brand_name": "amalgamalgamalg #9",
+                "decrease_amount": 0.8272385290676292
+            },
+            {
+                "brand_name": "maxiunivamalg #13",
+                "decrease_amount": 0.7908458919903882
+            },
+            {
+                "brand_name": "corpunivamalg #11",
+                "decrease_amount": 0.7589844765163472
+            },
+            {
+                "brand_name": "amalgamalgamalg #8",
+                "decrease_amount": 0.7192372794835924
+            },
+            {
+                "brand_name": "namelessunivamalg #7",
+                "decrease_amount": 0.7001425696251911
+            },
+            {
+                "brand_name": "edu packcorp #8",
+                "decrease_amount": 0.6910311234901068
+            },
+            {
+                "brand_name": "scholarunivamalg #8",
+                "decrease_amount": 0.6545237256203844
+            },
+            {
+                "brand_name": "edu packnameless #6",
+                "decrease_amount": 0.6101428918271408
+            },
+            {
+                "brand_name": "namelessunivamalg #16",
+                "decrease_amount": 0.6092482113570927
+            },
+            {
+                "brand_name": "amalgamalgamalg #11",
+                "decrease_amount": 0.5712129469735459
+            },
+            {
+                "brand_name": "corpbrand #2",
+                "decrease_amount": 0.558635247141821
+            },
+            {
+                "brand_name": "corpamalgamalg #5",
+                "decrease_amount": 0.5539094224903716
+            },
+            {
+                "brand_name": "exportiamalgamalg #17",
+                "decrease_amount": 0.5473583627700593
+            },
+            {
+                "brand_name": "exportimaxi #2",
+                "decrease_amount": 0.5433124442134707
+            },
+            {
+                "brand_name": "maximaxi #10",
+                "decrease_amount": 0.44647121815104285
+            },
+            {
+                "brand_name": "exportiunivamalg #2",
+                "decrease_amount": 0.3984447276507783
+            },
+            {
+                "brand_name": "importounivamalg #17",
+                "decrease_amount": 0.3128436910644963
+            },
+            {
+                "brand_name": "maxinameless #8",
+                "decrease_amount": 0.2891140728263055
+            },
+            {
+                "brand_name": "amalgunivamalg #15",
+                "decrease_amount": 0.27071889444207997
+            },
+            {
+                "brand_name": "amalgamalgamalg #12",
+                "decrease_amount": 0.21940183200341412
+            },
+            {
+                "brand_name": "importoamalgamalg #14",
+                "decrease_amount": 0.21840092581730275
+            },
+            {
+                "brand_name": "edu packamalgamalg #16",
+                "decrease_amount": 0.2106877804152507
+            },
+            {
+                "brand_name": "scholarunivamalg #4",
+                "decrease_amount": 0.1495890741061121
+            },
+            {
+                "brand_name": "scholarunivamalg #2",
+                "decrease_amount": 0.14018339620524767
+            },
+            {
+                "brand_name": "corpunivamalg #8",
+                "decrease_amount": 0.13683377995718438
+            },
+            {
+                "brand_name": "corpunivamalg #7",
+                "decrease_amount": 0.11469765820178646
+            },
+            {
+                "brand_name": "amalgunivamalg #5",
+                "decrease_amount": 0.11071351258436302
+            },
+            {
+                "brand_name": "importounivamalg #5",
+                "decrease_amount": 0.09683715507013924
+            },
+            {
+                "brand_name": "corpmaxi #2",
+                "decrease_amount": 0.09589859703137993
+            },
+            {
+                "brand_name": "maxicorp #6",
+                "decrease_amount": 0.08299887410472628
+            },
+            {
+                "brand_name": "exportinameless #8",
+                "decrease_amount": 0.07064787072495804
+            },
+            {
+                "brand_name": "maxiunivamalg #17",
+                "decrease_amount": 0.04469049077448917
+            }
+        ],
+        "result_count": 146,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260329_225104",
+        "nbr": 20,
+        "question": "For each item class and customer preferred flag (Y or N), show the average net sales per sales transaction (net sales divided by the number of distinct sales ticket numbers). Exclude rows where item class is NULL or preferred flag is NULL. Order by average net sales descending, then by item class alphabetically.",
+        "duration_s": 50.01,
+        "completion_tokens": 1483,
+        "generation_s": 47.83,
+        "tokens_per_s": 31.0,
+        "sql_query": "/* For each item class and customer preferred flag (Y or N), show the average net sales per sales transaction (net sales divided by the number of distinct sales ticket numbers). Exclude rows where item class is NULL or preferred flag is NULL. Order by average net sales descending, then by item class alphabetically. */\n\nWITH sales_by_class_flag AS (\n    SELECT \n        i.i_class,\n        c.c_preferred_cust_flag,\n        ss.ss_ticket_number,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales ss\n    JOIN customer c ON ss.ss_customer_sk = c.c_customer_sk\n    JOIN item i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_class IS NOT NULL \n      AND c.c_preferred_cust_flag IS NOT NULL\n    GROUP BY i.i_class, c.c_preferred_cust_flag, ss.ss_ticket_number\n),\nreturns_by_class_flag AS (\n    SELECT \n        i.i_class,\n        c.c_preferred_cust_flag,\n        COUNT(DISTINCT ss.ss_ticket_number) AS total_returns_tickets\n    FROM store_returns sr\n    JOIN customer c ON sr.sr_customer_sk = c.c_customer_sk\n    JOIN item i ON sr.sr_item_sk = i.i_item_sk\n    WHERE i.i_class IS NOT NULL \n      AND c.c_preferred_cust_flag IS NOT NULL\n    GROUP BY i.i_class, c.c_preferred_cust_flag\n)\nSELECT \n    COALESCE(sb.i_class, rb.i_class) AS item_class,\n    COALESCE(sb.c_preferred_cust_flag, rb.c_preferred_cust_flag) AS preferred_flag,\n    (COALESCE(sb.total_sales, 0) - COALESCE(rb.total_returns_tickets, 0)) * 1.0 / COUNT(DISTINCT COALESCE(sb.ss_ticket_number, rb.ss_ticket_number)) AS avg_net_sales_per_transaction\nFROM sales_by_class_flag sb\nFULL OUTER JOIN returns_by_class_flag rb ON sb.i_class = rb.i_class AND sb.c_preferred_cust_flag = rb.c_preferred_cust_flag\nWHERE COALESCE(sb.i_class, rb.i_class) IS NOT NULL \n  AND COALESCE(sb.c_preferred_cust_flag, rb.c_preferred_cust_flag) IS NOT NULL\nORDER BY avg_net_sales_per_transaction DESC, item_class ASC;",
+        "attempts": 3,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "Execution Error: Max attempts reached. Last error: Binder Error: Referenced table \"ss\" not found!\nCandidate tables: \"sr\"\n\nLINE 20:         COUNT(DISTINCT ss.ss_ticket_number) AS total_returns_tickets\n                                ^"
     }
 ]

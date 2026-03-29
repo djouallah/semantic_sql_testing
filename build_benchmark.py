@@ -525,8 +525,8 @@ ORDER BY s.s_store_name"""
     },
     {
         "tier": 1,
-        "question": "What are the different item categories available? Order alphabetically by category name.",
-        "sql": """-- What are the different item categories available? Order alphabetically by category name.
+        "question": "What are the different item categories available? Remove null values. Order alphabetically by category name.",
+        "sql": """-- What are the different item categories available? Remove null values. Order alphabetically by category name.
 SELECT DISTINCT i.i_category
 FROM item AS i
 WHERE i.i_category IS NOT NULL
@@ -545,7 +545,7 @@ ORDER BY d.d_year"""
     },
     {
         "tier": 2,
-        "question": "Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties.",
+        "question": "Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties. Return only the top 1 row.",
         "sql": """-- Which store generated the most total sales revenue?
 SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales
 FROM store_sales AS ss
@@ -687,6 +687,37 @@ ORDER BY return_rate DESC, birth_country
 LIMIT 1"""
     },
     {
+        "tier": 4,
+        "question": "For each store, show the store name, its net sales, the overall average net sales across all stores, and the percentage calculated as (store net sales / average net sales) * 100. Order by percentage descending, then by store name alphabetically for ties.",
+        "sql": """-- Store net sales vs average, with percentage
+WITH sales_by_store AS (
+    SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales
+    FROM store_sales AS ss
+    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk
+    GROUP BY s.s_store_name
+),
+returns_by_store AS (
+    SELECT s.s_store_name, SUM(sr.sr_return_amt) AS total_returns
+    FROM store_returns AS sr
+    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk
+    GROUP BY s.s_store_name
+),
+net_sales_by_store AS (
+    SELECT
+        COALESCE(sa.s_store_name, ra.s_store_name) AS s_store_name,
+        COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0) AS net_sales
+    FROM sales_by_store AS sa
+    FULL OUTER JOIN returns_by_store AS ra ON sa.s_store_name = ra.s_store_name
+)
+SELECT
+    s_store_name,
+    net_sales,
+    AVG(net_sales) OVER () AS avg_net_sales,
+    ROUND((net_sales / NULLIF(AVG(net_sales) OVER (), 0)) * 100, 2) AS pct_net_sales_vs_avg
+FROM net_sales_by_store
+ORDER BY pct_net_sales_vs_avg DESC, s_store_name"""
+    },
+    {
         "tier": 3,
         "question": "List all item product names and total sales that have a return rate greater than 5%, ordered by item product name alphabetically.",
         "sql": """-- List all item product names and total sales that have a return rate greater than 5%
@@ -715,7 +746,7 @@ ORDER BY i_product_name"""
     # ── Tier 4: Complex — multi-dimension, year-over-year, window functions ──
     {
         "tier": 4,
-        "question": "For each store, what was the percentage change in net sales from year 2001 to year 2002? Show store name, net sales for 2001, net sales for 2002, and percentage change. Order alphabetically by store name.",
+        "question": "For each store, what was the percentage change in net sales from year 2001 to year 2002? Show store name, net sales for 2001, net sales for 2002, and percentage change rounded to 2 decimal places. Order alphabetically by store name.",
         "sql": """-- Percentage change in net sales from 2001 to 2002 per store
 WITH sales_by_store_year AS (
     SELECT s.s_store_name, d.d_year, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales
@@ -803,7 +834,7 @@ ORDER BY age_group, weekend_flag"""
     },
     {
         "tier": 4,
-        "question": "Which item brands had a decrease in return rate from 2001 to 2002 for stores in the 'TN' state? Show the brand name and decrease amount (2001 rate minus 2002 rate). Only include brands where the return rate decreased (positive difference). Order by decrease descending, then by brand name alphabetically.",
+        "question": "Which item brands had a decrease in return rate from 2001 to 2002 for stores in the 'TN' state? Show the brand name and decrease amount (2001 rate minus 2002 rate). Return rates are expressed as percentages. Only include brands where the return rate decreased (positive difference). Order by decrease descending, then by brand name alphabetically.",
         "sql": """-- Item brands with decreased return rate from 2001 to 2002 for TN stores
 WITH sales_by_brand_year AS (
     SELECT i.i_brand, d.d_year, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales
@@ -877,37 +908,6 @@ FROM sales_by_class_pref AS sa
 FULL OUTER JOIN returns_by_class_pref AS ra
     ON sa.i_class = ra.i_class AND sa.c_preferred_cust_flag = ra.c_preferred_cust_flag
 ORDER BY avg_net_sales DESC, i_class"""
-    },
-    {
-        "tier": 4,
-        "question": "For each store, show the store name, its net sales, the overall average net sales across all stores, and the percentage calculated as (store net sales / average net sales) * 100. Order by percentage descending, then by store name alphabetically for ties.",
-        "sql": """-- Store net sales vs average, with percentage
-WITH sales_by_store AS (
-    SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales
-    FROM store_sales AS ss
-    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk
-    GROUP BY s.s_store_name
-),
-returns_by_store AS (
-    SELECT s.s_store_name, SUM(sr.sr_return_amt) AS total_returns
-    FROM store_returns AS sr
-    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk
-    GROUP BY s.s_store_name
-),
-net_sales_by_store AS (
-    SELECT
-        COALESCE(sa.s_store_name, ra.s_store_name) AS s_store_name,
-        COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0) AS net_sales
-    FROM sales_by_store AS sa
-    FULL OUTER JOIN returns_by_store AS ra ON sa.s_store_name = ra.s_store_name
-)
-SELECT
-    s_store_name,
-    net_sales,
-    AVG(net_sales) OVER () AS avg_net_sales,
-    ROUND((net_sales / NULLIF(AVG(net_sales) OVER (), 0)) * 100, 2) AS pct_net_sales_vs_avg
-FROM net_sales_by_store
-ORDER BY pct_net_sales_vs_avg DESC, s_store_name"""
     },
 ]
 

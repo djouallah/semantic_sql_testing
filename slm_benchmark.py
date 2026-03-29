@@ -26,6 +26,7 @@ from IPython.display import display
 con = None
 timestamp = None
 questions = []
+last_tested_model = None
 llama_server_process = None
 
 # ============================================
@@ -41,6 +42,7 @@ questions_url = r'c:\llm\questions.json'
 model0 = "claude-opus-4-6"
 enable_feedback_loop = True
 MODEL_CONFIGS = {}
+_token_accumulator = {"completion_tokens": 0, "generation_ms": 0.0}
 
 
 def configure(**kwargs):
@@ -403,6 +405,11 @@ def get_ai_response(user_message, model_name, endpoint=None):
         message = data.get('choices', [{}])[0].get('message', {})
         generated_text = message.get('content', '') or message.get('reasoning_content', '')
 
+        timings = data.get('timings', {})
+        usage = data.get('usage', {})
+        _token_accumulator["completion_tokens"] += usage.get('completion_tokens', 0) or timings.get('predicted_n', 0)
+        _token_accumulator["generation_ms"] += timings.get('predicted_ms', 0.0)
+
         if not generated_text:
             return f"No content received from llama.cpp server. Response: {data}"
 
@@ -530,6 +537,11 @@ Your response:"""
         message = data.get('choices', [{}])[0].get('message', {})
         generated_text = message.get('content', '') or message.get('reasoning_content', '')
 
+        timings = data.get('timings', {})
+        usage = data.get('usage', {})
+        _token_accumulator["completion_tokens"] += usage.get('completion_tokens', 0) or timings.get('predicted_n', 0)
+        _token_accumulator["generation_ms"] += timings.get('predicted_ms', 0.0)
+
         if not generated_text:
             return f"No feedback received from llama.cpp server"
 
@@ -621,6 +633,8 @@ def ask_question(questions_list, test_model):
     results_data = []
     for i, x in enumerate(questions_list):
         print(f"Question {i+1}: {x}")
+        _token_accumulator["completion_tokens"] = 0
+        _token_accumulator["generation_ms"] = 0.0
         start_time = time.time()
         sql_query_or_error = get_ai_response(x, test_model)
         query_result_data_json = []
@@ -679,6 +693,9 @@ def ask_question(questions_list, test_model):
 
         end_time = time.time()
         duration = round(end_time - start_time, 2)
+        completion_tokens = _token_accumulator["completion_tokens"]
+        generation_s = round(_token_accumulator["generation_ms"] / 1000, 2)
+        tokens_per_s = round(completion_tokens / generation_s, 1) if generation_s > 0 else None
         print(f" ############################### ")
         results_data.append({
             "model": test_model,
@@ -687,6 +704,9 @@ def ask_question(questions_list, test_model):
             "nbr": i + 1,
             "question": x,
             "duration_s": duration,
+            "completion_tokens": completion_tokens,
+            "generation_s": generation_s,
+            "tokens_per_s": tokens_per_s,
             "sql_query": final_sql_query,
             "attempts": attempts_count,
             "feedback_iterations": feedback_iterations,
@@ -991,6 +1011,7 @@ def _compare_stored_results(ref_result, model_result, rtol=0.005):
 
     if len(ref_df) == 0 and len(mod_df) == 0:
         return 'exact'
+
     if len(ref_df) != len(mod_df):
         return 'row_mismatch'
 
@@ -1023,17 +1044,48 @@ def _compare_stored_results(ref_result, model_result, rtol=0.005):
                 matches += 1
         return matches / max(n_rows, 1)
 
-    used_mod_cols = set()
-    matched = 0
-    for ref_col in ref_sorted.columns:
-        for mod_col in mod_sorted.columns:
-            if mod_col in used_mod_cols:
-                continue
-            if columns_match(ref_sorted[ref_col], mod_sorted[mod_col]) == 1.0:
-                used_mod_cols.add(mod_col)
-                matched += 1
-                break
-    return 'exact' if matched == n_ref_cols else 'wrong'
+    def _try_match(rs, ms):
+        used = set()
+        found = 0
+        for rc in rs.columns:
+            for mc in ms.columns:
+                if mc in used:
+                    continue
+                if columns_match(rs[rc], ms[mc]) == 1.0:
+                    used.add(mc)
+                    found += 1
+                    break
+        return found
+
+    matched = _try_match(ref_sorted, mod_sorted)
+    if matched == n_ref_cols:
+        return 'exact'
+
+    # Fallback: re-sort by matched string columns to handle column-order swaps
+    ref_str_cols = [c for c in ref_df.columns if ref_df[c].dtype == 'object']
+    if ref_str_cols:
+        str_col_mapping = {}
+        for rc in ref_str_cols:
+            ref_vals = set(ref_df[rc].dropna().astype(str))
+            for mc in mod_df.columns:
+                if mc in str_col_mapping.values():
+                    continue
+                mod_vals = set(mod_df[mc].dropna().astype(str))
+                if len(ref_vals & mod_vals) >= len(ref_vals) * 0.8:
+                    str_col_mapping[rc] = mc
+                    break
+        if str_col_mapping:
+            ref_sort_cols = list(str_col_mapping.keys())
+            mod_sort_cols = [str_col_mapping[c] for c in ref_sort_cols]
+            try:
+                ref_sorted2 = ref_df.sort_values(by=ref_sort_cols).reset_index(drop=True)
+                mod_sorted2 = mod_df.sort_values(by=mod_sort_cols).reset_index(drop=True)
+                if _try_match(ref_sorted2, mod_sorted2) == n_ref_cols:
+                    return 'exact'
+            except Exception:
+                pass
+
+    return 'wrong'
 
 
 def analyze_all_runs():
@@ -1076,17 +1128,20 @@ def analyze_all_runs():
                 correct = False
             else:
                 correct = _compare_stored_results(ref_map[r['nbr']], r.get('result', [])) == 'exact'
-            scores.append({'correct': correct, 'duration_s': r.get('duration_s', 0)})
+            tps = r.get('tokens_per_s')
+            scores.append({'correct': correct, 'duration_s': r.get('duration_s', 0), 'tokens_per_s': tps})
 
         if not scores:
             continue
         n_correct = sum(s['correct'] for s in scores)
         n_total = len(scores)
+        tps_values = [s['tokens_per_s'] for s in scores if s['tokens_per_s']]
         all_summaries.append({
             'model': run_model,
             'timestamp': run_ts,
             'accuracy_percent': round(n_correct / max(n_total, 1) * 100, 1),
             'avg_duration_per_question': round(sum(s['duration_s'] for s in scores) / max(n_total, 1), 2),
+            'avg_tokens_per_s': round(sum(tps_values) / len(tps_values), 1) if tps_values else None,
         })
 
     return pd.DataFrame(all_summaries)
@@ -1115,7 +1170,7 @@ def plot_results(comparison_table):
             x = mdf['avg_duration_per_question'].tolist()
             y = mdf['accuracy_percent'].tolist()
             color = model_color[model]
-            plt.scatter(x, y, c=color, s=150, alpha=0.7, edgecolors='black', linewidth=1.5, label=model, zorder=3)
+            plt.scatter(x, y, c=color, s=60, alpha=0.7, edgecolors='black', linewidth=1.5, label=model, zorder=3)
 
         plt.legend(loc='lower right', fontsize=10)
         n_label = f'{len(unique_models)} models, {len(comparison_table)} runs'
@@ -1125,7 +1180,7 @@ def plot_results(comparison_table):
         accuracy = comparison_table['accuracy_percent'].tolist()
         avg_time = comparison_table['avg_duration_per_question'].tolist()
         colors = (base_colors * ((len(models) // len(base_colors)) + 1))[:len(models)]
-        plt.scatter(avg_time, accuracy, c=colors, s=150, alpha=0.7, edgecolors='black', linewidth=2)
+        plt.scatter(avg_time, accuracy, c=colors, s=60, alpha=0.7, edgecolors='black', linewidth=2)
         for i, model in enumerate(models):
             plt.annotate(model, (avg_time[i], accuracy[i]),
                         xytext=(5, 5), textcoords='offset points', fontsize=10)
@@ -1150,12 +1205,123 @@ def plot_results(comparison_table):
     plt.show()
 
 
+def plot_tokens_per_s(comparison_table):
+    """Plot scatter chart of Tokens/s vs Accuracy. Only shows models with tokens_per_s data."""
+    import matplotlib.pyplot as plt
+
+    if 'avg_tokens_per_s' not in comparison_table.columns or not comparison_table['avg_tokens_per_s'].notna().any():
+        print("No tokens/s data available yet.")
+        return
+
+    base_colors = ['#1f77b4', '#2e8b57', '#ff8c00', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+    has_all_runs = 'timestamp' in comparison_table.columns
+
+    df = comparison_table.dropna(subset=['avg_tokens_per_s'])
+
+    plt.figure(figsize=(12, 7))
+
+    if has_all_runs:
+        unique_models = sorted(df['model'].unique())
+        model_color = {m: base_colors[i % len(base_colors)] for i, m in enumerate(unique_models)}
+
+        for model in unique_models:
+            mdf = df[df['model'] == model].sort_values('timestamp')
+            x = mdf['avg_tokens_per_s'].tolist()
+            y = mdf['accuracy_percent'].tolist()
+            plt.scatter(x, y, c=model_color[model], s=60, alpha=0.7, edgecolors='black', linewidth=1.5, label=model, zorder=3)
+
+        plt.legend(loc='lower left', fontsize=10)
+        n_label = f'{len(unique_models)} models, {len(df)} runs'
+        all_tps = df['avg_tokens_per_s'].tolist()
+    else:
+        models = df['model'].tolist()
+        accuracy = df['accuracy_percent'].tolist()
+        tps = df['avg_tokens_per_s'].tolist()
+        colors = (base_colors * ((len(models) // len(base_colors)) + 1))[:len(models)]
+        plt.scatter(tps, accuracy, c=colors, s=60, alpha=0.7, edgecolors='black', linewidth=2)
+        for i, model in enumerate(models):
+            plt.annotate(model, (tps[i], accuracy[i]), xytext=(5, 5), textcoords='offset points', fontsize=10)
+        n_label = f'{len(models)} models'
+        all_tps = tps
+
+    plt.xlabel('Avg Tokens/s - higher is better', fontsize=12, fontweight='bold')
+    plt.ylabel('Accuracy (%)', fontsize=12, fontweight='bold')
+    llama_version = 'unknown'
+    try:
+        llama_version = 'b' + open(r'c:\llm\llama\version.txt').read().strip()
+    except Exception:
+        pass
+    plt.title(f'Text to SQL: Tokens/s vs Accuracy ({n_label})\n(NVIDIA RTX 2000 Mobile, 4GB VRAM, 32GB RAM, llama.cpp {llama_version})', fontsize=14, fontweight='bold')
+    plt.grid(True, alpha=0.3)
+    plt.xlim(0, max(all_tps) * 1.1 if all_tps and max(all_tps) > 0 else 10)
+    plt.ylim(0, 105)
+    plt.tight_layout()
+    plt.show()
+
+
 def run_test(model_name):
     """Complete test workflow: start server, run tests, analyze, plot, stop server."""
-    global timestamp
+    global timestamp, last_tested_model
+    last_tested_model = model_name
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     try:
         start_server(model_name)
         ask_question(questions, model_name)
     finally:
         stop_server()
+
+
+def show_wrong_answers(model_name=None):
+    """Display wrong answers for the latest run of a model, compared to the baseline."""
+    import glob as _glob
+    from IPython.display import display as _display
+
+    if model_name is None:
+        if last_tested_model is None:
+            print("No model tested yet. Pass a model_name.")
+            return
+        model_name = last_tested_model
+
+    baseline_files = sorted(_glob.glob(os.path.join(output_dir, 'log', f'*{model0}*.json')))
+    baseline_records = json.load(open(baseline_files[-1], encoding='utf-8'))
+    ref_map = {r['nbr']: r['result'] for r in baseline_records}
+
+    model_files = sorted(_glob.glob(os.path.join(output_dir, 'log', f'*{model_name}*.json')))
+    if not model_files:
+        print(f"No log files found for model: {model_name}")
+        return
+    model_records = json.load(open(model_files[-1], encoding='utf-8'))
+    run_ts = model_records[0]['timestamp']
+    print(f"Model: {model_name}  |  Run: {run_ts}")
+    print()
+
+    wrong_count = 0
+    for r in model_records:
+        ref = ref_map.get(r['nbr'], [])
+        got = r.get('result', [])
+        status = _compare_stored_results(ref, got)
+        if status == 'exact':
+            continue
+
+        wrong_count += 1
+        ref_df = pd.DataFrame(ref) if ref else pd.DataFrame()
+        got_df = pd.DataFrame(got) if got else pd.DataFrame()
+        print('=' * 70)
+        print(f"Q{r['nbr']}: {r['question']}")
+        print(f"Attempts: {r['attempts']}  |  Status: {status}")
+        print()
+        print('Generated SQL:')
+        print(r['sql_query'])
+        print()
+        from IPython.display import HTML as _HTML
+        side_by_side = (
+            f'<div style="display:flex;gap:2em">'
+            f'<div><b>Expected ({len(ref_df)} rows)</b>{ref_df.head(10).to_html(index=False)}</div>'
+            f'<div><b>Got ({len(got_df)} rows)</b>{got_df.head(10).to_html(index=False)}</div>'
+            f'</div>'
+        )
+        _display(_HTML(side_by_side))
+        print()
+
+    if wrong_count == 0:
+        print('All answers correct.')
