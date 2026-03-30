@@ -1,0 +1,5117 @@
+[
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 1,
+        "question": "What is the overall total sales revenue?",
+        "duration_s": 6.0,
+        "completion_tokens": 52,
+        "generation_s": 1.44,
+        "tokens_per_s": 36.1,
+        "sql_query": "SELECT SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\nFROM store_sales AS ss\nWHERE ss.ss_sales_price IS NOT NULL\n  AND ss.ss_quantity IS NOT NULL",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "total_sales": 5138665812.53
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 2,
+        "question": "What is the total number of items sold across all transactions?",
+        "duration_s": 2.74,
+        "completion_tokens": 53,
+        "generation_s": 1.51,
+        "tokens_per_s": 35.1,
+        "sql_query": "SELECT SUM(ss.ss_quantity) AS total_items_sold\nFROM store_sales AS ss\nWHERE ss.ss_quantity IS NOT NULL;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "total_items_sold": 138963631.0
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 3,
+        "question": "What is the total monetary value of all returned items?",
+        "duration_s": 2.77,
+        "completion_tokens": 56,
+        "generation_s": 1.63,
+        "tokens_per_s": 34.4,
+        "sql_query": "SELECT SUM(sr.sr_return_amt) AS total_return_amount\nFROM store_returns AS sr\nWHERE sr.sr_return_amt IS NOT NULL;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "total_return_amount": 270824609.25
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 4,
+        "question": "List the names of all stores, order by store name.",
+        "duration_s": 5.23,
+        "completion_tokens": 88,
+        "generation_s": 2.52,
+        "tokens_per_s": 34.9,
+        "sql_query": "SELECT DISTINCT s.s_store_name FROM store AS s ORDER BY s.s_store_name;",
+        "attempts": 4,
+        "feedback_iterations": 3,
+        "result": [
+            {
+                "s_store_name": "able"
+            },
+            {
+                "s_store_name": "anti"
+            },
+            {
+                "s_store_name": "ation"
+            },
+            {
+                "s_store_name": "bar"
+            },
+            {
+                "s_store_name": "cally"
+            },
+            {
+                "s_store_name": "eing"
+            },
+            {
+                "s_store_name": "ese"
+            },
+            {
+                "s_store_name": "ought"
+            }
+        ],
+        "result_count": 8,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 5,
+        "question": "What are the different item categories available? Remove null values. Order alphabetically by category name.",
+        "duration_s": 9.43,
+        "completion_tokens": 201,
+        "generation_s": 5.79,
+        "tokens_per_s": 34.7,
+        "sql_query": "SELECT DISTINCT i.i_category\nFROM store_sales AS ss\nJOIN item AS i ON ss.ss_item_sk = i.i_item_sk\nWHERE i.i_category IS NOT NULL\nORDER BY i.i_category;",
+        "attempts": 4,
+        "feedback_iterations": 3,
+        "result": [
+            {
+                "i_category": "Books"
+            },
+            {
+                "i_category": "Children"
+            },
+            {
+                "i_category": "Electronics"
+            },
+            {
+                "i_category": "Home"
+            },
+            {
+                "i_category": "Jewelry"
+            },
+            {
+                "i_category": "Men"
+            },
+            {
+                "i_category": "Music"
+            },
+            {
+                "i_category": "Shoes"
+            },
+            {
+                "i_category": "Sports"
+            },
+            {
+                "i_category": "Women"
+            }
+        ],
+        "result_count": 10,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 6,
+        "question": "Show total sales revenue for each year, ordered chronologically by year.",
+        "duration_s": 3.81,
+        "completion_tokens": 87,
+        "generation_s": 2.5,
+        "tokens_per_s": 34.8,
+        "sql_query": "SELECT d.d_year AS year, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_revenue\nFROM store_sales AS ss\nJOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\nGROUP BY d.d_year\nORDER BY d.d_year;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "year": 1998,
+                "total_revenue": 1019051668.9
+            },
+            {
+                "year": 1999,
+                "total_revenue": 1001288731.68
+            },
+            {
+                "year": 2000,
+                "total_revenue": 1024199559.82
+            },
+            {
+                "year": 2001,
+                "total_revenue": 1006887594.97
+            },
+            {
+                "year": 2002,
+                "total_revenue": 1014023749.92
+            },
+            {
+                "year": 2003,
+                "total_revenue": 11094739.83
+            }
+        ],
+        "result_count": 6,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 7,
+        "question": "Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties. Return only the top 1 row.",
+        "duration_s": 5.12,
+        "completion_tokens": 134,
+        "generation_s": 3.82,
+        "tokens_per_s": 35.1,
+        "sql_query": "/* Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties. Return only the top 1 row. */\nSELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\nFROM store_sales AS ss\nJOIN store AS s ON ss.ss_store_sk = s.s_store_sk\nWHERE ss.ss_sales_price IS NOT NULL AND ss.ss_quantity IS NOT NULL\nGROUP BY s.s_store_name\nORDER BY total_sales DESC, s.s_store_name ASC\nLIMIT 1;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "s_store_name": "bar",
+                "total_sales": 848558075.98
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 8,
+        "question": "What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, then by brand name alphabetically for ties.",
+        "duration_s": 5.47,
+        "completion_tokens": 137,
+        "generation_s": 4.05,
+        "tokens_per_s": 33.8,
+        "sql_query": "/* What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, then by brand name alphabetically for ties. */\nWITH sales_agg AS (\n    SELECT i.i_brand, SUM(ss.ss_quantity) AS total_quantity\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_brand IS NOT NULL AND ss.ss_quantity IS NOT NULL\n    GROUP BY i.i_brand\n)\nSELECT i_brand, total_quantity\nFROM sales_agg\nORDER BY total_quantity DESC, i_brand ASC;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "i_brand": "importoedu pack #2",
+                "total_quantity": 2348242.0
+            },
+            {
+                "i_brand": "edu packscholar #2",
+                "total_quantity": 2295358.0
+            },
+            {
+                "i_brand": "importoscholar #2",
+                "total_quantity": 2259448.0
+            },
+            {
+                "i_brand": "exportischolar #2",
+                "total_quantity": 2258349.0
+            },
+            {
+                "i_brand": "importoimporto #2",
+                "total_quantity": 2189537.0
+            },
+            {
+                "i_brand": "importoamalg #2",
+                "total_quantity": 2178916.0
+            },
+            {
+                "i_brand": "edu packamalg #2",
+                "total_quantity": 2165380.0
+            },
+            {
+                "i_brand": "importoexporti #2",
+                "total_quantity": 2123321.0
+            },
+            {
+                "i_brand": "edu packexporti #2",
+                "total_quantity": 2120877.0
+            },
+            {
+                "i_brand": "edu packedu pack #2",
+                "total_quantity": 2099755.0
+            },
+            {
+                "i_brand": "amalgamalg #2",
+                "total_quantity": 2094326.0
+            },
+            {
+                "i_brand": "amalgedu pack #2",
+                "total_quantity": 2087316.0
+            },
+            {
+                "i_brand": "amalgexporti #2",
+                "total_quantity": 2015838.0
+            },
+            {
+                "i_brand": "exportiimporto #2",
+                "total_quantity": 2015415.0
+            },
+            {
+                "i_brand": "exportiedu pack #2",
+                "total_quantity": 2002084.0
+            },
+            {
+                "i_brand": "amalgimporto #2",
+                "total_quantity": 1958608.0
+            },
+            {
+                "i_brand": "amalgscholar #2",
+                "total_quantity": 1928612.0
+            },
+            {
+                "i_brand": "exportiexporti #2",
+                "total_quantity": 1924508.0
+            },
+            {
+                "i_brand": "exportiamalg #2",
+                "total_quantity": 1905379.0
+            },
+            {
+                "i_brand": "edu packimporto #2",
+                "total_quantity": 1873962.0
+            },
+            {
+                "i_brand": "edu packscholar #1",
+                "total_quantity": 1589538.0
+            },
+            {
+                "i_brand": "importoimporto #1",
+                "total_quantity": 1545936.0
+            },
+            {
+                "i_brand": "edu packimporto #1",
+                "total_quantity": 1545781.0
+            },
+            {
+                "i_brand": "exportiexporti #1",
+                "total_quantity": 1542657.0
+            },
+            {
+                "i_brand": "exportischolar #1",
+                "total_quantity": 1509206.0
+            },
+            {
+                "i_brand": "importoedu pack #1",
+                "total_quantity": 1455448.0
+            },
+            {
+                "i_brand": "exportiedu pack #1",
+                "total_quantity": 1439683.0
+            },
+            {
+                "i_brand": "amalgedu pack #1",
+                "total_quantity": 1414004.0
+            },
+            {
+                "i_brand": "importoamalg #1",
+                "total_quantity": 1407934.0
+            },
+            {
+                "i_brand": "amalgamalg #1",
+                "total_quantity": 1397189.0
+            },
+            {
+                "i_brand": "edu packamalg #1",
+                "total_quantity": 1392044.0
+            },
+            {
+                "i_brand": "amalgimporto #1",
+                "total_quantity": 1390812.0
+            },
+            {
+                "i_brand": "edu packedu pack #1",
+                "total_quantity": 1388893.0
+            },
+            {
+                "i_brand": "amalgscholar #1",
+                "total_quantity": 1368968.0
+            },
+            {
+                "i_brand": "importoexporti #1",
+                "total_quantity": 1354937.0
+            },
+            {
+                "i_brand": "amalgexporti #1",
+                "total_quantity": 1354224.0
+            },
+            {
+                "i_brand": "edu packexporti #1",
+                "total_quantity": 1300339.0
+            },
+            {
+                "i_brand": "exportiimporto #1",
+                "total_quantity": 1245972.0
+            },
+            {
+                "i_brand": "exportiamalg #1",
+                "total_quantity": 1243233.0
+            },
+            {
+                "i_brand": "importoscholar #1",
+                "total_quantity": 1226694.0
+            },
+            {
+                "i_brand": "scholarmaxi #2",
+                "total_quantity": 360666.0
+            },
+            {
+                "i_brand": "exportimaxi #2",
+                "total_quantity": 339193.0
+            },
+            {
+                "i_brand": "importobrand #6",
+                "total_quantity": 327320.0
+            },
+            {
+                "i_brand": "edu packnameless #8",
+                "total_quantity": 297340.0
+            },
+            {
+                "i_brand": "exportiunivamalg #2",
+                "total_quantity": 291875.0
+            },
+            {
+                "i_brand": "importobrand #8",
+                "total_quantity": 283702.0
+            },
+            {
+                "i_brand": "importobrand #2",
+                "total_quantity": 282994.0
+            },
+            {
+                "i_brand": "scholarbrand #6",
+                "total_quantity": 282556.0
+            },
+            {
+                "i_brand": "scholarunivamalg #2",
+                "total_quantity": 281941.0
+            },
+            {
+                "i_brand": "importomaxi #8",
+                "total_quantity": 281102.0
+            },
+            {
+                "i_brand": "importomaxi #2",
+                "total_quantity": 278158.0
+            },
+            {
+                "i_brand": "scholarmaxi #8",
+                "total_quantity": 274269.0
+            },
+            {
+                "i_brand": "importounivamalg #8",
+                "total_quantity": 273880.0
+            },
+            {
+                "i_brand": "edu packnameless #6",
+                "total_quantity": 266598.0
+            },
+            {
+                "i_brand": "exportimaxi #8",
+                "total_quantity": 265065.0
+            },
+            {
+                "i_brand": "edu packbrand #6",
+                "total_quantity": 260572.0
+            },
+            {
+                "i_brand": "scholarmaxi #9",
+                "total_quantity": 257315.0
+            },
+            {
+                "i_brand": "amalgbrand #6",
+                "total_quantity": 255385.0
+            },
+            {
+                "i_brand": "edu packbrand #8",
+                "total_quantity": 252944.0
+            },
+            {
+                "i_brand": "exportinameless #10",
+                "total_quantity": 252904.0
+            },
+            {
+                "i_brand": "edu packnameless #4",
+                "total_quantity": 252311.0
+            },
+            {
+                "i_brand": "corpmaxi #2",
+                "total_quantity": 251383.0
+            },
+            {
+                "i_brand": "amalgnameless #4",
+                "total_quantity": 250941.0
+            },
+            {
+                "i_brand": "importonameless #2",
+                "total_quantity": 250555.0
+            },
+            {
+                "i_brand": "corpmaxi #6",
+                "total_quantity": 249538.0
+            },
+            {
+                "i_brand": "corpmaxi #10",
+                "total_quantity": 246968.0
+            },
+            {
+                "i_brand": "amalgnameless #10",
+                "total_quantity": 246610.0
+            },
+            {
+                "i_brand": "amalgbrand #4",
+                "total_quantity": 245694.0
+            },
+            {
+                "i_brand": "edu packbrand #4",
+                "total_quantity": 242863.0
+            },
+            {
+                "i_brand": "importounivamalg #2",
+                "total_quantity": 242380.0
+            },
+            {
+                "i_brand": "scholarbrand #4",
+                "total_quantity": 240064.0
+            },
+            {
+                "i_brand": "exportibrand #4",
+                "total_quantity": 237923.0
+            },
+            {
+                "i_brand": "corpbrand #6",
+                "total_quantity": 235275.0
+            },
+            {
+                "i_brand": "amalgnameless #2",
+                "total_quantity": 235158.0
+            },
+            {
+                "i_brand": "scholarunivamalg #8",
+                "total_quantity": 233623.0
+            },
+            {
+                "i_brand": "scholarnameless #8",
+                "total_quantity": 232971.0
+            },
+            {
+                "i_brand": "scholarbrand #8",
+                "total_quantity": 232427.0
+            },
+            {
+                "i_brand": "importonameless #4",
+                "total_quantity": 232349.0
+            },
+            {
+                "i_brand": "edu packunivamalg #8",
+                "total_quantity": 228029.0
+            },
+            {
+                "i_brand": "importonameless #5",
+                "total_quantity": 225553.0
+            },
+            {
+                "i_brand": "importonameless #10",
+                "total_quantity": 224555.0
+            },
+            {
+                "i_brand": "scholarnameless #10",
+                "total_quantity": 223746.0
+            },
+            {
+                "i_brand": "scholarnameless #2",
+                "total_quantity": 223703.0
+            },
+            {
+                "i_brand": "scholarnameless #6",
+                "total_quantity": 222750.0
+            },
+            {
+                "i_brand": "amalgmaxi #2",
+                "total_quantity": 221995.0
+            },
+            {
+                "i_brand": "corpnameless #6",
+                "total_quantity": 221023.0
+            },
+            {
+                "i_brand": "amalgnameless #6",
+                "total_quantity": 220017.0
+            },
+            {
+                "i_brand": "edu packmaxi #2",
+                "total_quantity": 218988.0
+            },
+            {
+                "i_brand": "importobrand #4",
+                "total_quantity": 216147.0
+            },
+            {
+                "i_brand": "corpbrand #4",
+                "total_quantity": 216045.0
+            },
+            {
+                "i_brand": "exportinameless #2",
+                "total_quantity": 215817.0
+            },
+            {
+                "i_brand": "corpnameless #10",
+                "total_quantity": 211839.0
+            },
+            {
+                "i_brand": "edu packnameless #10",
+                "total_quantity": 211552.0
+            },
+            {
+                "i_brand": "amalgcorp #8",
+                "total_quantity": 207114.0
+            },
+            {
+                "i_brand": "exportibrand #2",
+                "total_quantity": 205133.0
+            },
+            {
+                "i_brand": "exportinameless #6",
+                "total_quantity": 204857.0
+            },
+            {
+                "i_brand": "scholarnameless #9",
+                "total_quantity": 203371.0
+            },
+            {
+                "i_brand": "corpmaxi #8",
+                "total_quantity": 201758.0
+            },
+            {
+                "i_brand": "exporticorp #8",
+                "total_quantity": 200410.0
+            },
+            {
+                "i_brand": "corpbrand #8",
+                "total_quantity": 197239.0
+            },
+            {
+                "i_brand": "exportibrand #6",
+                "total_quantity": 195108.0
+            },
+            {
+                "i_brand": "edu packnameless #1",
+                "total_quantity": 193570.0
+            },
+            {
+                "i_brand": "scholarnameless #5",
+                "total_quantity": 193085.0
+            },
+            {
+                "i_brand": "importonameless #6",
+                "total_quantity": 191943.0
+            },
+            {
+                "i_brand": "brandmaxi #8",
+                "total_quantity": 188919.0
+            },
+            {
+                "i_brand": "amalgnameless #5",
+                "total_quantity": 188870.0
+            },
+            {
+                "i_brand": "univunivamalg #8",
+                "total_quantity": 188361.0
+            },
+            {
+                "i_brand": "univbrand #6",
+                "total_quantity": 186550.0
+            },
+            {
+                "i_brand": "brandcorp #6",
+                "total_quantity": 186000.0
+            },
+            {
+                "i_brand": "corpunivamalg #8",
+                "total_quantity": 185807.0
+            },
+            {
+                "i_brand": "scholarbrand #3",
+                "total_quantity": 183570.0
+            },
+            {
+                "i_brand": "corpbrand #7",
+                "total_quantity": 180723.0
+            },
+            {
+                "i_brand": "corpnameless #2",
+                "total_quantity": 180698.0
+            },
+            {
+                "i_brand": "edu packmaxi #8",
+                "total_quantity": 179877.0
+            },
+            {
+                "i_brand": "edu packunivamalg #11",
+                "total_quantity": 179653.0
+            },
+            {
+                "i_brand": "scholarbrand #2",
+                "total_quantity": 179353.0
+            },
+            {
+                "i_brand": "exportimaxi #6",
+                "total_quantity": 179311.0
+            },
+            {
+                "i_brand": "exportibrand #5",
+                "total_quantity": 177976.0
+            },
+            {
+                "i_brand": "namelessnameless #6",
+                "total_quantity": 177125.0
+            },
+            {
+                "i_brand": "corpnameless #8",
+                "total_quantity": 176880.0
+            },
+            {
+                "i_brand": "edu packnameless #9",
+                "total_quantity": 174045.0
+            },
+            {
+                "i_brand": "scholarmaxi #3",
+                "total_quantity": 172103.0
+            },
+            {
+                "i_brand": "importobrand #5",
+                "total_quantity": 171859.0
+            },
+            {
+                "i_brand": "importounivamalg #3",
+                "total_quantity": 171696.0
+            },
+            {
+                "i_brand": "scholarnameless #3",
+                "total_quantity": 171216.0
+            },
+            {
+                "i_brand": "exportiunivamalg #8",
+                "total_quantity": 171035.0
+            },
+            {
+                "i_brand": "brandcorp #4",
+                "total_quantity": 170609.0
+            },
+            {
+                "i_brand": "corpcorp #2",
+                "total_quantity": 170098.0
+            },
+            {
+                "i_brand": "importomaxi #6",
+                "total_quantity": 169947.0
+            },
+            {
+                "i_brand": "namelessmaxi #2",
+                "total_quantity": 169862.0
+            },
+            {
+                "i_brand": "amalgbrand #2",
+                "total_quantity": 169590.0
+            },
+            {
+                "i_brand": "edu packbrand #3",
+                "total_quantity": 167196.0
+            },
+            {
+                "i_brand": "corpmaxi #4",
+                "total_quantity": 166170.0
+            },
+            {
+                "i_brand": "exportibrand #8",
+                "total_quantity": 165929.0
+            },
+            {
+                "i_brand": "importomaxi #9",
+                "total_quantity": 165671.0
+            },
+            {
+                "i_brand": "edu packbrand #7",
+                "total_quantity": 165294.0
+            },
+            {
+                "i_brand": "amalgunivamalg #8",
+                "total_quantity": 163807.0
+            },
+            {
+                "i_brand": "importounivamalg #9",
+                "total_quantity": 163168.0
+            },
+            {
+                "i_brand": "scholarunivamalg #11",
+                "total_quantity": 162538.0
+            },
+            {
+                "i_brand": "edu packbrand #2",
+                "total_quantity": 162254.0
+            },
+            {
+                "i_brand": "edu packnameless #2",
+                "total_quantity": 161884.0
+            },
+            {
+                "i_brand": "amalgnameless #8",
+                "total_quantity": 161122.0
+            },
+            {
+                "i_brand": "amalgbrand #1",
+                "total_quantity": 160199.0
+            },
+            {
+                "i_brand": "edu packbrand #10",
+                "total_quantity": 159788.0
+            },
+            {
+                "i_brand": "amalgmaxi #5",
+                "total_quantity": 158505.0
+            },
+            {
+                "i_brand": "scholarunivamalg #9",
+                "total_quantity": 157952.0
+            },
+            {
+                "i_brand": "corpnameless #3",
+                "total_quantity": 157767.0
+            },
+            {
+                "i_brand": "corpunivamalg #3",
+                "total_quantity": 157675.0
+            },
+            {
+                "i_brand": "maximaxi #8",
+                "total_quantity": 157224.0
+            },
+            {
+                "i_brand": "brandmaxi #2",
+                "total_quantity": 156485.0
+            },
+            {
+                "i_brand": "importobrand #1",
+                "total_quantity": 156044.0
+            },
+            {
+                "i_brand": "maxicorp #8",
+                "total_quantity": 156040.0
+            },
+            {
+                "i_brand": "univbrand #2",
+                "total_quantity": 156004.0
+            },
+            {
+                "i_brand": "amalgmaxi #9",
+                "total_quantity": 155666.0
+            },
+            {
+                "i_brand": "importonameless #7",
+                "total_quantity": 155276.0
+            },
+            {
+                "i_brand": "corpmaxi #3",
+                "total_quantity": 155129.0
+            },
+            {
+                "i_brand": "maxicorp #1",
+                "total_quantity": 154996.0
+            },
+            {
+                "i_brand": "importonameless #8",
+                "total_quantity": 154881.0
+            },
+            {
+                "i_brand": "namelessnameless #10",
+                "total_quantity": 154861.0
+            },
+            {
+                "i_brand": "brandcorp #3",
+                "total_quantity": 154181.0
+            },
+            {
+                "i_brand": "importonameless #1",
+                "total_quantity": 154131.0
+            },
+            {
+                "i_brand": "amalgbrand #8",
+                "total_quantity": 153952.0
+            },
+            {
+                "i_brand": "amalgcorp #2",
+                "total_quantity": 153683.0
+            },
+            {
+                "i_brand": "scholarmaxi #10",
+                "total_quantity": 153601.0
+            },
+            {
+                "i_brand": "amalgnameless #1",
+                "total_quantity": 153456.0
+            },
+            {
+                "i_brand": "univbrand #4",
+                "total_quantity": 151920.0
+            },
+            {
+                "i_brand": "edu packmaxi #4",
+                "total_quantity": 151458.0
+            },
+            {
+                "i_brand": "edu packnameless #7",
+                "total_quantity": 151360.0
+            },
+            {
+                "i_brand": "edu packmaxi #9",
+                "total_quantity": 151232.0
+            },
+            {
+                "i_brand": "corpmaxi #9",
+                "total_quantity": 151114.0
+            },
+            {
+                "i_brand": "corpmaxi #5",
+                "total_quantity": 150876.0
+            },
+            {
+                "i_brand": "exportimaxi #4",
+                "total_quantity": 150114.0
+            },
+            {
+                "i_brand": "amalgunivamalg #11",
+                "total_quantity": 150076.0
+            },
+            {
+                "i_brand": "univmaxi #2",
+                "total_quantity": 150001.0
+            },
+            {
+                "i_brand": "maxinameless #6",
+                "total_quantity": 149479.0
+            },
+            {
+                "i_brand": "exportinameless #8",
+                "total_quantity": 149434.0
+            },
+            {
+                "i_brand": "edu packbrand #5",
+                "total_quantity": 149261.0
+            },
+            {
+                "i_brand": "univnameless #2",
+                "total_quantity": 149170.0
+            },
+            {
+                "i_brand": "scholarbrand #1",
+                "total_quantity": 148847.0
+            },
+            {
+                "i_brand": "namelessbrand #10",
+                "total_quantity": 148482.0
+            },
+            {
+                "i_brand": "scholarcorp #6",
+                "total_quantity": 148346.0
+            },
+            {
+                "i_brand": "namelessmaxi #3",
+                "total_quantity": 148223.0
+            },
+            {
+                "i_brand": "amalgunivamalg #5",
+                "total_quantity": 147556.0
+            },
+            {
+                "i_brand": "edu packmaxi #3",
+                "total_quantity": 147195.0
+            },
+            {
+                "i_brand": "scholarmaxi #6",
+                "total_quantity": 147001.0
+            },
+            {
+                "i_brand": "corpbrand #1",
+                "total_quantity": 146495.0
+            },
+            {
+                "i_brand": "corpunivamalg #2",
+                "total_quantity": 145499.0
+            },
+            {
+                "i_brand": "maxinameless #2",
+                "total_quantity": 145270.0
+            },
+            {
+                "i_brand": "importobrand #3",
+                "total_quantity": 145139.0
+            },
+            {
+                "i_brand": "exportinameless #3",
+                "total_quantity": 144961.0
+            },
+            {
+                "i_brand": "edu packmaxi #10",
+                "total_quantity": 144052.0
+            },
+            {
+                "i_brand": "exportiunivamalg #9",
+                "total_quantity": 143950.0
+            },
+            {
+                "i_brand": "corpnameless #5",
+                "total_quantity": 143548.0
+            },
+            {
+                "i_brand": "importobrand #7",
+                "total_quantity": 142287.0
+            },
+            {
+                "i_brand": "amalgmaxi #3",
+                "total_quantity": 141887.0
+            },
+            {
+                "i_brand": "amalgbrand #7",
+                "total_quantity": 141457.0
+            },
+            {
+                "i_brand": "scholarbrand #7",
+                "total_quantity": 140924.0
+            },
+            {
+                "i_brand": "edu packmaxi #5",
+                "total_quantity": 140178.0
+            },
+            {
+                "i_brand": "maxicorp #2",
+                "total_quantity": 139927.0
+            },
+            {
+                "i_brand": "exporticorp #2",
+                "total_quantity": 138742.0
+            },
+            {
+                "i_brand": "exportimaxi #1",
+                "total_quantity": 138477.0
+            },
+            {
+                "i_brand": "scholarnameless #4",
+                "total_quantity": 138177.0
+            },
+            {
+                "i_brand": "maxibrand #10",
+                "total_quantity": 138124.0
+            },
+            {
+                "i_brand": "univunivamalg #2",
+                "total_quantity": 138022.0
+            },
+            {
+                "i_brand": "scholarunivamalg #3",
+                "total_quantity": 137564.0
+            },
+            {
+                "i_brand": "amalgnameless #7",
+                "total_quantity": 137086.0
+            },
+            {
+                "i_brand": "amalgmaxi #10",
+                "total_quantity": 136640.0
+            },
+            {
+                "i_brand": "edu packcorp #6",
+                "total_quantity": 136295.0
+            },
+            {
+                "i_brand": "amalgbrand #9",
+                "total_quantity": 134908.0
+            },
+            {
+                "i_brand": "exporticorp #7",
+                "total_quantity": 134391.0
+            },
+            {
+                "i_brand": "exportiunivamalg #6",
+                "total_quantity": 133499.0
+            },
+            {
+                "i_brand": "corpcorp #8",
+                "total_quantity": 133232.0
+            },
+            {
+                "i_brand": "amalgnameless #3",
+                "total_quantity": 133085.0
+            },
+            {
+                "i_brand": "corpnameless #1",
+                "total_quantity": 131866.0
+            },
+            {
+                "i_brand": "exportinameless #4",
+                "total_quantity": 131638.0
+            },
+            {
+                "i_brand": "importocorp #4",
+                "total_quantity": 131549.0
+            },
+            {
+                "i_brand": "exportibrand #7",
+                "total_quantity": 131508.0
+            },
+            {
+                "i_brand": "edu packcorp #2",
+                "total_quantity": 131458.0
+            },
+            {
+                "i_brand": "corpunivamalg #6",
+                "total_quantity": 131449.0
+            },
+            {
+                "i_brand": "scholarcorp #1",
+                "total_quantity": 131328.0
+            },
+            {
+                "i_brand": "exportimaxi #3",
+                "total_quantity": 131284.0
+            },
+            {
+                "i_brand": "corpnameless #9",
+                "total_quantity": 130519.0
+            },
+            {
+                "i_brand": "amalgnameless #9",
+                "total_quantity": 129959.0
+            },
+            {
+                "i_brand": "exportimaxi #9",
+                "total_quantity": 129805.0
+            },
+            {
+                "i_brand": "scholarbrand #10",
+                "total_quantity": 129646.0
+            },
+            {
+                "i_brand": "exportinameless #9",
+                "total_quantity": 129221.0
+            },
+            {
+                "i_brand": "exportiunivamalg #10",
+                "total_quantity": 128962.0
+            },
+            {
+                "i_brand": "edu packcorp #8",
+                "total_quantity": 128383.0
+            },
+            {
+                "i_brand": "importomaxi #5",
+                "total_quantity": 127812.0
+            },
+            {
+                "i_brand": "edu packunivamalg #9",
+                "total_quantity": 126997.0
+            },
+            {
+                "i_brand": "exportinameless #1",
+                "total_quantity": 126825.0
+            },
+            {
+                "i_brand": "amalgmaxi #8",
+                "total_quantity": 126784.0
+            },
+            {
+                "i_brand": "edu packnameless #5",
+                "total_quantity": 126524.0
+            },
+            {
+                "i_brand": "edu packunivamalg #6",
+                "total_quantity": 126308.0
+            },
+            {
+                "i_brand": "importomaxi #4",
+                "total_quantity": 126263.0
+            },
+            {
+                "i_brand": "importocorp #2",
+                "total_quantity": 125778.0
+            },
+            {
+                "i_brand": "corpbrand #2",
+                "total_quantity": 125203.0
+            },
+            {
+                "i_brand": "univmaxi #6",
+                "total_quantity": 124940.0
+            },
+            {
+                "i_brand": "scholarnameless #1",
+                "total_quantity": 124534.0
+            },
+            {
+                "i_brand": "namelessbrand #4",
+                "total_quantity": 124466.0
+            },
+            {
+                "i_brand": "namelessbrand #2",
+                "total_quantity": 124394.0
+            },
+            {
+                "i_brand": "corpnameless #4",
+                "total_quantity": 123439.0
+            },
+            {
+                "i_brand": "amalgunivamalg #2",
+                "total_quantity": 123227.0
+            },
+            {
+                "i_brand": "univmaxi #4",
+                "total_quantity": 122934.0
+            },
+            {
+                "i_brand": "namelesscorp #4",
+                "total_quantity": 122458.0
+            },
+            {
+                "i_brand": "corpcorp #6",
+                "total_quantity": 121955.0
+            },
+            {
+                "i_brand": "scholarmaxi #4",
+                "total_quantity": 121952.0
+            },
+            {
+                "i_brand": "namelessmaxi #8",
+                "total_quantity": 121732.0
+            },
+            {
+                "i_brand": "scholarbrand #5",
+                "total_quantity": 121661.0
+            },
+            {
+                "i_brand": "importounivamalg #5",
+                "total_quantity": 121621.0
+            },
+            {
+                "i_brand": "maxicorp #6",
+                "total_quantity": 120810.0
+            },
+            {
+                "i_brand": "maxibrand #7",
+                "total_quantity": 120667.0
+            },
+            {
+                "i_brand": "edu packnameless #3",
+                "total_quantity": 120475.0
+            },
+            {
+                "i_brand": "brandbrand #10",
+                "total_quantity": 120107.0
+            },
+            {
+                "i_brand": "importocorp #6",
+                "total_quantity": 119989.0
+            },
+            {
+                "i_brand": "brandbrand #4",
+                "total_quantity": 119809.0
+            },
+            {
+                "i_brand": "exporticorp #5",
+                "total_quantity": 119687.0
+            },
+            {
+                "i_brand": "univmaxi #8",
+                "total_quantity": 119482.0
+            },
+            {
+                "i_brand": "univnameless #6",
+                "total_quantity": 119196.0
+            },
+            {
+                "i_brand": "namelesscorp #8",
+                "total_quantity": 118988.0
+            },
+            {
+                "i_brand": "corpunivamalg #11",
+                "total_quantity": 118692.0
+            },
+            {
+                "i_brand": "corpunivamalg #12",
+                "total_quantity": 118553.0
+            },
+            {
+                "i_brand": "scholarunivamalg #12",
+                "total_quantity": 118360.0
+            },
+            {
+                "i_brand": "edu packunivamalg #12",
+                "total_quantity": 118339.0
+            },
+            {
+                "i_brand": "exportiunivamalg #5",
+                "total_quantity": 117546.0
+            },
+            {
+                "i_brand": "amalgunivamalg #4",
+                "total_quantity": 117405.0
+            },
+            {
+                "i_brand": "importounivamalg #6",
+                "total_quantity": 117224.0
+            },
+            {
+                "i_brand": "exportinameless #7",
+                "total_quantity": 116828.0
+            },
+            {
+                "i_brand": "scholarunivamalg #1",
+                "total_quantity": 116763.0
+            },
+            {
+                "i_brand": "univbrand #5",
+                "total_quantity": 116606.0
+            },
+            {
+                "i_brand": "corpbrand #3",
+                "total_quantity": 116432.0
+            },
+            {
+                "i_brand": "corpcorp #4",
+                "total_quantity": 116030.0
+            },
+            {
+                "i_brand": "brandnameless #10",
+                "total_quantity": 115251.0
+            },
+            {
+                "i_brand": "brandcorp #7",
+                "total_quantity": 115139.0
+            },
+            {
+                "i_brand": "univnameless #4",
+                "total_quantity": 114871.0
+            },
+            {
+                "i_brand": "importocorp #1",
+                "total_quantity": 114654.0
+            },
+            {
+                "i_brand": "amalgbrand #5",
+                "total_quantity": 114488.0
+            },
+            {
+                "i_brand": "univbrand #7",
+                "total_quantity": 114410.0
+            },
+            {
+                "i_brand": "edu packbrand #1",
+                "total_quantity": 114128.0
+            },
+            {
+                "i_brand": "exportinameless #5",
+                "total_quantity": 113806.0
+            },
+            {
+                "i_brand": "scholarunivamalg #7",
+                "total_quantity": 113574.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #13",
+                "total_quantity": 113548.0
+            },
+            {
+                "i_brand": "scholarcorp #2",
+                "total_quantity": 112195.0
+            },
+            {
+                "i_brand": "brandcorp #8",
+                "total_quantity": 111759.0
+            },
+            {
+                "i_brand": "edu packunivamalg #4",
+                "total_quantity": 111524.0
+            },
+            {
+                "i_brand": "exporticorp #4",
+                "total_quantity": 111437.0
+            },
+            {
+                "i_brand": "brandnameless #8",
+                "total_quantity": 110895.0
+            },
+            {
+                "i_brand": "scholarunivamalg #6",
+                "total_quantity": 109764.0
+            },
+            {
+                "i_brand": "namelesscorp #1",
+                "total_quantity": 109733.0
+            },
+            {
+                "i_brand": "exportibrand #3",
+                "total_quantity": 109437.0
+            },
+            {
+                "i_brand": "maxicorp #5",
+                "total_quantity": 109288.0
+            },
+            {
+                "i_brand": "namelesscorp #5",
+                "total_quantity": 108525.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #13",
+                "total_quantity": 108454.0
+            },
+            {
+                "i_brand": "maximaxi #2",
+                "total_quantity": 108449.0
+            },
+            {
+                "i_brand": "maxibrand #2",
+                "total_quantity": 107910.0
+            },
+            {
+                "i_brand": "namelessnameless #1",
+                "total_quantity": 107270.0
+            },
+            {
+                "i_brand": "importobrand #10",
+                "total_quantity": 107102.0
+            },
+            {
+                "i_brand": "corpcorp #7",
+                "total_quantity": 106509.0
+            },
+            {
+                "i_brand": "scholarmaxi #5",
+                "total_quantity": 106433.0
+            },
+            {
+                "i_brand": "scholarcorp #8",
+                "total_quantity": 106348.0
+            },
+            {
+                "i_brand": "importounivamalg #10",
+                "total_quantity": 106039.0
+            },
+            {
+                "i_brand": "univbrand #8",
+                "total_quantity": 105077.0
+            },
+            {
+                "i_brand": "edu packmaxi #6",
+                "total_quantity": 104690.0
+            },
+            {
+                "i_brand": "namelessnameless #2",
+                "total_quantity": 104430.0
+            },
+            {
+                "i_brand": "importomaxi #3",
+                "total_quantity": 104229.0
+            },
+            {
+                "i_brand": "brandbrand #2",
+                "total_quantity": 103728.0
+            },
+            {
+                "i_brand": "brandcorp #2",
+                "total_quantity": 103579.0
+            },
+            {
+                "i_brand": "edu packunivamalg #2",
+                "total_quantity": 103487.0
+            },
+            {
+                "i_brand": "scholarmaxi #1",
+                "total_quantity": 103419.0
+            },
+            {
+                "i_brand": "amalgunivamalg #9",
+                "total_quantity": 102784.0
+            },
+            {
+                "i_brand": "maxibrand #9",
+                "total_quantity": 101224.0
+            },
+            {
+                "i_brand": "univnameless #7",
+                "total_quantity": 101181.0
+            },
+            {
+                "i_brand": "amalgmaxi #4",
+                "total_quantity": 101180.0
+            },
+            {
+                "i_brand": "amalgunivamalg #3",
+                "total_quantity": 101125.0
+            },
+            {
+                "i_brand": "importocorp #8",
+                "total_quantity": 101015.0
+            },
+            {
+                "i_brand": "corpcorp #3",
+                "total_quantity": 100874.0
+            },
+            {
+                "i_brand": "amalgunivamalg #10",
+                "total_quantity": 99899.0
+            },
+            {
+                "i_brand": "maxinameless #1",
+                "total_quantity": 99622.0
+            },
+            {
+                "i_brand": "exportiunivamalg #12",
+                "total_quantity": 99601.0
+            },
+            {
+                "i_brand": "univmaxi #5",
+                "total_quantity": 99590.0
+            },
+            {
+                "i_brand": "exportiunivamalg #3",
+                "total_quantity": 99557.0
+            },
+            {
+                "i_brand": "edu packmaxi #1",
+                "total_quantity": 99457.0
+            },
+            {
+                "i_brand": "exportiunivamalg #1",
+                "total_quantity": 99443.0
+            },
+            {
+                "i_brand": "maxiunivamalg #8",
+                "total_quantity": 99428.0
+            },
+            {
+                "i_brand": "amalgmaxi #7",
+                "total_quantity": 99365.0
+            },
+            {
+                "i_brand": "edu packunivamalg #5",
+                "total_quantity": 99214.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #4",
+                "total_quantity": 99087.0
+            },
+            {
+                "i_brand": "brandnameless #4",
+                "total_quantity": 98720.0
+            },
+            {
+                "i_brand": "importounivamalg #4",
+                "total_quantity": 98668.0
+            },
+            {
+                "i_brand": "scholarunivamalg #5",
+                "total_quantity": 98243.0
+            },
+            {
+                "i_brand": "namelessnameless #9",
+                "total_quantity": 97911.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #6",
+                "total_quantity": 97625.0
+            },
+            {
+                "i_brand": "edu packunivamalg #10",
+                "total_quantity": 97489.0
+            },
+            {
+                "i_brand": "exportimaxi #10",
+                "total_quantity": 97456.0
+            },
+            {
+                "i_brand": "corpcorp #1",
+                "total_quantity": 97371.0
+            },
+            {
+                "i_brand": "corpamalgamalg #14",
+                "total_quantity": 97237.0
+            },
+            {
+                "i_brand": "maxicorp #4",
+                "total_quantity": 96907.0
+            },
+            {
+                "i_brand": "scholarunivamalg #10",
+                "total_quantity": 96685.0
+            },
+            {
+                "i_brand": "edu packunivamalg #1",
+                "total_quantity": 96517.0
+            },
+            {
+                "i_brand": "exportimaxi #5",
+                "total_quantity": 96361.0
+            },
+            {
+                "i_brand": "exportiunivamalg #14",
+                "total_quantity": 96133.0
+            },
+            {
+                "i_brand": "corpmaxi #7",
+                "total_quantity": 96046.0
+            },
+            {
+                "i_brand": "corpamalgamalg #15",
+                "total_quantity": 95860.0
+            },
+            {
+                "i_brand": "corpbrand #10",
+                "total_quantity": 95433.0
+            },
+            {
+                "i_brand": "importoamalgamalg #8",
+                "total_quantity": 95188.0
+            },
+            {
+                "i_brand": "namelesscorp #2",
+                "total_quantity": 95174.0
+            },
+            {
+                "i_brand": "amalgmaxi #6",
+                "total_quantity": 94169.0
+            },
+            {
+                "i_brand": "amalgbrand #10",
+                "total_quantity": 94069.0
+            },
+            {
+                "i_brand": "edu packbrand #9",
+                "total_quantity": 93639.0
+            },
+            {
+                "i_brand": "corpnameless #7",
+                "total_quantity": 93507.0
+            },
+            {
+                "i_brand": "brandmaxi #3",
+                "total_quantity": 93419.0
+            },
+            {
+                "i_brand": "univnameless #3",
+                "total_quantity": 93386.0
+            },
+            {
+                "i_brand": "exportibrand #1",
+                "total_quantity": 93113.0
+            },
+            {
+                "i_brand": "exportibrand #9",
+                "total_quantity": 92962.0
+            },
+            {
+                "i_brand": "exportiunivamalg #13",
+                "total_quantity": 92680.0
+            },
+            {
+                "i_brand": "maxibrand #4",
+                "total_quantity": 92290.0
+            },
+            {
+                "i_brand": "amalgunivamalg #7",
+                "total_quantity": 91791.0
+            },
+            {
+                "i_brand": "maxibrand #8",
+                "total_quantity": 91391.0
+            },
+            {
+                "i_brand": "amalgbrand #3",
+                "total_quantity": 91364.0
+            },
+            {
+                "i_brand": "exportimaxi #7",
+                "total_quantity": 91222.0
+            },
+            {
+                "i_brand": "univamalgamalg #13",
+                "total_quantity": 91121.0
+            },
+            {
+                "i_brand": "importomaxi #1",
+                "total_quantity": 91060.0
+            },
+            {
+                "i_brand": "namelessunivamalg #10",
+                "total_quantity": 91033.0
+            },
+            {
+                "i_brand": "scholarunivamalg #4",
+                "total_quantity": 90979.0
+            },
+            {
+                "i_brand": "exporticorp #3",
+                "total_quantity": 90598.0
+            },
+            {
+                "i_brand": "maxiunivamalg #13",
+                "total_quantity": 90469.0
+            },
+            {
+                "i_brand": "importonameless #9",
+                "total_quantity": 90424.0
+            },
+            {
+                "i_brand": "univbrand #1",
+                "total_quantity": 90155.0
+            },
+            {
+                "i_brand": "corpunivamalg #7",
+                "total_quantity": 90095.0
+            },
+            {
+                "i_brand": "exporticorp #6",
+                "total_quantity": 90036.0
+            },
+            {
+                "i_brand": "importomaxi #10",
+                "total_quantity": 89361.0
+            },
+            {
+                "i_brand": "corpbrand #5",
+                "total_quantity": 89290.0
+            },
+            {
+                "i_brand": "edu packunivamalg #3",
+                "total_quantity": 88624.0
+            },
+            {
+                "i_brand": "importomaxi #7",
+                "total_quantity": 88477.0
+            },
+            {
+                "i_brand": "namelesscorp #7",
+                "total_quantity": 88317.0
+            },
+            {
+                "i_brand": "importonameless #3",
+                "total_quantity": 88229.0
+            },
+            {
+                "i_brand": "corpunivamalg #13",
+                "total_quantity": 87992.0
+            },
+            {
+                "i_brand": "namelessbrand #8",
+                "total_quantity": 87848.0
+            },
+            {
+                "i_brand": "maxinameless #8",
+                "total_quantity": 87679.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #10",
+                "total_quantity": 87595.0
+            },
+            {
+                "i_brand": "importobrand #9",
+                "total_quantity": 86852.0
+            },
+            {
+                "i_brand": "importoamalgamalg #11",
+                "total_quantity": 86386.0
+            },
+            {
+                "i_brand": "brandnameless #2",
+                "total_quantity": 86367.0
+            },
+            {
+                "i_brand": "amalgunivamalg #6",
+                "total_quantity": 86271.0
+            },
+            {
+                "i_brand": "maxicorp #3",
+                "total_quantity": 86218.0
+            },
+            {
+                "i_brand": "maxinameless #3",
+                "total_quantity": 85638.0
+            },
+            {
+                "i_brand": "amalgmaxi #1",
+                "total_quantity": 85471.0
+            },
+            {
+                "i_brand": "amalgmaxi #12",
+                "total_quantity": 85403.0
+            },
+            {
+                "i_brand": "importoamalgamalg #12",
+                "total_quantity": 85254.0
+            },
+            {
+                "i_brand": "scholarnameless #7",
+                "total_quantity": 84238.0
+            },
+            {
+                "i_brand": "univunivamalg #3",
+                "total_quantity": 84142.0
+            },
+            {
+                "i_brand": "univnameless #5",
+                "total_quantity": 84092.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #17",
+                "total_quantity": 83998.0
+            },
+            {
+                "i_brand": "importocorp #5",
+                "total_quantity": 83853.0
+            },
+            {
+                "i_brand": "exportiunivamalg #4",
+                "total_quantity": 83745.0
+            },
+            {
+                "i_brand": "univmaxi #3",
+                "total_quantity": 83741.0
+            },
+            {
+                "i_brand": "namelessnameless #4",
+                "total_quantity": 83584.0
+            },
+            {
+                "i_brand": "maxinameless #4",
+                "total_quantity": 83576.0
+            },
+            {
+                "i_brand": "namelessbrand #9",
+                "total_quantity": 83509.0
+            },
+            {
+                "i_brand": "namelesscorp #6",
+                "total_quantity": 82807.0
+            },
+            {
+                "i_brand": "corpunivamalg #1",
+                "total_quantity": 82269.0
+            },
+            {
+                "i_brand": "univbrand #3",
+                "total_quantity": 81758.0
+            },
+            {
+                "i_brand": "namelessmaxi #11",
+                "total_quantity": 81655.0
+            },
+            {
+                "i_brand": "brandbrand #1",
+                "total_quantity": 81644.0
+            },
+            {
+                "i_brand": "scholarcorp #4",
+                "total_quantity": 81615.0
+            },
+            {
+                "i_brand": "namelesscorp #3",
+                "total_quantity": 81363.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #1",
+                "total_quantity": 81065.0
+            },
+            {
+                "i_brand": "brandunivamalg #14",
+                "total_quantity": 81012.0
+            },
+            {
+                "i_brand": "maximaxi #6",
+                "total_quantity": 80896.0
+            },
+            {
+                "i_brand": "univnameless #10",
+                "total_quantity": 80524.0
+            },
+            {
+                "i_brand": "brandbrand #7",
+                "total_quantity": 80414.0
+            },
+            {
+                "i_brand": "univmaxi #10",
+                "total_quantity": 80252.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #17",
+                "total_quantity": 80123.0
+            },
+            {
+                "i_brand": "amalgcorp #1",
+                "total_quantity": 80040.0
+            },
+            {
+                "i_brand": "scholarmaxi #7",
+                "total_quantity": 79955.0
+            },
+            {
+                "i_brand": "edu packcorp #4",
+                "total_quantity": 79344.0
+            },
+            {
+                "i_brand": "scholarcorp #5",
+                "total_quantity": 79144.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #11",
+                "total_quantity": 79050.0
+            },
+            {
+                "i_brand": "maximaxi #3",
+                "total_quantity": 78362.0
+            },
+            {
+                "i_brand": "namelessbrand #3",
+                "total_quantity": 78349.0
+            },
+            {
+                "i_brand": "maxiunivamalg #12",
+                "total_quantity": 78303.0
+            },
+            {
+                "i_brand": "univamalgamalg #1",
+                "total_quantity": 78058.0
+            },
+            {
+                "i_brand": "exportimaxi #12",
+                "total_quantity": 77962.0
+            },
+            {
+                "i_brand": "univamalgamalg #14",
+                "total_quantity": 77741.0
+            },
+            {
+                "i_brand": "maxibrand #5",
+                "total_quantity": 77694.0
+            },
+            {
+                "i_brand": "corpmaxi #1",
+                "total_quantity": 77597.0
+            },
+            {
+                "i_brand": "amalgcorp #6",
+                "total_quantity": 77551.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #2",
+                "total_quantity": 77497.0
+            },
+            {
+                "i_brand": "importoamalgamalg #16",
+                "total_quantity": 76966.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #3",
+                "total_quantity": 76950.0
+            },
+            {
+                "i_brand": "scholarmaxi #12",
+                "total_quantity": 76772.0
+            },
+            {
+                "i_brand": "corpunivamalg #9",
+                "total_quantity": 76755.0
+            },
+            {
+                "i_brand": "brandbrand #6",
+                "total_quantity": 76497.0
+            },
+            {
+                "i_brand": "maximaxi #9",
+                "total_quantity": 76226.0
+            },
+            {
+                "i_brand": "importounivamalg #14",
+                "total_quantity": 75989.0
+            },
+            {
+                "i_brand": "namelessmaxi #12",
+                "total_quantity": 75937.0
+            },
+            {
+                "i_brand": "brandnameless #6",
+                "total_quantity": 75917.0
+            },
+            {
+                "i_brand": "amalgcorp #4",
+                "total_quantity": 75727.0
+            },
+            {
+                "i_brand": "brandmaxi #4",
+                "total_quantity": 74885.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #15",
+                "total_quantity": 74857.0
+            },
+            {
+                "i_brand": "brandunivamalg #17",
+                "total_quantity": 74800.0
+            },
+            {
+                "i_brand": "univunivamalg #9",
+                "total_quantity": 74483.0
+            },
+            {
+                "i_brand": "maxinameless #7",
+                "total_quantity": 73987.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #1",
+                "total_quantity": 73951.0
+            },
+            {
+                "i_brand": "maxiunivamalg #6",
+                "total_quantity": 73696.0
+            },
+            {
+                "i_brand": "namelessbrand #1",
+                "total_quantity": 73594.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #16",
+                "total_quantity": 73503.0
+            },
+            {
+                "i_brand": "exportiunivamalg #15",
+                "total_quantity": 72904.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #16",
+                "total_quantity": 72712.0
+            },
+            {
+                "i_brand": "brandmaxi #12",
+                "total_quantity": 72409.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #8",
+                "total_quantity": 72235.0
+            },
+            {
+                "i_brand": "brandbrand #8",
+                "total_quantity": 71959.0
+            },
+            {
+                "i_brand": "maxibrand #1",
+                "total_quantity": 71531.0
+            },
+            {
+                "i_brand": "univmaxi #9",
+                "total_quantity": 71524.0
+            },
+            {
+                "i_brand": "brandnameless #3",
+                "total_quantity": 71474.0
+            },
+            {
+                "i_brand": "edu packcorp #3",
+                "total_quantity": 71262.0
+            },
+            {
+                "i_brand": "namelessunivamalg #14",
+                "total_quantity": 71194.0
+            },
+            {
+                "i_brand": "brandmaxi #11",
+                "total_quantity": 71053.0
+            },
+            {
+                "i_brand": "maximaxi #11",
+                "total_quantity": 69963.0
+            },
+            {
+                "i_brand": "namelessmaxi #4",
+                "total_quantity": 69936.0
+            },
+            {
+                "i_brand": "amalgunivamalg #12",
+                "total_quantity": 69794.0
+            },
+            {
+                "i_brand": "amalgcorp #3",
+                "total_quantity": 69647.0
+            },
+            {
+                "i_brand": "brandnameless #9",
+                "total_quantity": 69560.0
+            },
+            {
+                "i_brand": "namelessmaxi #6",
+                "total_quantity": 69220.0
+            },
+            {
+                "i_brand": "corpamalgamalg #9",
+                "total_quantity": 69197.0
+            },
+            {
+                "i_brand": "exportiunivamalg #11",
+                "total_quantity": 69182.0
+            },
+            {
+                "i_brand": "namelessnameless #7",
+                "total_quantity": 68904.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #8",
+                "total_quantity": 68769.0
+            },
+            {
+                "i_brand": "amalgmaxi #11",
+                "total_quantity": 68595.0
+            },
+            {
+                "i_brand": "univamalgamalg #2",
+                "total_quantity": 68273.0
+            },
+            {
+                "i_brand": "brandcorp #1",
+                "total_quantity": 68252.0
+            },
+            {
+                "i_brand": "univunivamalg #5",
+                "total_quantity": 68166.0
+            },
+            {
+                "i_brand": "brandmaxi #6",
+                "total_quantity": 67873.0
+            },
+            {
+                "i_brand": "corpamalgamalg #3",
+                "total_quantity": 67817.0
+            },
+            {
+                "i_brand": "univmaxi #7",
+                "total_quantity": 67763.0
+            },
+            {
+                "i_brand": "importoamalgamalg #1",
+                "total_quantity": 67745.0
+            },
+            {
+                "i_brand": "amalgcorp #7",
+                "total_quantity": 67628.0
+            },
+            {
+                "i_brand": "scholarunivamalg #16",
+                "total_quantity": 67431.0
+            },
+            {
+                "i_brand": "corpunivamalg #5",
+                "total_quantity": 67033.0
+            },
+            {
+                "i_brand": "brandmaxi #9",
+                "total_quantity": 66938.0
+            },
+            {
+                "i_brand": "corpunivamalg #4",
+                "total_quantity": 66752.0
+            },
+            {
+                "i_brand": "exportiunivamalg #7",
+                "total_quantity": 66415.0
+            },
+            {
+                "i_brand": "amalgcorp #5",
+                "total_quantity": 66284.0
+            },
+            {
+                "i_brand": "edu packcorp #1",
+                "total_quantity": 66238.0
+            },
+            {
+                "i_brand": "importounivamalg #15",
+                "total_quantity": 66148.0
+            },
+            {
+                "i_brand": "scholarunivamalg #14",
+                "total_quantity": 66028.0
+            },
+            {
+                "i_brand": "univunivamalg #4",
+                "total_quantity": 65696.0
+            },
+            {
+                "i_brand": "maxiunivamalg #3",
+                "total_quantity": 65633.0
+            },
+            {
+                "i_brand": "importoamalgamalg #2",
+                "total_quantity": 65473.0
+            },
+            {
+                "i_brand": "namelessunivamalg #9",
+                "total_quantity": 65422.0
+            },
+            {
+                "i_brand": "scholarunivamalg #15",
+                "total_quantity": 65131.0
+            },
+            {
+                "i_brand": "namelessnameless #8",
+                "total_quantity": 64999.0
+            },
+            {
+                "i_brand": "namelessmaxi #9",
+                "total_quantity": 64877.0
+            },
+            {
+                "i_brand": "corpamalgamalg #12",
+                "total_quantity": 64754.0
+            },
+            {
+                "i_brand": "univnameless #1",
+                "total_quantity": 64417.0
+            },
+            {
+                "i_brand": "exportibrand #10",
+                "total_quantity": 64053.0
+            },
+            {
+                "i_brand": "maxiunivamalg #5",
+                "total_quantity": 63804.0
+            },
+            {
+                "i_brand": "univamalgamalg #5",
+                "total_quantity": 63514.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #10",
+                "total_quantity": 63309.0
+            },
+            {
+                "i_brand": "maxinameless #9",
+                "total_quantity": 63191.0
+            },
+            {
+                "i_brand": "univunivamalg #12",
+                "total_quantity": 63176.0
+            },
+            {
+                "i_brand": "corpunivamalg #10",
+                "total_quantity": 62998.0
+            },
+            {
+                "i_brand": "brandunivamalg #13",
+                "total_quantity": 62855.0
+            },
+            {
+                "i_brand": "edu packunivamalg #7",
+                "total_quantity": 62737.0
+            },
+            {
+                "i_brand": "edu packcorp #7",
+                "total_quantity": 62736.0
+            },
+            {
+                "i_brand": "univamalgamalg #15",
+                "total_quantity": 62547.0
+            },
+            {
+                "i_brand": "exportiunivamalg #16",
+                "total_quantity": 62371.0
+            },
+            {
+                "i_brand": "maxiunivamalg #15",
+                "total_quantity": 62307.0
+            },
+            {
+                "i_brand": "edu packmaxi #7",
+                "total_quantity": 61979.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #8",
+                "total_quantity": 61957.0
+            },
+            {
+                "i_brand": "scholarunivamalg #17",
+                "total_quantity": 61884.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #4",
+                "total_quantity": 61862.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #15",
+                "total_quantity": 61610.0
+            },
+            {
+                "i_brand": "importounivamalg #12",
+                "total_quantity": 61610.0
+            },
+            {
+                "i_brand": "univamalgamalg #3",
+                "total_quantity": 61552.0
+            },
+            {
+                "i_brand": "namelessnameless #5",
+                "total_quantity": 60728.0
+            },
+            {
+                "i_brand": "corpamalgamalg #4",
+                "total_quantity": 60468.0
+            },
+            {
+                "i_brand": "univnameless #8",
+                "total_quantity": 59924.0
+            },
+            {
+                "i_brand": "importounivamalg #11",
+                "total_quantity": 59790.0
+            },
+            {
+                "i_brand": "namelessbrand #7",
+                "total_quantity": 59561.0
+            },
+            {
+                "i_brand": "importocorp #3",
+                "total_quantity": 59391.0
+            },
+            {
+                "i_brand": "exporticorp #1",
+                "total_quantity": 58790.0
+            },
+            {
+                "i_brand": "amalgunivamalg #16",
+                "total_quantity": 58713.0
+            },
+            {
+                "i_brand": "importomaxi #12",
+                "total_quantity": 58518.0
+            },
+            {
+                "i_brand": "maxiunivamalg #1",
+                "total_quantity": 58242.0
+            },
+            {
+                "i_brand": "scholarunivamalg #13",
+                "total_quantity": 58103.0
+            },
+            {
+                "i_brand": "maxiunivamalg #7",
+                "total_quantity": 58018.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #1",
+                "total_quantity": 57961.0
+            },
+            {
+                "i_brand": "namelessunivamalg #5",
+                "total_quantity": 57930.0
+            },
+            {
+                "i_brand": "univamalgamalg #4",
+                "total_quantity": 57801.0
+            },
+            {
+                "i_brand": "importounivamalg #7",
+                "total_quantity": 57773.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #10",
+                "total_quantity": 57681.0
+            },
+            {
+                "i_brand": "amalgunivamalg #17",
+                "total_quantity": 57650.0
+            },
+            {
+                "i_brand": "maxicorp #7",
+                "total_quantity": 57562.0
+            },
+            {
+                "i_brand": "brandnameless #5",
+                "total_quantity": 57545.0
+            },
+            {
+                "i_brand": "edu packunivamalg #13",
+                "total_quantity": 57084.0
+            },
+            {
+                "i_brand": "corpamalgamalg #10",
+                "total_quantity": 57061.0
+            },
+            {
+                "i_brand": "corpunivamalg #17",
+                "total_quantity": 56838.0
+            },
+            {
+                "i_brand": "maxiunivamalg #17",
+                "total_quantity": 56833.0
+            },
+            {
+                "i_brand": "scholarmaxi #11",
+                "total_quantity": 56825.0
+            },
+            {
+                "i_brand": "namelessunivamalg #3",
+                "total_quantity": 56806.0
+            },
+            {
+                "i_brand": "univamalgamalg #10",
+                "total_quantity": 56527.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #11",
+                "total_quantity": 56430.0
+            },
+            {
+                "i_brand": "namelessnameless #3",
+                "total_quantity": 56115.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #16",
+                "total_quantity": 55867.0
+            },
+            {
+                "i_brand": "maxibrand #3",
+                "total_quantity": 55840.0
+            },
+            {
+                "i_brand": "importocorp #7",
+                "total_quantity": 55785.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #6",
+                "total_quantity": 55395.0
+            },
+            {
+                "i_brand": "corpmaxi #12",
+                "total_quantity": 55040.0
+            },
+            {
+                "i_brand": "namelessunivamalg #15",
+                "total_quantity": 54745.0
+            },
+            {
+                "i_brand": "namelessunivamalg #13",
+                "total_quantity": 54005.0
+            },
+            {
+                "i_brand": "maxinameless #10",
+                "total_quantity": 53937.0
+            },
+            {
+                "i_brand": "importoamalgamalg #5",
+                "total_quantity": 53707.0
+            },
+            {
+                "i_brand": "corpcorp #5",
+                "total_quantity": 53614.0
+            },
+            {
+                "i_brand": "brandunivamalg #2",
+                "total_quantity": 53466.0
+            },
+            {
+                "i_brand": "brandunivamalg #1",
+                "total_quantity": 53265.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #14",
+                "total_quantity": 53081.0
+            },
+            {
+                "i_brand": "brandunivamalg #11",
+                "total_quantity": 52934.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #5",
+                "total_quantity": 52886.0
+            },
+            {
+                "i_brand": "amalgunivamalg #1",
+                "total_quantity": 52563.0
+            },
+            {
+                "i_brand": "edu packcorp #5",
+                "total_quantity": 52412.0
+            },
+            {
+                "i_brand": "brandcorp #5",
+                "total_quantity": 52050.0
+            },
+            {
+                "i_brand": "importoamalgamalg #10",
+                "total_quantity": 51936.0
+            },
+            {
+                "i_brand": "edu packunivamalg #15",
+                "total_quantity": 51813.0
+            },
+            {
+                "i_brand": "amalgunivamalg #15",
+                "total_quantity": 51686.0
+            },
+            {
+                "i_brand": "univamalgamalg #7",
+                "total_quantity": 51672.0
+            },
+            {
+                "i_brand": "importoamalgamalg #7",
+                "total_quantity": 51445.0
+            },
+            {
+                "i_brand": "brandunivamalg #8",
+                "total_quantity": 51235.0
+            },
+            {
+                "i_brand": "brandmaxi #10",
+                "total_quantity": 51220.0
+            },
+            {
+                "i_brand": "importounivamalg #17",
+                "total_quantity": 50967.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #15",
+                "total_quantity": 50922.0
+            },
+            {
+                "i_brand": "univamalgamalg #6",
+                "total_quantity": 49973.0
+            },
+            {
+                "i_brand": "brandnameless #7",
+                "total_quantity": 49675.0
+            },
+            {
+                "i_brand": "amalgunivamalg #14",
+                "total_quantity": 49591.0
+            },
+            {
+                "i_brand": "scholarcorp #7",
+                "total_quantity": 49484.0
+            },
+            {
+                "i_brand": "brandunivamalg #10",
+                "total_quantity": 49406.0
+            },
+            {
+                "i_brand": "importoamalgamalg #4",
+                "total_quantity": 48775.0
+            },
+            {
+                "i_brand": "univnameless #9",
+                "total_quantity": 48163.0
+            },
+            {
+                "i_brand": "brandmaxi #5",
+                "total_quantity": 48160.0
+            },
+            {
+                "i_brand": "namelessunivamalg #16",
+                "total_quantity": 48015.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #7",
+                "total_quantity": 47974.0
+            },
+            {
+                "i_brand": "corpamalgamalg #13",
+                "total_quantity": 47672.0
+            },
+            {
+                "i_brand": "univamalgamalg #16",
+                "total_quantity": 47407.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #1",
+                "total_quantity": 47170.0
+            },
+            {
+                "i_brand": "namelessmaxi #5",
+                "total_quantity": 46743.0
+            },
+            {
+                "i_brand": "namelessunivamalg #12",
+                "total_quantity": 46464.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #14",
+                "total_quantity": 46247.0
+            },
+            {
+                "i_brand": "namelessunivamalg #6",
+                "total_quantity": 46186.0
+            },
+            {
+                "i_brand": "edu packmaxi #12",
+                "total_quantity": 46032.0
+            },
+            {
+                "i_brand": "brandmaxi #1",
+                "total_quantity": 45996.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #6",
+                "total_quantity": 45925.0
+            },
+            {
+                "i_brand": "maxinameless #5",
+                "total_quantity": 45134.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #2",
+                "total_quantity": 44856.0
+            },
+            {
+                "i_brand": "edu packunivamalg #17",
+                "total_quantity": 44843.0
+            },
+            {
+                "i_brand": "importoamalgamalg #14",
+                "total_quantity": 44741.0
+            },
+            {
+                "i_brand": "brandunivamalg #9",
+                "total_quantity": 44658.0
+            },
+            {
+                "i_brand": "scholarbrand #9",
+                "total_quantity": 44533.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #12",
+                "total_quantity": 44330.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #3",
+                "total_quantity": 44079.0
+            },
+            {
+                "i_brand": "maximaxi #10",
+                "total_quantity": 43980.0
+            },
+            {
+                "i_brand": "corpmaxi #11",
+                "total_quantity": 43867.0
+            },
+            {
+                "i_brand": "corpamalgamalg #2",
+                "total_quantity": 43696.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #13",
+                "total_quantity": 43659.0
+            },
+            {
+                "i_brand": "univamalgamalg #11",
+                "total_quantity": 43465.0
+            },
+            {
+                "i_brand": "namelessmaxi #10",
+                "total_quantity": 43456.0
+            },
+            {
+                "i_brand": "namelessbrand #5",
+                "total_quantity": 43299.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #12",
+                "total_quantity": 43272.0
+            },
+            {
+                "i_brand": "brandunivamalg #3",
+                "total_quantity": 42738.0
+            },
+            {
+                "i_brand": "exportiunivamalg #17",
+                "total_quantity": 42665.0
+            },
+            {
+                "i_brand": "brandnameless #1",
+                "total_quantity": 42462.0
+            },
+            {
+                "i_brand": "importoamalgamalg #17",
+                "total_quantity": 42389.0
+            },
+            {
+                "i_brand": "importomaxi #11",
+                "total_quantity": 42230.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #5",
+                "total_quantity": 42201.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #15",
+                "total_quantity": 42031.0
+            },
+            {
+                "i_brand": "importounivamalg #13",
+                "total_quantity": 42027.0
+            },
+            {
+                "i_brand": "corpbrand #9",
+                "total_quantity": 41983.0
+            },
+            {
+                "i_brand": "scholarcorp #3",
+                "total_quantity": 41969.0
+            },
+            {
+                "i_brand": "importoamalgamalg #3",
+                "total_quantity": 41954.0
+            },
+            {
+                "i_brand": "namelessunivamalg #11",
+                "total_quantity": 41844.0
+            },
+            {
+                "i_brand": "univunivamalg #11",
+                "total_quantity": 41821.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #9",
+                "total_quantity": 41657.0
+            },
+            {
+                "i_brand": "exportimaxi #11",
+                "total_quantity": 41477.0
+            },
+            {
+                "i_brand": "brandunivamalg #16",
+                "total_quantity": 41426.0
+            },
+            {
+                "i_brand": "maxiunivamalg #10",
+                "total_quantity": 41180.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #13",
+                "total_quantity": 40866.0
+            },
+            {
+                "i_brand": "brandbrand #5",
+                "total_quantity": 40864.0
+            },
+            {
+                "i_brand": "importoamalgamalg #13",
+                "total_quantity": 40773.0
+            },
+            {
+                "i_brand": "univunivamalg #7",
+                "total_quantity": 40701.0
+            },
+            {
+                "i_brand": "maxiunivamalg #9",
+                "total_quantity": 40588.0
+            },
+            {
+                "i_brand": "namelessunivamalg #8",
+                "total_quantity": 40481.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #5",
+                "total_quantity": 40458.0
+            },
+            {
+                "i_brand": "univunivamalg #10",
+                "total_quantity": 40156.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #8",
+                "total_quantity": 39777.0
+            },
+            {
+                "i_brand": "brandbrand #3",
+                "total_quantity": 39698.0
+            },
+            {
+                "i_brand": "importounivamalg #16",
+                "total_quantity": 39499.0
+            },
+            {
+                "i_brand": "brandunivamalg #6",
+                "total_quantity": 39266.0
+            },
+            {
+                "i_brand": "maximaxi #5",
+                "total_quantity": 38950.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #14",
+                "total_quantity": 38785.0
+            },
+            {
+                "i_brand": "importounivamalg #1",
+                "total_quantity": 38665.0
+            },
+            {
+                "i_brand": "univmaxi #1",
+                "total_quantity": 38470.0
+            },
+            {
+                "i_brand": "brandmaxi #7",
+                "total_quantity": 38281.0
+            },
+            {
+                "i_brand": "corpamalgamalg #1",
+                "total_quantity": 38234.0
+            },
+            {
+                "i_brand": "brandunivamalg #7",
+                "total_quantity": 38161.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #9",
+                "total_quantity": 38142.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #12",
+                "total_quantity": 38100.0
+            },
+            {
+                "i_brand": "corpamalgamalg #5",
+                "total_quantity": 37925.0
+            },
+            {
+                "i_brand": "corpamalgamalg #7",
+                "total_quantity": 37721.0
+            },
+            {
+                "i_brand": "amalgunivamalg #13",
+                "total_quantity": 36126.0
+            },
+            {
+                "i_brand": "brandunivamalg #15",
+                "total_quantity": 36081.0
+            },
+            {
+                "i_brand": "importoamalgamalg #15",
+                "total_quantity": 36078.0
+            },
+            {
+                "i_brand": "univunivamalg #6",
+                "total_quantity": 35914.0
+            },
+            {
+                "i_brand": "corpamalgamalg #6",
+                "total_quantity": 35435.0
+            },
+            {
+                "i_brand": "maximaxi #4",
+                "total_quantity": 35209.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #10",
+                "total_quantity": 34838.0
+            },
+            {
+                "i_brand": "maxiunivamalg #16",
+                "total_quantity": 34452.0
+            },
+            {
+                "i_brand": "edu packunivamalg #16",
+                "total_quantity": 34411.0
+            },
+            {
+                "i_brand": "brandunivamalg #5",
+                "total_quantity": 34403.0
+            },
+            {
+                "i_brand": "maxiunivamalg #2",
+                "total_quantity": 34097.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #4",
+                "total_quantity": 34086.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #11",
+                "total_quantity": 33186.0
+            },
+            {
+                "i_brand": "corpamalgamalg #17",
+                "total_quantity": 32859.0
+            },
+            {
+                "i_brand": "brandunivamalg #4",
+                "total_quantity": 32116.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #7",
+                "total_quantity": 31659.0
+            },
+            {
+                "i_brand": "univamalgamalg #8",
+                "total_quantity": 31418.0
+            },
+            {
+                "i_brand": "corpunivamalg #16",
+                "total_quantity": 31351.0
+            },
+            {
+                "i_brand": "univamalgamalg #17",
+                "total_quantity": 31281.0
+            },
+            {
+                "i_brand": "edu packmaxi #11",
+                "total_quantity": 31050.0
+            },
+            {
+                "i_brand": "namelessunivamalg #4",
+                "total_quantity": 31016.0
+            },
+            {
+                "i_brand": "importoamalgamalg #6",
+                "total_quantity": 30875.0
+            },
+            {
+                "i_brand": "maxiunivamalg #11",
+                "total_quantity": 30874.0
+            },
+            {
+                "i_brand": "namelessunivamalg #17",
+                "total_quantity": 30258.0
+            },
+            {
+                "i_brand": "univunivamalg #1",
+                "total_quantity": 29546.0
+            },
+            {
+                "i_brand": "univamalgamalg #9",
+                "total_quantity": 29499.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #3",
+                "total_quantity": 29398.0
+            },
+            {
+                "i_brand": "namelessunivamalg #1",
+                "total_quantity": 29145.0
+            },
+            {
+                "i_brand": "corpamalgamalg #16",
+                "total_quantity": 28866.0
+            },
+            {
+                "i_brand": "edu packunivamalg #14",
+                "total_quantity": 28295.0
+            },
+            {
+                "i_brand": "importoamalgamalg #9",
+                "total_quantity": 28024.0
+            },
+            {
+                "i_brand": "namelessbrand #6",
+                "total_quantity": 27825.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #11",
+                "total_quantity": 27350.0
+            },
+            {
+                "i_brand": "corpamalgamalg #8",
+                "total_quantity": 26789.0
+            },
+            {
+                "i_brand": "namelessmaxi #1",
+                "total_quantity": 26741.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #16",
+                "total_quantity": 26267.0
+            },
+            {
+                "i_brand": "exportiamalgamalg #3",
+                "total_quantity": 26076.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #9",
+                "total_quantity": 26059.0
+            },
+            {
+                "i_brand": "maximaxi #12",
+                "total_quantity": 24999.0
+            },
+            {
+                "i_brand": "brandbrand #9",
+                "total_quantity": 24475.0
+            },
+            {
+                "i_brand": "namelessunivamalg #7",
+                "total_quantity": 24365.0
+            },
+            {
+                "i_brand": "namelessmaxi #7",
+                "total_quantity": 24293.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #17",
+                "total_quantity": 23104.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #4",
+                "total_quantity": 22585.0
+            },
+            {
+                "i_brand": "amalgamalgamalg #7",
+                "total_quantity": 22039.0
+            },
+            {
+                "i_brand": "brandunivamalg #12",
+                "total_quantity": 21639.0
+            },
+            {
+                "i_brand": "namelessunivamalg #2",
+                "total_quantity": 21205.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #2",
+                "total_quantity": 21016.0
+            },
+            {
+                "i_brand": "corpunivamalg #14",
+                "total_quantity": 20898.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #17",
+                "total_quantity": 20069.0
+            },
+            {
+                "i_brand": "maxiunivamalg #14",
+                "total_quantity": 19909.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #6",
+                "total_quantity": 19235.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #9",
+                "total_quantity": 18579.0
+            },
+            {
+                "i_brand": "maximaxi #1",
+                "total_quantity": 17238.0
+            },
+            {
+                "i_brand": "maxibrand #6",
+                "total_quantity": 17105.0
+            },
+            {
+                "i_brand": "corpunivamalg #15",
+                "total_quantity": 16854.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #2",
+                "total_quantity": 15457.0
+            },
+            {
+                "i_brand": "maximaxi #7",
+                "total_quantity": 15453.0
+            },
+            {
+                "i_brand": "maxiunivamalg #4",
+                "total_quantity": 14543.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #14",
+                "total_quantity": 13153.0
+            },
+            {
+                "i_brand": "edu packamalgamalg #12",
+                "total_quantity": 12791.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #7",
+                "total_quantity": 8920.0
+            },
+            {
+                "i_brand": "corpamalgamalg #11",
+                "total_quantity": 6625.0
+            },
+            {
+                "i_brand": "univamalgamalg #12",
+                "total_quantity": 6081.0
+            },
+            {
+                "i_brand": "scholaramalgamalg #5",
+                "total_quantity": 5580.0
+            }
+        ],
+        "result_count": 712,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 9,
+        "question": "Show total sales for preferred customers (c_preferred_cust_flag = 'Y') versus non-preferred customers (c_preferred_cust_flag = 'N') as two rows. Exclude customers where the preferred flag is NULL. Order by total sales descending.",
+        "duration_s": 93.14,
+        "completion_tokens": 868,
+        "generation_s": 25.17,
+        "tokens_per_s": 34.5,
+        "sql_query": "WITH preferred_sales AS (\n    SELECT SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales ss\n    JOIN customer c ON ss.ss_customer_sk = c.c_customer_sk\n    WHERE c.c_preferred_cust_flag = 'Y'\n), non_preferred_sales AS (\n    SELECT SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales ss\n    JOIN customer c ON ss.ss_customer_sk = c.c_customer_sk\n    WHERE c.c_preferred_cust_flag = 'N'\n)\nSELECT \n    CASE WHEN ps.total_sales IS NOT NULL THEN 'Preferred Customers' ELSE 'Non-Preferred Customers' END AS customer_type,\n    COALESCE(ps.total_sales, 0) AS total_sales\nFROM preferred_sales ps\nFULL OUTER JOIN non_preferred_sales nps ON 1=1\nORDER BY COALESCE(ps.total_sales, 0) DESC NULLS LAST;",
+        "attempts": 2,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "customer_type": "Preferred Customers",
+                "total_sales": 2408850335.04
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 10,
+        "question": "What is the total return amount for each city where stores are located, ordered alphabetically by city name.",
+        "duration_s": 12.16,
+        "completion_tokens": 332,
+        "generation_s": 9.4,
+        "tokens_per_s": 35.3,
+        "sql_query": "SELECT s.s_city, SUM(sr.sr_return_amt) AS total_returns\nFROM store_returns AS sr\nJOIN store AS s ON sr.sr_store_sk = s.s_store_sk\nWHERE s.s_city IS NOT NULL AND sr.sr_return_amt IS NOT NULL\nGROUP BY s.s_city\nORDER BY s.s_city ASC;",
+        "attempts": 4,
+        "feedback_iterations": 3,
+        "result": [
+            {
+                "s_city": "Fairview",
+                "total_returns": 44308839.18
+            },
+            {
+                "s_city": "Midway",
+                "total_returns": 221569284.52
+            }
+        ],
+        "result_count": 2,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 11,
+        "question": "What is the net sales for each store name, order by net sales.",
+        "duration_s": 7.84,
+        "completion_tokens": 227,
+        "generation_s": 6.43,
+        "tokens_per_s": 35.3,
+        "sql_query": "/* What is the net sales for each store name, order by net sales. */\nWITH sales_agg AS (\n    SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    GROUP BY s.s_store_name\n),\nreturns_agg AS (\n    SELECT s.s_store_name, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    GROUP BY s.s_store_name\n)\nSELECT COALESCE(sa.s_store_name, ra.s_store_name) AS store_name,\n       COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0) AS net_sales\nFROM sales_agg AS sa\nFULL OUTER JOIN returns_agg AS ra ON sa.s_store_name = ra.s_store_name\nORDER BY net_sales DESC NULLS LAST;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "store_name": "bar",
+                "net_sales": 804421054.86
+            },
+            {
+                "store_name": "eing",
+                "net_sales": 802802848.75
+            },
+            {
+                "store_name": "ese",
+                "net_sales": 802346690.31
+            },
+            {
+                "store_name": "able",
+                "net_sales": 801418584.81
+            },
+            {
+                "store_name": "ation",
+                "net_sales": 800752820.38
+            },
+            {
+                "store_name": "ought",
+                "net_sales": 799255127.85
+            }
+        ],
+        "result_count": 6,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 12,
+        "question": "Calculate the return rate for each item category (i_category). Show the category name and return rate, with one row per distinct category. Exclude NULL categories. Order alphabetically by category name.",
+        "duration_s": 29.93,
+        "completion_tokens": 961,
+        "generation_s": 27.59,
+        "tokens_per_s": 34.8,
+        "sql_query": "/* Calculate the return rate for each item category */\nWITH sales_agg AS (\n    SELECT i.i_category, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_category IS NOT NULL\n    GROUP BY i.i_category\n), returns_agg AS (\n    SELECT i.i_category, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    WHERE i.i_category IS NOT NULL\n    GROUP BY i.i_category\n)\nSELECT COALESCE(sa.i_category, ra.i_category) AS category,\n       (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.i_category = ra.i_category\nWHERE COALESCE(sa.i_category, ra.i_category) IS NOT NULL\nORDER BY category;",
+        "attempts": 4,
+        "feedback_iterations": 3,
+        "result": [
+            {
+                "category": "Books",
+                "return_rate": 5.277071586091626
+            },
+            {
+                "category": "Children",
+                "return_rate": 5.255009818973696
+            },
+            {
+                "category": "Electronics",
+                "return_rate": 5.319351916503644
+            },
+            {
+                "category": "Home",
+                "return_rate": 5.218649723397223
+            },
+            {
+                "category": "Jewelry",
+                "return_rate": 5.345070249449321
+            },
+            {
+                "category": "Men",
+                "return_rate": 5.209735719511015
+            },
+            {
+                "category": "Music",
+                "return_rate": 5.189973779995426
+            },
+            {
+                "category": "Shoes",
+                "return_rate": 5.311438160495239
+            },
+            {
+                "category": "Sports",
+                "return_rate": 5.320163737321432
+            },
+            {
+                "category": "Women",
+                "return_rate": 5.2633305412191
+            }
+        ],
+        "result_count": 10,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 13,
+        "question": "What is the monthly trend of net sales during the year 2001, order by net sales desc.",
+        "duration_s": 8.56,
+        "completion_tokens": 268,
+        "generation_s": 7.22,
+        "tokens_per_s": 37.1,
+        "sql_query": "/* What is the monthly trend of net sales during the year 2001, order by net sales desc. */\nWITH sales_agg AS (\n    SELECT \n        d.d_moy,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    WHERE d.d_year = 2001\n    GROUP BY d.d_moy\n), returns_agg AS (\n    SELECT \n        d.d_moy,\n        SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    WHERE d.d_year = 2001\n    GROUP BY d.d_moy\n)\nSELECT \n    COALESCE(sa.d_moy, ra.d_moy) AS month,\n    COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0) AS net_sales\nFROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.d_moy = ra.d_moy\nORDER BY net_sales DESC;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "month": 12,
+                "net_sales": 165627767.25
+            },
+            {
+                "month": 11,
+                "net_sales": 156381489.68
+            },
+            {
+                "month": 10,
+                "net_sales": 109897296.26
+            },
+            {
+                "month": 8,
+                "net_sales": 106801630.39
+            },
+            {
+                "month": 9,
+                "net_sales": 103796993.78
+            },
+            {
+                "month": 1,
+                "net_sales": 48862327.3
+            },
+            {
+                "month": 7,
+                "net_sales": 48133560.08
+            },
+            {
+                "month": 6,
+                "net_sales": 45427718.91
+            },
+            {
+                "month": 5,
+                "net_sales": 44896319.14
+            },
+            {
+                "month": 4,
+                "net_sales": 44084090.88
+            },
+            {
+                "month": 3,
+                "net_sales": 41259823.7
+            },
+            {
+                "month": 2,
+                "net_sales": 39342722.93
+            }
+        ],
+        "result_count": 12,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 14,
+        "question": "Which customer birth country has the highest return rate? Show the country name and return rate. Order by return rate descending, then by country name alphabetically. Return only the top 1 row.",
+        "duration_s": 49.37,
+        "completion_tokens": 1637,
+        "generation_s": 45.19,
+        "tokens_per_s": 36.2,
+        "sql_query": "/* Which customer birth country has the highest return rate? */\nWITH sales_agg AS (\n    SELECT c.c_birth_country, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_sk\n    WHERE c.c_birth_country IS NOT NULL AND ss.ss_sales_price IS NOT NULL\n    GROUP BY c.c_birth_country\n),\nreturns_agg AS (\n    SELECT c.c_birth_country, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN customer AS c ON sr.sr_customer_sk = c.c_customer_sk\n    WHERE c.c_birth_country IS NOT NULL AND sr.sr_return_amt IS NOT NULL\n    GROUP BY c.c_birth_country\n)\nSELECT COALESCE(sa.c_birth_country, ra.c_birth_country) AS country_name,\n       (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.c_birth_country = ra.c_birth_country\nORDER BY return_rate DESC, COALESCE(sa.c_birth_country, ra.c_birth_country) ASC\nLIMIT 1;",
+        "attempts": 6,
+        "feedback_iterations": 3,
+        "result": [
+            {
+                "country_name": "FIJI",
+                "return_rate": 5.952938562856105
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 15,
+        "question": "For each store, show the store name, its net sales, the overall average net sales across all stores, and the percentage calculated as (store net sales / average net sales) * 100. Order by percentage descending, then by store name alphabetically for ties.",
+        "duration_s": 37.86,
+        "completion_tokens": 1151,
+        "generation_s": 35.28,
+        "tokens_per_s": 32.6,
+        "sql_query": "WITH sales_agg AS (\n    SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    GROUP BY s.s_store_name\n),\nreturns_agg AS (\n    SELECT s.s_store_name, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    GROUP BY s.s_store_name\n),\nnet_sales AS (\n    SELECT COALESCE(sa.s_store_name, ra.s_store_name) AS store_name,\n           COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0) AS net_sales\n    FROM sales_agg AS sa\n    FULL OUTER JOIN returns_agg AS ra ON sa.s_store_name = ra.s_store_name\n    WHERE sa.s_store_name IS NOT NULL OR ra.s_store_name IS NOT NULL\n)\nSELECT store_name,\n       net_sales,\n       AVG(net_sales) OVER () AS avg_net_sales,\n       (net_sales / AVG(net_sales) OVER ()) * 100 AS percentage\nFROM net_sales\nORDER BY percentage DESC, store_name ASC;",
+        "attempts": 4,
+        "feedback_iterations": 3,
+        "result": [
+            {
+                "store_name": "bar",
+                "net_sales": 804421054.86,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 100.32278552221487
+            },
+            {
+                "store_name": "eing",
+                "net_sales": 802802848.75,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 100.12097212670083
+            },
+            {
+                "store_name": "ese",
+                "net_sales": 802346690.31,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 100.06408265934567
+            },
+            {
+                "store_name": "able",
+                "net_sales": 801418584.81,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 99.9483346584002
+            },
+            {
+                "store_name": "ation",
+                "net_sales": 800752820.38,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 99.86530433278195
+            },
+            {
+                "store_name": "ought",
+                "net_sales": 799255127.85,
+                "avg_net_sales": 801832854.4933333,
+                "percentage": 99.67852070055646
+            }
+        ],
+        "result_count": 6,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 16,
+        "question": "List all item product names and total sales that have a return rate greater than 5%, ordered by item product name alphabetically.",
+        "duration_s": 69.58,
+        "completion_tokens": 1959,
+        "generation_s": 63.94,
+        "tokens_per_s": 30.6,
+        "sql_query": "WITH sales_agg AS (\n    SELECT i.i_item_sk, i.i_product_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_product_name IS NOT NULL\n      AND ss.ss_sales_price IS NOT NULL\n      AND ss.ss_quantity IS NOT NULL\n    GROUP BY i.i_item_sk, i.i_product_name\n),\nreturns_agg AS (\n    SELECT i.i_item_sk, i.i_product_name, SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    WHERE i.i_product_name IS NOT NULL\n      AND sr.sr_return_amt IS NOT NULL\n    GROUP BY i.i_item_sk, i.i_product_name\n)\nSELECT sa.i_product_name, sa.total_sales, (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.i_item_sk = ra.i_item_sk\nWHERE sa.total_sales > 0\n  AND (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) > 5\nORDER BY sa.i_product_name ASC;",
+        "attempts": 6,
+        "feedback_iterations": 3,
+        "result": [],
+        "result_count": 0,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 17,
+        "question": "For each store, what was the percentage change in net sales from year 2001 to year 2002? Show store name, net sales for 2001, net sales for 2002, and percentage change rounded to 2 decimal places. Order alphabetically by store name.",
+        "duration_s": 56.38,
+        "completion_tokens": 1664,
+        "generation_s": 54.15,
+        "tokens_per_s": 30.7,
+        "sql_query": "WITH sales_2001 AS (\n    SELECT \n        s.s_store_name,\n        COALESCE(SUM(ss.ss_sales_price * ss.ss_quantity) - COALESCE(SUM(sr.sr_return_amt), 0) AS net_sales_2001\n    FROM store_sales ss\n    JOIN date_dim d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN store s ON ss.ss_store_sk = s.s_store_sk\n    LEFT JOIN store_returns sr ON ss.ss_customer_sk = sr.sr_customer_sk AND ss.ss_item_sk = sr.sr_item_sk AND ss.ss_sold_date_sk = sr.returned_date_sk AND d.d_year = 2001\n    WHERE s.s_store_name IS NOT NULL\n    GROUP BY s.s_store_name\n),\nsales_2002 AS (\n    SELECT \n        s.s_store_name,\n        COALESCE(SUM(ss.ss_sales_price * ss.ss_quantity) - COALESCE(SUM(sr.sr_return_amt), 0) AS net_sales_2002\n    FROM store_sales ss\n    JOIN date_dim d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN store s ON ss.ss_store_sk = s.s_store_sk\n    LEFT JOIN store_returns sr ON ss.ss_customer_sk = sr.sr_customer_sk AND ss.ss_item_sk = sr.sr_item_sk AND ss.ss_sold_date_sk = sr.returned_date_sk AND d.d_year = 2002\n    WHERE s.s_store_name IS NOT NULL\n    GROUP BY s.s_store_name\n)\nSELECT \n    COALESCE(s1.s_store_name, s2.s_store_name) AS store_name,\n    COALESCE(s1.net_sales_2001, 0) AS net_sales_2001,\n    COALESCE(s2.net_sales_2002, 0) AS net_sales_2002,\n    ROUND((COALESCE(s2.net_sales_2002, 0) - COALESCE(s1.net_sales_2001, 0)) * 100.0 / NULLIF(COALESCE(s1.net_sales_2001, 0), 0), 2) AS percentage_change\nFROM sales_2001 s1\nFULL OUTER JOIN sales_2002 s2 ON s1.s_store_name = s2.s_store_name\nORDER BY store_name;",
+        "attempts": 3,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "Execution Error: Max attempts reached. Last error: Parser Error: syntax error at or near \"AS\"\n\nLINE 4: ... * ss.ss_quantity) - COALESCE(SUM(sr.sr_return_amt), 0) AS net_sales_2001\n                                                                   ^"
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 18,
+        "question": "What is the return rate for items sold on weekends (d_weekend = 'Y') versus weekdays (d_weekend = 'N'), broken down by customer age group? Use these age groups based on (d_year - c_birth_year): '< 20', '20-29', '30-39', '40-49', '50-59', '60+'. Show age group, weekend flag, and return rate. Order by age group, then by weekend flag.",
+        "duration_s": 225.81,
+        "completion_tokens": 4309,
+        "generation_s": 155.42,
+        "tokens_per_s": 27.7,
+        "sql_query": "WITH sales_agg AS (\n    SELECT \n        CASE \n            WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n            WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'\n        END AS age_group,\n        d.d_weekend,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_sk\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    WHERE i.i_category IS NOT NULL AND ss.ss_sales_price IS NOT NULL\n    GROUP BY CASE \n        WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n        WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'\n    END, d.d_weekend\n), returns_agg AS (\n    SELECT \n        CASE \n            WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n            WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n            WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'\n        END AS age_group,\n        d.d_weekend,\n        SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN customer AS c ON sr.sr_customer_sk = c.c_customer_sk\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    WHERE i.i_category IS NOT NULL AND sr.sr_return_amt IS NOT NULL\n    GROUP BY CASE \n        WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n        WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'\n    END, d.d_weekend\n)\nSELECT \n    COALESCE(sa.age_group, ra.age_group) AS age_group,\n    COALESCE(sa.d_weekend, ra.d_weekend) AS weekend_flag,\n    (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate\nFROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.age_group = ra.age_group AND sa.d_weekend = ra.d_weekend\nORDER BY sa.age_group, sa.d_weekend;",
+        "attempts": 4,
+        "feedback_iterations": 1,
+        "result": [
+            {
+                "age_group": "20-29",
+                "weekend_flag": "N",
+                "return_rate": 5.1773267812819785
+            },
+            {
+                "age_group": "20-29",
+                "weekend_flag": "Y",
+                "return_rate": 5.458149266736504
+            },
+            {
+                "age_group": "30-39",
+                "weekend_flag": "N",
+                "return_rate": 5.270638432612827
+            },
+            {
+                "age_group": "30-39",
+                "weekend_flag": "Y",
+                "return_rate": 5.293823383194566
+            },
+            {
+                "age_group": "40-49",
+                "weekend_flag": "N",
+                "return_rate": 5.22188034900783
+            },
+            {
+                "age_group": "40-49",
+                "weekend_flag": "Y",
+                "return_rate": 5.157459508482988
+            },
+            {
+                "age_group": "50-59",
+                "weekend_flag": "N",
+                "return_rate": 5.244192968702314
+            },
+            {
+                "age_group": "50-59",
+                "weekend_flag": "Y",
+                "return_rate": 5.260036218597996
+            },
+            {
+                "age_group": "60+",
+                "weekend_flag": "N",
+                "return_rate": 5.3436500220576075
+            },
+            {
+                "age_group": "60+",
+                "weekend_flag": "Y",
+                "return_rate": 5.263403764869451
+            },
+            {
+                "age_group": "< 20",
+                "weekend_flag": "N",
+                "return_rate": 5.026477380473606
+            },
+            {
+                "age_group": "< 20",
+                "weekend_flag": "Y",
+                "return_rate": 5.03086995259951
+            },
+            {
+                "age_group": null,
+                "weekend_flag": "N",
+                "return_rate": 0.0
+            },
+            {
+                "age_group": null,
+                "weekend_flag": "Y",
+                "return_rate": 0.0
+            },
+            {
+                "age_group": null,
+                "weekend_flag": "Y",
+                "return_rate": NaN
+            },
+            {
+                "age_group": null,
+                "weekend_flag": "N",
+                "return_rate": NaN
+            }
+        ],
+        "result_count": 16,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 19,
+        "question": "Which item brands had a decrease in return rate from 2001 to 2002 for stores in the 'TN' state? Show the brand name and decrease amount (2001 rate minus 2002 rate). Return rates are expressed as percentages. Only include brands where the return rate decreased (positive difference). Order by decrease descending, then by brand name alphabetically.",
+        "duration_s": 129.35,
+        "completion_tokens": 912,
+        "generation_s": 57.33,
+        "tokens_per_s": 15.9,
+        "sql_query": "WITH sales_2001 AS (\n    SELECT i.i_brand, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales_2001\n    FROM store_sales AS ss\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    WHERE d.d_year = 2001 AND s.s_state = 'TN' AND i.i_brand IS NOT NULL\n    GROUP BY i.i_brand\n),\nsales_2002 AS (\n    SELECT i.i_brand, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales_2002\n    FROM store_sales AS ss\n    JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    JOIN store AS s ON ss.ss_store_sk = s.s_store_sk\n    WHERE d.d_year = 2002 AND s.s_state = 'TN' AND i.i_brand IS NOT NULL\n    GROUP BY i.i_brand\n),\nreturns_2001 AS (\n    SELECT i.i_brand, SUM(sr.sr_return_amt) AS total_returns_2001\n    FROM store_returns AS sr\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    WHERE d.d_year = 2001 AND s.s_state = 'TN' AND i.i_brand IS NOT NULL\n    GROUP BY i.i_brand\n),\nreturns_2002 AS (\n    SELECT i.i_brand, SUM(sr.sr_return_amt) AS total_returns_2002\n    FROM store_returns AS sr\n    JOIN date_dim AS d ON sr.sr_returned_date_sk = d.d_date_sk\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    JOIN store AS s ON sr.sr_store_sk = s.s_store_sk\n    WHERE d.d_year = 2002 AND s.s_state = 'TN' AND i.i_brand IS NOT NULL\n    GROUP BY i.i_brand\n)\nSELECT COALESCE(s2001.i_brand, r2002.i_brand) AS brand_name,\n       (COALESCE(r2001.total_returns_2001, 0) / NULLIF(COALESCE(s2001.total_sales_2001, 0), 0)) * 100 -\n       (COALESCE(r2002.total_returns_2002, 0) / NULLIF(COALESCE(s2002.total_sales_2002, 0), 0)) * 100 AS decrease_amount\nFROM sales_2001 s2001\nFULL OUTER JOIN returns_2001 r2001 ON s2001.i_brand = r2001.i_brand\nFULL OUTER JOIN sales_2002 s2002 ON s2001.i_brand = s2002.i_brand\nFULL OUTER JOIN returns_2002 r2002 ON s2001.i_brand = r2002.i_brand\nWHERE (COALESCE(r2001.total_returns_2001, 0) / NULLIF(COALESCE(s2001.total_sales_2001, 0), 0)) * 100 -\n      (COALESCE(r2002.total_returns_2002, 0) / NULLIF(COALESCE(s2002.total_sales_2002, 0), 0)) * 100 > 0\nORDER BY decrease_amount DESC, brand_name ASC;",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "brand_name": "exportiunivamalg #9",
+                "decrease_amount": 20.812102063998637
+            },
+            {
+                "brand_name": "corpunivamalg #3",
+                "decrease_amount": 15.805713594837107
+            },
+            {
+                "brand_name": "amalgamalgamalg #5",
+                "decrease_amount": 15.58653361436832
+            },
+            {
+                "brand_name": "maxiunivamalg #9",
+                "decrease_amount": 15.579875627758538
+            },
+            {
+                "brand_name": "edu packunivamalg #17",
+                "decrease_amount": 15.02297403829667
+            },
+            {
+                "brand_name": "scholarunivamalg #3",
+                "decrease_amount": 13.2957787452211
+            },
+            {
+                "brand_name": "importounivamalg #3",
+                "decrease_amount": 11.324015991102442
+            },
+            {
+                "brand_name": "scholarunivamalg #5",
+                "decrease_amount": 10.909733737809583
+            },
+            {
+                "brand_name": "corpunivamalg #9",
+                "decrease_amount": 10.795662005975156
+            },
+            {
+                "brand_name": "exportiamalgamalg #15",
+                "decrease_amount": 9.694591328652796
+            },
+            {
+                "brand_name": "maxiunivamalg #4",
+                "decrease_amount": 9.219588018467615
+            },
+            {
+                "brand_name": "amalgunivamalg #9",
+                "decrease_amount": 9.213211293748092
+            },
+            {
+                "brand_name": "namelessunivamalg #15",
+                "decrease_amount": 8.998419589131167
+            },
+            {
+                "brand_name": "univamalgamalg #4",
+                "decrease_amount": 7.868831503858212
+            },
+            {
+                "brand_name": "edu packamalgamalg #15",
+                "decrease_amount": 7.781468549990938
+            },
+            {
+                "brand_name": "corpunivamalg #16",
+                "decrease_amount": 7.7698543801221
+            },
+            {
+                "brand_name": "corpamalgamalg #4",
+                "decrease_amount": 7.4906561962499545
+            },
+            {
+                "brand_name": "exportiunivamalg #7",
+                "decrease_amount": 7.3429090615600465
+            },
+            {
+                "brand_name": "edu packamalgamalg #14",
+                "decrease_amount": 7.160680700289381
+            },
+            {
+                "brand_name": "corpunivamalg #15",
+                "decrease_amount": 7.042238065513871
+            },
+            {
+                "brand_name": "scholaramalgamalg #16",
+                "decrease_amount": 6.759631755860707
+            },
+            {
+                "brand_name": "importounivamalg #7",
+                "decrease_amount": 6.735066902945964
+            },
+            {
+                "brand_name": "corpunivamalg #1",
+                "decrease_amount": 6.6154366615066085
+            },
+            {
+                "brand_name": "importounivamalg #1",
+                "decrease_amount": 6.522259225845903
+            },
+            {
+                "brand_name": "scholaramalgamalg #10",
+                "decrease_amount": 6.513445810803859
+            },
+            {
+                "brand_name": "namelessunivamalg #14",
+                "decrease_amount": 6.500647518599335
+            },
+            {
+                "brand_name": "amalgunivamalg #16",
+                "decrease_amount": 6.049883088267375
+            },
+            {
+                "brand_name": "namelessunivamalg #17",
+                "decrease_amount": 5.635974395956432
+            },
+            {
+                "brand_name": "exportiamalgamalg #16",
+                "decrease_amount": 4.965397900022033
+            },
+            {
+                "brand_name": "corpunivamalg #14",
+                "decrease_amount": 4.9058361103100125
+            },
+            {
+                "brand_name": "scholaramalgamalg #12",
+                "decrease_amount": 4.890457139612909
+            },
+            {
+                "brand_name": "corpunivamalg #17",
+                "decrease_amount": 4.803796576989611
+            },
+            {
+                "brand_name": "importoamalgamalg #4",
+                "decrease_amount": 4.679855963617097
+            },
+            {
+                "brand_name": "exportiamalgamalg #5",
+                "decrease_amount": 4.57021812198453
+            },
+            {
+                "brand_name": "importounivamalg #11",
+                "decrease_amount": 4.519262798721994
+            },
+            {
+                "brand_name": "exportiamalgamalg #14",
+                "decrease_amount": 4.464372109176889
+            },
+            {
+                "brand_name": "exportiunivamalg #15",
+                "decrease_amount": 4.3684221260067
+            },
+            {
+                "brand_name": "scholaramalgamalg #8",
+                "decrease_amount": 4.260712343129509
+            },
+            {
+                "brand_name": "edu packamalgamalg #9",
+                "decrease_amount": 4.214949373332641
+            },
+            {
+                "brand_name": "exportiamalgamalg #7",
+                "decrease_amount": 4.201409242533937
+            },
+            {
+                "brand_name": "scholarunivamalg #14",
+                "decrease_amount": 4.02622590016384
+            },
+            {
+                "brand_name": "amalgamalgamalg #6",
+                "decrease_amount": 3.935392302170094
+            },
+            {
+                "brand_name": "scholarunivamalg #11",
+                "decrease_amount": 3.9076016156808033
+            },
+            {
+                "brand_name": "scholaramalgamalg #17",
+                "decrease_amount": 3.771744415934788
+            },
+            {
+                "brand_name": "brandunivamalg #7",
+                "decrease_amount": 3.5359891920463733
+            },
+            {
+                "brand_name": "exportiamalgamalg #2",
+                "decrease_amount": 3.358003428927045
+            },
+            {
+                "brand_name": "edu packunivamalg #14",
+                "decrease_amount": 3.3257335168019404
+            },
+            {
+                "brand_name": "namelessunivamalg #2",
+                "decrease_amount": 3.273688403488785
+            },
+            {
+                "brand_name": "amalgunivamalg #1",
+                "decrease_amount": 3.160059234321197
+            },
+            {
+                "brand_name": "importoamalgamalg #7",
+                "decrease_amount": 3.1498114692288617
+            },
+            {
+                "brand_name": "scholaramalgamalg #6",
+                "decrease_amount": 3.128177367376928
+            },
+            {
+                "brand_name": "exportiunivamalg #3",
+                "decrease_amount": 3.0665823265148626
+            },
+            {
+                "brand_name": "importounivamalg #16",
+                "decrease_amount": 2.997843471466497
+            },
+            {
+                "brand_name": "namelessunivamalg #6",
+                "decrease_amount": 2.9786240462632705
+            },
+            {
+                "brand_name": "scholarunivamalg #9",
+                "decrease_amount": 2.8690513279791054
+            },
+            {
+                "brand_name": "maxiunivamalg #8",
+                "decrease_amount": 2.5829114829438202
+            },
+            {
+                "brand_name": "namelessunivamalg #1",
+                "decrease_amount": 2.5566166761070273
+            },
+            {
+                "brand_name": "amalgamalgamalg #13",
+                "decrease_amount": 2.4489895110208906
+            },
+            {
+                "brand_name": "scholarunivamalg #1",
+                "decrease_amount": 2.3754063205099434
+            },
+            {
+                "brand_name": "scholarunivamalg #7",
+                "decrease_amount": 2.3689992426282527
+            },
+            {
+                "brand_name": "importoamalgamalg #11",
+                "decrease_amount": 2.210501983476301
+            },
+            {
+                "brand_name": "univamalgamalg #8",
+                "decrease_amount": 2.1898105540774297
+            },
+            {
+                "brand_name": "univunivamalg #8",
+                "decrease_amount": 2.1752627239092126
+            },
+            {
+                "brand_name": "maxiunivamalg #15",
+                "decrease_amount": 2.151375803048371
+            },
+            {
+                "brand_name": "edu packamalgamalg #5",
+                "decrease_amount": 2.1487322785039966
+            },
+            {
+                "brand_name": "univamalgamalg #17",
+                "decrease_amount": 2.0171441069018634
+            },
+            {
+                "brand_name": "brandunivamalg #13",
+                "decrease_amount": 2.00789411566077
+            },
+            {
+                "brand_name": "amalgamalgamalg #4",
+                "decrease_amount": 1.971648182253575
+            },
+            {
+                "brand_name": "edu packunivamalg #3",
+                "decrease_amount": 1.8944737560241292
+            },
+            {
+                "brand_name": "exportiamalgamalg #1",
+                "decrease_amount": 1.8885113754786578
+            },
+            {
+                "brand_name": "edu packamalgamalg #7",
+                "decrease_amount": 1.8793263539595135
+            },
+            {
+                "brand_name": "corpamalgamalg #13",
+                "decrease_amount": 1.8276349628249595
+            },
+            {
+                "brand_name": "exportiamalgamalg #3",
+                "decrease_amount": 1.7802343975470691
+            },
+            {
+                "brand_name": "exportiunivamalg #1",
+                "decrease_amount": 1.7786551607144756
+            },
+            {
+                "brand_name": "edu packbrand #10",
+                "decrease_amount": 1.7090692386289827
+            },
+            {
+                "brand_name": "namelessunivamalg #10",
+                "decrease_amount": 1.6133617516292729
+            },
+            {
+                "brand_name": "maxibrand #2",
+                "decrease_amount": 1.6021005050618005
+            },
+            {
+                "brand_name": "scholarunivamalg #13",
+                "decrease_amount": 1.569973352102303
+            },
+            {
+                "brand_name": "brandmaxi #2",
+                "decrease_amount": 1.5684131493224394
+            },
+            {
+                "brand_name": "amalgamalgamalg #14",
+                "decrease_amount": 1.5633541511071698
+            },
+            {
+                "brand_name": "importounivamalg #15",
+                "decrease_amount": 1.5529627904819594
+            },
+            {
+                "brand_name": "edu packamalgamalg #17",
+                "decrease_amount": 1.5162173247944715
+            },
+            {
+                "brand_name": "importounivamalg #9",
+                "decrease_amount": 1.5119658529977107
+            },
+            {
+                "brand_name": "maxibrand #6",
+                "decrease_amount": 1.4988794664054383
+            },
+            {
+                "brand_name": "maxiunivamalg #3",
+                "decrease_amount": 1.4731792428020496
+            },
+            {
+                "brand_name": "amalgcorp #8",
+                "decrease_amount": 1.4655037387196455
+            },
+            {
+                "brand_name": "exportiamalgamalg #8",
+                "decrease_amount": 1.4480602742259747
+            },
+            {
+                "brand_name": "maximaxi #8",
+                "decrease_amount": 1.4374148826723268
+            },
+            {
+                "brand_name": "namelessmaxi #2",
+                "decrease_amount": 1.4032177735600921
+            },
+            {
+                "brand_name": "corpamalgamalg #9",
+                "decrease_amount": 1.391003764628108
+            },
+            {
+                "brand_name": "scholarunivamalg #15",
+                "decrease_amount": 1.37602715346146
+            },
+            {
+                "brand_name": "amalgamalgamalg #16",
+                "decrease_amount": 1.3644621539145092
+            },
+            {
+                "brand_name": "corpamalgamalg #3",
+                "decrease_amount": 1.353032216792589
+            },
+            {
+                "brand_name": "brandunivamalg #10",
+                "decrease_amount": 1.3467675433133848
+            },
+            {
+                "brand_name": "corpamalgamalg #1",
+                "decrease_amount": 1.3275222543614813
+            },
+            {
+                "brand_name": "brandmaxi #4",
+                "decrease_amount": 1.2748366973677223
+            },
+            {
+                "brand_name": "brandunivamalg #2",
+                "decrease_amount": 1.2590481484200984
+            },
+            {
+                "brand_name": "brandunivamalg #9",
+                "decrease_amount": 1.2386724941696285
+            },
+            {
+                "brand_name": "corpmaxi #10",
+                "decrease_amount": 1.1624692792316873
+            },
+            {
+                "brand_name": "brandnameless #6",
+                "decrease_amount": 1.1408290146925717
+            },
+            {
+                "brand_name": "exportiunivamalg #13",
+                "decrease_amount": 1.0908093742584555
+            },
+            {
+                "brand_name": "namelessunivamalg #9",
+                "decrease_amount": 1.0807672250379494
+            },
+            {
+                "brand_name": "univamalgamalg #6",
+                "decrease_amount": 1.0540728364652265
+            },
+            {
+                "brand_name": "exportiunivamalg #8",
+                "decrease_amount": 1.049813630139293
+            },
+            {
+                "brand_name": "univmaxi #10",
+                "decrease_amount": 1.0448180723263132
+            },
+            {
+                "brand_name": "brandunivamalg #4",
+                "decrease_amount": 1.0432631162542814
+            },
+            {
+                "brand_name": "amalgunivamalg #7",
+                "decrease_amount": 1.0114499658646223
+            },
+            {
+                "brand_name": "brandbrand #10",
+                "decrease_amount": 0.9534215384024005
+            },
+            {
+                "brand_name": "amalgunivamalg #8",
+                "decrease_amount": 0.9190479358250805
+            },
+            {
+                "brand_name": "univunivamalg #2",
+                "decrease_amount": 0.9142848944768076
+            },
+            {
+                "brand_name": "importounivamalg #8",
+                "decrease_amount": 0.9048169913721456
+            },
+            {
+                "brand_name": "brandmaxi #8",
+                "decrease_amount": 0.8587420933151613
+            },
+            {
+                "brand_name": "exportiamalgamalg #12",
+                "decrease_amount": 0.8323290878273575
+            },
+            {
+                "brand_name": "corpamalgamalg #14",
+                "decrease_amount": 0.828047670385506
+            },
+            {
+                "brand_name": "amalgamalgamalg #9",
+                "decrease_amount": 0.8272385290676292
+            },
+            {
+                "brand_name": "maxiunivamalg #13",
+                "decrease_amount": 0.7908458919903882
+            },
+            {
+                "brand_name": "corpunivamalg #11",
+                "decrease_amount": 0.7589844765163472
+            },
+            {
+                "brand_name": "amalgamalgamalg #8",
+                "decrease_amount": 0.7192372794835924
+            },
+            {
+                "brand_name": "namelessunivamalg #7",
+                "decrease_amount": 0.7001425696251911
+            },
+            {
+                "brand_name": "edu packcorp #8",
+                "decrease_amount": 0.6910311234901068
+            },
+            {
+                "brand_name": "scholarunivamalg #8",
+                "decrease_amount": 0.6545237256203844
+            },
+            {
+                "brand_name": "edu packnameless #6",
+                "decrease_amount": 0.6101428918271408
+            },
+            {
+                "brand_name": "namelessunivamalg #16",
+                "decrease_amount": 0.6092482113570927
+            },
+            {
+                "brand_name": "amalgamalgamalg #11",
+                "decrease_amount": 0.5712129469735459
+            },
+            {
+                "brand_name": "corpbrand #2",
+                "decrease_amount": 0.558635247141821
+            },
+            {
+                "brand_name": "corpamalgamalg #5",
+                "decrease_amount": 0.5539094224903716
+            },
+            {
+                "brand_name": "exportiamalgamalg #17",
+                "decrease_amount": 0.5473583627700593
+            },
+            {
+                "brand_name": "exportimaxi #2",
+                "decrease_amount": 0.5433124442134707
+            },
+            {
+                "brand_name": "maximaxi #10",
+                "decrease_amount": 0.44647121815104285
+            },
+            {
+                "brand_name": "exportiunivamalg #2",
+                "decrease_amount": 0.3984447276507783
+            },
+            {
+                "brand_name": "importounivamalg #17",
+                "decrease_amount": 0.3128436910644963
+            },
+            {
+                "brand_name": "maxinameless #8",
+                "decrease_amount": 0.2891140728263055
+            },
+            {
+                "brand_name": "amalgunivamalg #15",
+                "decrease_amount": 0.27071889444207997
+            },
+            {
+                "brand_name": "amalgamalgamalg #12",
+                "decrease_amount": 0.21940183200341412
+            },
+            {
+                "brand_name": "importoamalgamalg #14",
+                "decrease_amount": 0.21840092581730275
+            },
+            {
+                "brand_name": "edu packamalgamalg #16",
+                "decrease_amount": 0.2106877804152507
+            },
+            {
+                "brand_name": "scholarunivamalg #4",
+                "decrease_amount": 0.1495890741061121
+            },
+            {
+                "brand_name": "scholarunivamalg #2",
+                "decrease_amount": 0.14018339620524767
+            },
+            {
+                "brand_name": "corpunivamalg #8",
+                "decrease_amount": 0.13683377995718438
+            },
+            {
+                "brand_name": "corpunivamalg #7",
+                "decrease_amount": 0.11469765820178646
+            },
+            {
+                "brand_name": "amalgunivamalg #5",
+                "decrease_amount": 0.11071351258436302
+            },
+            {
+                "brand_name": "importounivamalg #5",
+                "decrease_amount": 0.09683715507013924
+            },
+            {
+                "brand_name": "corpmaxi #2",
+                "decrease_amount": 0.09589859703137993
+            },
+            {
+                "brand_name": "maxicorp #6",
+                "decrease_amount": 0.08299887410472628
+            },
+            {
+                "brand_name": "exportinameless #8",
+                "decrease_amount": 0.07064787072495804
+            },
+            {
+                "brand_name": "maxiunivamalg #17",
+                "decrease_amount": 0.04469049077448917
+            }
+        ],
+        "result_count": 146,
+        "error_details": null
+    },
+    {
+        "model": "qwen3.5-4b",
+        "SF": 1,
+        "timestamp": "20260330_095208",
+        "nbr": 20,
+        "question": "For each item class and customer preferred flag (Y or N), show the average net sales per sales transaction (net sales divided by the number of distinct sales ticket numbers). Exclude rows where item class is NULL or preferred flag is NULL. Order by average net sales descending, then by item class alphabetically.",
+        "duration_s": 139.64,
+        "completion_tokens": 2055,
+        "generation_s": 125.05,
+        "tokens_per_s": 16.4,
+        "sql_query": "WITH sales_agg AS (\n    SELECT \n        i.i_class,\n        c.c_preferred_cust_flag,\n        SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales\n    FROM store_sales AS ss\n    JOIN item AS i ON ss.ss_item_sk = i.i_item_sk\n    JOIN customer AS c ON ss.ss_customer_sk = c.c_customer_sk\n    WHERE i.i_class IS NOT NULL \n      AND c.c_preferred_cust_flag IS NOT NULL\n    GROUP BY i.i_class, c.c_preferred_cust_flag\n), returns_agg AS (\n    SELECT \n        i.i_class,\n        c.c_preferred_cust_flag,\n        SUM(sr.sr_return_amt) AS total_returns\n    FROM store_returns AS sr\n    JOIN item AS i ON sr.sr_item_sk = i.i_item_sk\n    JOIN customer AS c ON sr.sr_customer_sk = c.c_customer_sk\n    WHERE i.i_class IS NOT NULL \n      AND c.c_preferred_cust_flag IS NOT NULL\n    GROUP BY i.i_class, c.c_preferred_cust_flag\n)\nSELECT COALESCE(sa.i_class, ra.i_class) AS item_class,\n       COALESCE(sa.c_preferred_cust_flag, ra.c_preferred_cust_flag) AS preferred_cust_flag,\n       (COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0)) AS net_sales\nFROM sales_agg AS sa\nFULL OUTER JOIN returns_agg AS ra ON sa.i_class = ra.i_class AND sa.c_preferred_cust_flag = ra.c_preferred_cust_flag;",
+        "attempts": 2,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "item_class": "jewelry boxes",
+                "preferred_cust_flag": "Y",
+                "net_sales": 16649981.92
+            },
+            {
+                "item_class": "tennis",
+                "preferred_cust_flag": "N",
+                "net_sales": 12749421.14
+            },
+            {
+                "item_class": "newborn",
+                "preferred_cust_flag": "Y",
+                "net_sales": 54841289.21
+            },
+            {
+                "item_class": "womens",
+                "preferred_cust_flag": "N",
+                "net_sales": 60391081.07
+            },
+            {
+                "item_class": "fitness",
+                "preferred_cust_flag": "N",
+                "net_sales": 15334802.53
+            },
+            {
+                "item_class": "camping",
+                "preferred_cust_flag": "N",
+                "net_sales": 15487457.35
+            },
+            {
+                "item_class": "accent",
+                "preferred_cust_flag": "N",
+                "net_sales": 14298719.4
+            },
+            {
+                "item_class": "stereo",
+                "preferred_cust_flag": "N",
+                "net_sales": 16176368.47
+            },
+            {
+                "item_class": "wallpaper",
+                "preferred_cust_flag": "N",
+                "net_sales": 13473070.03
+            },
+            {
+                "item_class": "mattresses",
+                "preferred_cust_flag": "N",
+                "net_sales": 15532641.97
+            },
+            {
+                "item_class": "outdoor",
+                "preferred_cust_flag": "N",
+                "net_sales": 16795939.39
+            },
+            {
+                "item_class": "audio",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13321882.75
+            },
+            {
+                "item_class": "sports",
+                "preferred_cust_flag": "N",
+                "net_sales": 13928715.3
+            },
+            {
+                "item_class": "fishing",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14902650.44
+            },
+            {
+                "item_class": "semi-precious",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13056358.33
+            },
+            {
+                "item_class": "bracelets",
+                "preferred_cust_flag": "N",
+                "net_sales": 12385605.56
+            },
+            {
+                "item_class": "lighting",
+                "preferred_cust_flag": "N",
+                "net_sales": 14688860.13
+            },
+            {
+                "item_class": "rings",
+                "preferred_cust_flag": "N",
+                "net_sales": 15038307.94
+            },
+            {
+                "item_class": "computers",
+                "preferred_cust_flag": "N",
+                "net_sales": 17032568.85
+            },
+            {
+                "item_class": "history",
+                "preferred_cust_flag": "N",
+                "net_sales": 16872612.7
+            },
+            {
+                "item_class": "athletic shoes",
+                "preferred_cust_flag": "Y",
+                "net_sales": 16751426.33
+            },
+            {
+                "item_class": "dresses",
+                "preferred_cust_flag": "N",
+                "net_sales": 59344062.05
+            },
+            {
+                "item_class": "travel",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14223435.32
+            },
+            {
+                "item_class": "portable",
+                "preferred_cust_flag": "N",
+                "net_sales": 12299097.88
+            },
+            {
+                "item_class": "furniture",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14313391.62
+            },
+            {
+                "item_class": "self-help",
+                "preferred_cust_flag": "N",
+                "net_sales": 13906666.66
+            },
+            {
+                "item_class": "monitors",
+                "preferred_cust_flag": "N",
+                "net_sales": 15876136.09
+            },
+            {
+                "item_class": "musical",
+                "preferred_cust_flag": "N",
+                "net_sales": 14015817.88
+            },
+            {
+                "item_class": "accessories",
+                "preferred_cust_flag": "Y",
+                "net_sales": 55325161.65
+            },
+            {
+                "item_class": "shirts",
+                "preferred_cust_flag": "Y",
+                "net_sales": 61887807.48
+            },
+            {
+                "item_class": "football",
+                "preferred_cust_flag": "N",
+                "net_sales": 12096179.6
+            },
+            {
+                "item_class": "pop",
+                "preferred_cust_flag": "N",
+                "net_sales": 63395722.91
+            },
+            {
+                "item_class": "blinds/shades",
+                "preferred_cust_flag": "N",
+                "net_sales": 12674187.72
+            },
+            {
+                "item_class": "archery",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13065872.23
+            },
+            {
+                "item_class": "basketball",
+                "preferred_cust_flag": "N",
+                "net_sales": 13686578.23
+            },
+            {
+                "item_class": "toddlers",
+                "preferred_cust_flag": "Y",
+                "net_sales": 57073852.38
+            },
+            {
+                "item_class": "memory",
+                "preferred_cust_flag": "N",
+                "net_sales": 15199111.05
+            },
+            {
+                "item_class": "estate",
+                "preferred_cust_flag": "N",
+                "net_sales": 13707183.59
+            },
+            {
+                "item_class": "mystery",
+                "preferred_cust_flag": "N",
+                "net_sales": 12057407.44
+            },
+            {
+                "item_class": "bathroom",
+                "preferred_cust_flag": "N",
+                "net_sales": 13426031.08
+            },
+            {
+                "item_class": "science",
+                "preferred_cust_flag": "N",
+                "net_sales": 12949454.88
+            },
+            {
+                "item_class": "romance",
+                "preferred_cust_flag": "N",
+                "net_sales": 16145169.21
+            },
+            {
+                "item_class": "baseball",
+                "preferred_cust_flag": "N",
+                "net_sales": 14570894.41
+            },
+            {
+                "item_class": "parenting",
+                "preferred_cust_flag": "N",
+                "net_sales": 13440184.18
+            },
+            {
+                "item_class": "gold",
+                "preferred_cust_flag": "N",
+                "net_sales": 15721634.6
+            },
+            {
+                "item_class": "consignment",
+                "preferred_cust_flag": "Y",
+                "net_sales": 11491654.79
+            },
+            {
+                "item_class": "televisions",
+                "preferred_cust_flag": "N",
+                "net_sales": 15796073.14
+            },
+            {
+                "item_class": "cameras",
+                "preferred_cust_flag": "N",
+                "net_sales": 13319687.62
+            },
+            {
+                "item_class": "entertainments",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12572829.79
+            },
+            {
+                "item_class": "televisions",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15048226.41
+            },
+            {
+                "item_class": "shirts",
+                "preferred_cust_flag": "N",
+                "net_sales": 62924644.73
+            },
+            {
+                "item_class": "entertainments",
+                "preferred_cust_flag": "N",
+                "net_sales": 13288835.32
+            },
+            {
+                "item_class": "toddlers",
+                "preferred_cust_flag": "N",
+                "net_sales": 58911133.5
+            },
+            {
+                "item_class": "pop",
+                "preferred_cust_flag": "Y",
+                "net_sales": 61921059.06
+            },
+            {
+                "item_class": "cameras",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13630698.6
+            },
+            {
+                "item_class": "consignment",
+                "preferred_cust_flag": "N",
+                "net_sales": 11401289.12
+            },
+            {
+                "item_class": "romance",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15161623.31
+            },
+            {
+                "item_class": "blinds/shades",
+                "preferred_cust_flag": "Y",
+                "net_sales": 11699883.89
+            },
+            {
+                "item_class": "accessories",
+                "preferred_cust_flag": "N",
+                "net_sales": 57089023.95
+            },
+            {
+                "item_class": "memory",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14469411.13
+            },
+            {
+                "item_class": "musical",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13309657.16
+            },
+            {
+                "item_class": "football",
+                "preferred_cust_flag": "Y",
+                "net_sales": 11455383.64
+            },
+            {
+                "item_class": "monitors",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15959793.38
+            },
+            {
+                "item_class": "basketball",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13051174.38
+            },
+            {
+                "item_class": "mystery",
+                "preferred_cust_flag": "Y",
+                "net_sales": 10612440.6
+            },
+            {
+                "item_class": "archery",
+                "preferred_cust_flag": "N",
+                "net_sales": 13614029.49
+            },
+            {
+                "item_class": "gold",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15417220.76
+            },
+            {
+                "item_class": "bathroom",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12901136.03
+            },
+            {
+                "item_class": "parenting",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13434341.26
+            },
+            {
+                "item_class": "estate",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13385219.68
+            },
+            {
+                "item_class": "science",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12358898.3
+            },
+            {
+                "item_class": "baseball",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13986728.07
+            },
+            {
+                "item_class": "kids",
+                "preferred_cust_flag": "N",
+                "net_sales": 70650790.61
+            },
+            {
+                "item_class": "classical",
+                "preferred_cust_flag": "N",
+                "net_sales": 66074837.83
+            },
+            {
+                "item_class": "pants",
+                "preferred_cust_flag": "N",
+                "net_sales": 55406732.33
+            },
+            {
+                "item_class": "reference",
+                "preferred_cust_flag": "N",
+                "net_sales": 16169857.89
+            },
+            {
+                "item_class": "sports-apparel",
+                "preferred_cust_flag": "N",
+                "net_sales": 57904283.02
+            },
+            {
+                "item_class": "mens",
+                "preferred_cust_flag": "N",
+                "net_sales": 64575997.08
+            },
+            {
+                "item_class": "swimwear",
+                "preferred_cust_flag": "N",
+                "net_sales": 60334765.78
+            },
+            {
+                "item_class": "athletic",
+                "preferred_cust_flag": "N",
+                "net_sales": 59511837.91
+            },
+            {
+                "item_class": "personal",
+                "preferred_cust_flag": "N",
+                "net_sales": 13648569.36
+            },
+            {
+                "item_class": "disk drives",
+                "preferred_cust_flag": "N",
+                "net_sales": 16046187.18
+            },
+            {
+                "item_class": "fragrances",
+                "preferred_cust_flag": "N",
+                "net_sales": 61577785.21
+            },
+            {
+                "item_class": "diamonds",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12758926.97
+            },
+            {
+                "item_class": "earings",
+                "preferred_cust_flag": "N",
+                "net_sales": 12812395.66
+            },
+            {
+                "item_class": "paint",
+                "preferred_cust_flag": "N",
+                "net_sales": 15510581.58
+            },
+            {
+                "item_class": "karoke",
+                "preferred_cust_flag": "N",
+                "net_sales": 17280343.65
+            },
+            {
+                "item_class": "birdal",
+                "preferred_cust_flag": "N",
+                "net_sales": 13328632.94
+            },
+            {
+                "item_class": "hockey",
+                "preferred_cust_flag": "N",
+                "net_sales": 13481914.72
+            },
+            {
+                "item_class": "bedding",
+                "preferred_cust_flag": "Y",
+                "net_sales": 16889571.87
+            },
+            {
+                "item_class": "costume",
+                "preferred_cust_flag": "N",
+                "net_sales": 14216556.9
+            },
+            {
+                "item_class": "glassware",
+                "preferred_cust_flag": "N",
+                "net_sales": 18107281.37
+            },
+            {
+                "item_class": "camcorders",
+                "preferred_cust_flag": "N",
+                "net_sales": 13768965.02
+            },
+            {
+                "item_class": "tables",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14834703.37
+            },
+            {
+                "item_class": "curtains/drapes",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15373818.48
+            },
+            {
+                "item_class": "sailing",
+                "preferred_cust_flag": "Y",
+                "net_sales": 11935449.3
+            },
+            {
+                "item_class": "pools",
+                "preferred_cust_flag": "N",
+                "net_sales": 16170008.86
+            },
+            {
+                "item_class": "automotive",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12444211.62
+            },
+            {
+                "item_class": "travel",
+                "preferred_cust_flag": "N",
+                "net_sales": 15276504.2
+            },
+            {
+                "item_class": "newborn",
+                "preferred_cust_flag": "N",
+                "net_sales": 57286714.48
+            },
+            {
+                "item_class": "semi-precious",
+                "preferred_cust_flag": "N",
+                "net_sales": 13163432.72
+            },
+            {
+                "item_class": "fishing",
+                "preferred_cust_flag": "N",
+                "net_sales": 14799469.79
+            },
+            {
+                "item_class": "history",
+                "preferred_cust_flag": "Y",
+                "net_sales": 17098930.46
+            },
+            {
+                "item_class": "self-help",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13410773.4
+            },
+            {
+                "item_class": "outdoor",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15631820.8
+            },
+            {
+                "item_class": "dresses",
+                "preferred_cust_flag": "Y",
+                "net_sales": 57814394.22
+            },
+            {
+                "item_class": "tennis",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12259871.08
+            },
+            {
+                "item_class": "portable",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12395532.37
+            },
+            {
+                "item_class": "jewelry boxes",
+                "preferred_cust_flag": "N",
+                "net_sales": 16546258.88
+            },
+            {
+                "item_class": "audio",
+                "preferred_cust_flag": "N",
+                "net_sales": 13953107.76
+            },
+            {
+                "item_class": "furniture",
+                "preferred_cust_flag": "N",
+                "net_sales": 15192299.78
+            },
+            {
+                "item_class": "womens",
+                "preferred_cust_flag": "Y",
+                "net_sales": 57793361.1
+            },
+            {
+                "item_class": "accent",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13702225.72
+            },
+            {
+                "item_class": "stereo",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15887784.59
+            },
+            {
+                "item_class": "camping",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14702210.47
+            },
+            {
+                "item_class": "computers",
+                "preferred_cust_flag": "Y",
+                "net_sales": 16252947.49
+            },
+            {
+                "item_class": "mattresses",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14253219.48
+            },
+            {
+                "item_class": "wallpaper",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12633201.4
+            },
+            {
+                "item_class": "bracelets",
+                "preferred_cust_flag": "Y",
+                "net_sales": 11859196.47
+            },
+            {
+                "item_class": "sports",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13886941.96
+            },
+            {
+                "item_class": "rings",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15060874.94
+            },
+            {
+                "item_class": "fitness",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15097576.89
+            },
+            {
+                "item_class": "athletic shoes",
+                "preferred_cust_flag": "N",
+                "net_sales": 17376956.06
+            },
+            {
+                "item_class": "lighting",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14029704.41
+            },
+            {
+                "item_class": "infants",
+                "preferred_cust_flag": "Y",
+                "net_sales": 57866862.2
+            },
+            {
+                "item_class": "rugs",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12030440.94
+            },
+            {
+                "item_class": "dvd/vcr players",
+                "preferred_cust_flag": "Y",
+                "net_sales": 17231760.74
+            },
+            {
+                "item_class": "womens watch",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15162880.81
+            },
+            {
+                "item_class": "maternity",
+                "preferred_cust_flag": "N",
+                "net_sales": 53068681.31
+            },
+            {
+                "item_class": "school-uniforms",
+                "preferred_cust_flag": "N",
+                "net_sales": 58126343.99
+            },
+            {
+                "item_class": "country",
+                "preferred_cust_flag": "Y",
+                "net_sales": 57632416.28
+            },
+            {
+                "item_class": "loose stones",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12257173.75
+            },
+            {
+                "item_class": "pendants",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15772238.75
+            },
+            {
+                "item_class": "guns",
+                "preferred_cust_flag": "N",
+                "net_sales": 14885091.41
+            },
+            {
+                "item_class": "custom",
+                "preferred_cust_flag": "N",
+                "net_sales": 16831905.14
+            },
+            {
+                "item_class": "fiction",
+                "preferred_cust_flag": "Y",
+                "net_sales": 16379890.96
+            },
+            {
+                "item_class": "golf",
+                "preferred_cust_flag": "N",
+                "net_sales": 17622013.42
+            },
+            {
+                "item_class": "mens watch",
+                "preferred_cust_flag": "N",
+                "net_sales": 13935078.01
+            },
+            {
+                "item_class": "rock",
+                "preferred_cust_flag": "Y",
+                "net_sales": 54481715.78
+            },
+            {
+                "item_class": "flatware",
+                "preferred_cust_flag": "N",
+                "net_sales": 15940613.18
+            },
+            {
+                "item_class": "optics",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14740184.0
+            },
+            {
+                "item_class": "business",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12213860.95
+            },
+            {
+                "item_class": "home repair",
+                "preferred_cust_flag": "N",
+                "net_sales": 16381690.46
+            },
+            {
+                "item_class": "cooking",
+                "preferred_cust_flag": "N",
+                "net_sales": 12774856.95
+            },
+            {
+                "item_class": "scanners",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13318101.49
+            },
+            {
+                "item_class": "decor",
+                "preferred_cust_flag": "N",
+                "net_sales": 13108571.53
+            },
+            {
+                "item_class": "arts",
+                "preferred_cust_flag": "N",
+                "net_sales": 11787321.52
+            },
+            {
+                "item_class": "wireless",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13527410.25
+            },
+            {
+                "item_class": "earings",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12325838.76
+            },
+            {
+                "item_class": "athletic",
+                "preferred_cust_flag": "Y",
+                "net_sales": 56960079.5
+            },
+            {
+                "item_class": "pants",
+                "preferred_cust_flag": "Y",
+                "net_sales": 53484117.37
+            },
+            {
+                "item_class": "fragrances",
+                "preferred_cust_flag": "Y",
+                "net_sales": 58486620.64
+            },
+            {
+                "item_class": "curtains/drapes",
+                "preferred_cust_flag": "N",
+                "net_sales": 16785417.95
+            },
+            {
+                "item_class": "sports-apparel",
+                "preferred_cust_flag": "Y",
+                "net_sales": 56979722.33
+            },
+            {
+                "item_class": "kids",
+                "preferred_cust_flag": "Y",
+                "net_sales": 68619057.95
+            },
+            {
+                "item_class": "camcorders",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13190418.56
+            },
+            {
+                "item_class": "personal",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13528025.49
+            },
+            {
+                "item_class": "disk drives",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14159473.7
+            },
+            {
+                "item_class": "mens",
+                "preferred_cust_flag": "Y",
+                "net_sales": 62754964.09
+            },
+            {
+                "item_class": "costume",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14104994.14
+            },
+            {
+                "item_class": "pools",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15776016.64
+            },
+            {
+                "item_class": "paint",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15347763.31
+            },
+            {
+                "item_class": "tables",
+                "preferred_cust_flag": "N",
+                "net_sales": 15593368.17
+            },
+            {
+                "item_class": "automotive",
+                "preferred_cust_flag": "N",
+                "net_sales": 12342270.41
+            },
+            {
+                "item_class": "glassware",
+                "preferred_cust_flag": "Y",
+                "net_sales": 17652754.08
+            },
+            {
+                "item_class": "reference",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15701277.98
+            },
+            {
+                "item_class": "classical",
+                "preferred_cust_flag": "Y",
+                "net_sales": 63778431.72
+            },
+            {
+                "item_class": "swimwear",
+                "preferred_cust_flag": "Y",
+                "net_sales": 58685586.3
+            },
+            {
+                "item_class": "hockey",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12614409.97
+            },
+            {
+                "item_class": "sailing",
+                "preferred_cust_flag": "N",
+                "net_sales": 12416808.83
+            },
+            {
+                "item_class": "diamonds",
+                "preferred_cust_flag": "N",
+                "net_sales": 13329499.15
+            },
+            {
+                "item_class": "bedding",
+                "preferred_cust_flag": "N",
+                "net_sales": 17992946.5
+            },
+            {
+                "item_class": "birdal",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13314431.43
+            },
+            {
+                "item_class": "karoke",
+                "preferred_cust_flag": "Y",
+                "net_sales": 17284115.83
+            },
+            {
+                "item_class": "custom",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15706371.27
+            },
+            {
+                "item_class": "scanners",
+                "preferred_cust_flag": "N",
+                "net_sales": 13706519.58
+            },
+            {
+                "item_class": "loose stones",
+                "preferred_cust_flag": "N",
+                "net_sales": 12549147.71
+            },
+            {
+                "item_class": "country",
+                "preferred_cust_flag": "N",
+                "net_sales": 58873221.37
+            },
+            {
+                "item_class": "infants",
+                "preferred_cust_flag": "N",
+                "net_sales": 59261030.93
+            },
+            {
+                "item_class": "pendants",
+                "preferred_cust_flag": "N",
+                "net_sales": 16193519.43
+            },
+            {
+                "item_class": "dvd/vcr players",
+                "preferred_cust_flag": "N",
+                "net_sales": 18009581.29
+            },
+            {
+                "item_class": "womens watch",
+                "preferred_cust_flag": "N",
+                "net_sales": 15625648.81
+            },
+            {
+                "item_class": "business",
+                "preferred_cust_flag": "N",
+                "net_sales": 12805422.99
+            },
+            {
+                "item_class": "guns",
+                "preferred_cust_flag": "Y",
+                "net_sales": 14177940.99
+            },
+            {
+                "item_class": "wireless",
+                "preferred_cust_flag": "N",
+                "net_sales": 14533701.86
+            },
+            {
+                "item_class": "home repair",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15927410.88
+            },
+            {
+                "item_class": "maternity",
+                "preferred_cust_flag": "Y",
+                "net_sales": 51688608.88
+            },
+            {
+                "item_class": "school-uniforms",
+                "preferred_cust_flag": "Y",
+                "net_sales": 55974811.71
+            },
+            {
+                "item_class": "optics",
+                "preferred_cust_flag": "N",
+                "net_sales": 15066592.16
+            },
+            {
+                "item_class": "rock",
+                "preferred_cust_flag": "N",
+                "net_sales": 55342132.15
+            },
+            {
+                "item_class": "arts",
+                "preferred_cust_flag": "Y",
+                "net_sales": 11006387.39
+            },
+            {
+                "item_class": "rugs",
+                "preferred_cust_flag": "N",
+                "net_sales": 13252417.67
+            },
+            {
+                "item_class": "flatware",
+                "preferred_cust_flag": "Y",
+                "net_sales": 15299893.13
+            },
+            {
+                "item_class": "fiction",
+                "preferred_cust_flag": "N",
+                "net_sales": 17055546.71
+            },
+            {
+                "item_class": "cooking",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12353075.22
+            },
+            {
+                "item_class": "golf",
+                "preferred_cust_flag": "Y",
+                "net_sales": 16745956.31
+            },
+            {
+                "item_class": "mens watch",
+                "preferred_cust_flag": "Y",
+                "net_sales": 13141863.28
+            },
+            {
+                "item_class": "decor",
+                "preferred_cust_flag": "Y",
+                "net_sales": 12212703.76
+            }
+        ],
+        "result_count": 198,
+        "error_details": null
+    }
+]
