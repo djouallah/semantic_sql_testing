@@ -7,7 +7,7 @@
     "Show total sales revenue for each year, ordered chronologically by year.",
     "Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties. Return only the top 1 row.",
     "What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, then by brand name alphabetically for ties.",
-    "Show total sales for preferred customers (c_preferred_cust_flag = 'Y') versus non-preferred customers (c_preferred_cust_flag = 'N') as two rows. Exclude customers where the preferred flag is NULL. Order by total sales descending.",
+    "Show total sales for preferred customers versus non-preferred customers as two rows. Use the raw flag value (c_preferred_cust_flag) as the group label — output 'Y' and 'N', not 'Preferred' / 'Non-Preferred'. Exclude customers where the preferred flag is NULL. Order by total sales descending.",
     "What is the total return amount for each city where stores are located, ordered alphabetically by city name.",
     "What is the net sales for each store name, order by net sales.",
     "Calculate the return rate for each item category (i_category). Show the category name and return rate, with one row per distinct category. Exclude NULL categories. Order alphabetically by category name.",
