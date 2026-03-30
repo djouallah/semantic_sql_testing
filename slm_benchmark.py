@@ -37,6 +37,7 @@ TIMEOUT_SECONDS = 300
 max_attempts = 3
 SF = 1
 output_dir = r"c:\llm"
+data_dir = r"c:\llm\data"
 test_semantic_model_url = r'c:\llm\semantic_model.txt'
 questions_url = r'c:\llm\questions.json'
 model0 = "claude-opus-4-6"
@@ -77,7 +78,8 @@ def init():
         schema = f'DS{SF:02d}'
 
     os.makedirs(output_dir, exist_ok=True)
-    db_path = os.path.join(output_dir, f"{schema}.duckdb")
+    os.makedirs(data_dir, exist_ok=True)
+    db_path = os.path.join(data_dir, f"{schema}.duckdb")
 
     if not pathlib.Path(db_path).exists():
         c = duckdb.connect(db_path)
@@ -86,7 +88,33 @@ def init():
         c.close()
 
     con = duckdb.connect()
-    con.sql(f"ATTACH '{db_path}' AS ds (READ_ONLY); USE ds;")
+    con.sql(f"ATTACH '{db_path}' AS ds; USE ds;")
+    con.sql("""
+        CREATE OR REPLACE VIEW v_transactions AS
+        SELECT
+            ss_store_sk                            AS store_sk,
+            ss_item_sk                             AS item_sk,
+            ss_customer_sk                         AS customer_sk,
+            ss_sold_date_sk                        AS date_sk,
+            ss_ticket_number                       AS ticket_number,
+            COALESCE(ss_quantity, 0)               AS quantity,
+            COALESCE(ss_sales_price * ss_quantity, 0.0) AS sale_amount,
+            0.0                                    AS return_amount,
+            'sale'                                 AS row_type
+        FROM store_sales
+        UNION ALL
+        SELECT
+            sr_store_sk                            AS store_sk,
+            sr_item_sk                             AS item_sk,
+            sr_customer_sk                         AS customer_sk,
+            sr_returned_date_sk                    AS date_sk,
+            sr_ticket_number                       AS ticket_number,
+            0                                      AS quantity,
+            0.0                                    AS sale_amount,
+            COALESCE(sr_return_amt, 0.0)           AS return_amount,
+            'return'                               AS row_type
+        FROM store_returns
+    """)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # Load questions
@@ -700,6 +728,7 @@ def ask_question(questions_list, test_model):
         results_data.append({
             "model": test_model,
             "SF": SF,
+            "semantic_model": os.path.basename(test_semantic_model_url),
             "timestamp": timestamp,
             "nbr": i + 1,
             "question": x,
@@ -1136,9 +1165,11 @@ def analyze_all_runs():
         n_correct = sum(s['correct'] for s in scores)
         n_total = len(scores)
         tps_values = [s['tokens_per_s'] for s in scores if s['tokens_per_s']]
+        sem_model = records[0].get('semantic_model', 'semantic_model.txt') or 'semantic_model.txt'
         all_summaries.append({
             'model': run_model,
             'timestamp': run_ts,
+            'semantic_model': sem_model,
             'accuracy_percent': round(n_correct / max(n_total, 1) * 100, 1),
             'avg_duration_per_question': round(sum(s['duration_s'] for s in scores) / max(n_total, 1), 2),
             'avg_tokens_per_s': round(sum(tps_values) / len(tps_values), 1) if tps_values else None,
@@ -1159,6 +1190,10 @@ def plot_results(comparison_table):
     base_colors = ['#1f77b4', '#2e8b57', '#ff8c00', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
     has_all_runs = 'timestamp' in comparison_table.columns
 
+    sem_col = 'semantic_model' if 'semantic_model' in comparison_table.columns else None
+    unique_sem_models = sorted(comparison_table[sem_col].fillna('semantic_model.txt').unique()) if sem_col else ['semantic_model.txt']
+    sem_markers = {s: m for s, m in zip(unique_sem_models, ['o', 'D', 's', '^', 'v'])}
+
     plt.figure(figsize=(12, 7))
 
     if has_all_runs:
@@ -1167,12 +1202,21 @@ def plot_results(comparison_table):
 
         for model in unique_models:
             mdf = comparison_table[comparison_table['model'] == model].sort_values('timestamp')
-            x = mdf['avg_duration_per_question'].tolist()
-            y = mdf['accuracy_percent'].tolist()
-            color = model_color[model]
-            plt.scatter(x, y, c=color, s=60, alpha=0.7, edgecolors='black', linewidth=1.5, label=model, zorder=3)
+            for sem, sdf in mdf.groupby(sem_col if sem_col else lambda x: 'semantic_model.txt'):
+                sem = sem or 'semantic_model.txt'
+                plt.scatter(sdf['avg_duration_per_question'], sdf['accuracy_percent'],
+                            c=model_color[model], marker=sem_markers.get(sem, 'o'),
+                            s=80, alpha=0.7, edgecolors='black', linewidth=1.5, zorder=3)
+            plt.scatter([], [], c=model_color[model], s=80, label=model)
 
-        plt.legend(loc='lower right', fontsize=10)
+        # Legend: models (color)
+        model_legend = plt.legend(loc='lower right', fontsize=10, title='Model')
+        plt.gca().add_artist(model_legend)
+        # Legend: semantic model (shape)
+        import matplotlib.lines as mlines
+        sem_handles = [mlines.Line2D([], [], color='grey', marker=sem_markers[s], linestyle='None', markersize=8, label=s) for s in unique_sem_models]
+        plt.legend(handles=sem_handles, loc='upper right', fontsize=9, title='Semantic model')
+
         n_label = f'{len(unique_models)} models, {len(comparison_table)} runs'
         all_times = comparison_table['avg_duration_per_question'].tolist()
     else:
@@ -1180,10 +1224,10 @@ def plot_results(comparison_table):
         accuracy = comparison_table['accuracy_percent'].tolist()
         avg_time = comparison_table['avg_duration_per_question'].tolist()
         colors = (base_colors * ((len(models) // len(base_colors)) + 1))[:len(models)]
-        plt.scatter(avg_time, accuracy, c=colors, s=60, alpha=0.7, edgecolors='black', linewidth=2)
-        for i, model in enumerate(models):
-            plt.annotate(model, (avg_time[i], accuracy[i]),
-                        xytext=(5, 5), textcoords='offset points', fontsize=10)
+        sem_list = comparison_table[sem_col].fillna('semantic_model.txt').tolist() if sem_col else ['semantic_model.txt'] * len(models)
+        for i, (x, y, c, s) in enumerate(zip(avg_time, accuracy, colors, sem_list)):
+            plt.scatter(x, y, c=c, marker=sem_markers.get(s, 'o'), s=80, alpha=0.7, edgecolors='black', linewidth=2)
+            plt.annotate(models[i], (x, y), xytext=(5, 5), textcoords='offset points', fontsize=10)
         n_label = f'{len(models)} models'
         all_times = avg_time
 
@@ -1195,9 +1239,19 @@ def plot_results(comparison_table):
     except Exception:
         pass
     plt.title(f'Text to SQL: Duration vs Accuracy ({n_label})\n(NVIDIA RTX 2000 Mobile, 4GB VRAM, 32GB RAM, llama.cpp {llama_version})', fontsize=14, fontweight='bold')
+    import numpy as np
+    xmax = 60
+    plt.xlim(0, xmax)
+    plt.ylim(0, 100)
+    ax = plt.gca()
+    ax.set_xticks(np.arange(0, 65, 5))
+    ax.set_yticks(np.arange(0, 110, 10))
     plt.grid(True, alpha=0.3)
-    plt.xlim(0, max(all_times) * 1.1 if all_times and max(all_times) > 0 else 10)
-    plt.ylim(0, 105)
+    ax.add_patch(plt.matplotlib.patches.Rectangle(
+        (0, 90), 5, 10, transform=ax.transData,
+        facecolor='#00cc44', alpha=0.12, zorder=0
+    ))
+
     plt.tight_layout()
     chart_path = os.path.join(output_dir, 'chart.png')
     plt.savefig(chart_path, dpi=150, bbox_inches='tight')
@@ -1259,11 +1313,13 @@ def plot_tokens_per_s(comparison_table):
     plt.show()
 
 
-def run_test(model_name):
+def run_test(model_name, semantic_model=None):
     """Complete test workflow: start server, run tests, analyze, plot, stop server."""
-    global timestamp, last_tested_model
+    global timestamp, last_tested_model, test_semantic_model_url
     last_tested_model = model_name
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    if semantic_model is not None:
+        test_semantic_model_url = semantic_model
     try:
         start_server(model_name)
         ask_question(questions, model_name)

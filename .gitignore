@@ -21,6 +21,10 @@ generate_baseline.py
 
 # Claude Code config
 .claude/
+CLAUDE.md
+
+# Malloy (experimental, not part of main benchmark)
+*.malloy
 
 # OS files
 Thumbs.db
