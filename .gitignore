@@ -26,3 +26,4 @@ generate_baseline.py
 Thumbs.db
 .DS_Store
 llama_server.log
+log/20260329_230430_gemma3-4b.json
