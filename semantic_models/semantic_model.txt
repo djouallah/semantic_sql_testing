@@ -32,6 +32,9 @@
 #                   Requires CTE pattern: aggregate each fact separately, then FULL OUTER JOIN
 # return_rate     = (COALESCE(total_returns,0) / NULLIF(COALESCE(total_sales,0), 0)) * 100
 #                   Requires CTE pattern: aggregate each fact separately, then FULL OUTER JOIN
+# avg_net_sales_per_ticket = net_sales / COUNT(DISTINCT ss_ticket_number) from store_sales
+#                   "average net sales per transaction" means this ratio, NOT AVG()
+#                   Tickets only exist in store_sales — compute in the sales CTE, carry through JOIN
 
 # === Reusable Expressions ===
 # age_group (requires date_dim d and customer c):

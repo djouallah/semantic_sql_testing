@@ -1,0 +1,723 @@
+[
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 1,
+        "question": "What is the overall total sales revenue?",
+        "duration_s": 2.66,
+        "completion_tokens": 9,
+        "generation_s": 0.19,
+        "tokens_per_s": 47.4,
+        "sql_query": "transactions -> { aggregate: total_sales }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "total_sales": 5138665812.53
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 2,
+        "question": "What is the total number of items sold across all transactions?",
+        "duration_s": 1.78,
+        "completion_tokens": 9,
+        "generation_s": 0.18,
+        "tokens_per_s": 50.0,
+        "sql_query": "transactions -> { aggregate: total_quantity }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "total_quantity": "138963631"
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 3,
+        "question": "What is the total monetary value of all returned items?",
+        "duration_s": 1.73,
+        "completion_tokens": 10,
+        "generation_s": 0.21,
+        "tokens_per_s": 47.6,
+        "sql_query": "store_returns -> { aggregate: total_returns }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "total_returns": 270824609.25
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 4,
+        "question": "List the names of all stores, order by store name.",
+        "duration_s": 2.06,
+        "completion_tokens": 18,
+        "generation_s": 0.38,
+        "tokens_per_s": 47.4,
+        "sql_query": "store -> { group_by: s_store_name; order_by: s_store_name }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "s_store_name": "able"
+            },
+            {
+                "s_store_name": "anti"
+            },
+            {
+                "s_store_name": "ation"
+            },
+            {
+                "s_store_name": "bar"
+            },
+            {
+                "s_store_name": "cally"
+            },
+            {
+                "s_store_name": "eing"
+            },
+            {
+                "s_store_name": "ese"
+            },
+            {
+                "s_store_name": "ought"
+            }
+        ],
+        "result_count": 8,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 5,
+        "question": "What are the different item categories available? Remove null values. Order alphabetically by category name.",
+        "duration_s": 2.21,
+        "completion_tokens": 24,
+        "generation_s": 0.54,
+        "tokens_per_s": 44.4,
+        "sql_query": "item -> { group_by: i_category; where: i_category != null; order_by: i_category asc }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "i_category": "Books"
+            },
+            {
+                "i_category": "Children"
+            },
+            {
+                "i_category": "Electronics"
+            },
+            {
+                "i_category": "Home"
+            },
+            {
+                "i_category": "Jewelry"
+            },
+            {
+                "i_category": "Men"
+            },
+            {
+                "i_category": "Music"
+            },
+            {
+                "i_category": "Shoes"
+            },
+            {
+                "i_category": "Sports"
+            },
+            {
+                "i_category": "Women"
+            }
+        ],
+        "result_count": 10,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 6,
+        "question": "Show total sales revenue for each year, ordered chronologically by year.",
+        "duration_s": 2.25,
+        "completion_tokens": 31,
+        "generation_s": 0.68,
+        "tokens_per_s": 45.6,
+        "sql_query": "transactions -> { group_by: date_dim.d_year; aggregate: total_sales; order_by: d_year asc }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "d_year": "1998",
+                "total_sales": 1019051668.9
+            },
+            {
+                "d_year": "1999",
+                "total_sales": 1001288731.68
+            },
+            {
+                "d_year": "2000",
+                "total_sales": 1024199559.82
+            },
+            {
+                "d_year": "2001",
+                "total_sales": 1006887594.97
+            },
+            {
+                "d_year": "2002",
+                "total_sales": 1014023749.92
+            },
+            {
+                "d_year": "2003",
+                "total_sales": 11094739.83
+            },
+            {
+                "d_year": null,
+                "total_sales": 62119767.41
+            }
+        ],
+        "result_count": 7,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 7,
+        "question": "Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties. Return only the top 1 row.",
+        "duration_s": 2.62,
+        "completion_tokens": 44,
+        "generation_s": 0.97,
+        "tokens_per_s": 45.4,
+        "sql_query": "store_sales -> { group_by: store.s_store_name; aggregate: total_sales; order_by: total_sales desc, s_store_name asc; limit: 1 }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "s_store_name": "bar",
+                "total_sales": 848558075.98
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 8,
+        "question": "What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, then by brand name alphabetically for ties.",
+        "duration_s": 2.42,
+        "completion_tokens": 41,
+        "generation_s": 0.92,
+        "tokens_per_s": 44.6,
+        "sql_query": "transactions -> { group_by: item.i_brand; aggregate: total_quantity; order_by: total_quantity desc, i_brand asc; where: item.i_brand != null }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "i_brand": "importoedu pack #2",
+                "total_quantity": "2348242"
+            },
+            {
+                "i_brand": "edu packscholar #2",
+                "total_quantity": "2295358"
+            },
+            {
+                "i_brand": "importoscholar #2",
+                "total_quantity": "2259448"
+            },
+            {
+                "i_brand": "exportischolar #2",
+                "total_quantity": "2258349"
+            },
+            {
+                "i_brand": "importoimporto #2",
+                "total_quantity": "2189537"
+            },
+            {
+                "i_brand": "importoamalg #2",
+                "total_quantity": "2178916"
+            },
+            {
+                "i_brand": "edu packamalg #2",
+                "total_quantity": "2165380"
+            },
+            {
+                "i_brand": "importoexporti #2",
+                "total_quantity": "2123321"
+            },
+            {
+                "i_brand": "edu packexporti #2",
+                "total_quantity": "2120877"
+            },
+            {
+                "i_brand": "edu packedu pack #2",
+                "total_quantity": "2099755"
+            }
+        ],
+        "result_count": 10,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 9,
+        "question": "Show total sales for preferred customers versus non-preferred customers as two rows. Use the raw flag value (c_preferred_cust_flag) as the group label \u2014 output 'Y' and 'N', not 'Preferred' / 'Non-Preferred'. Exclude customers where the preferred flag is NULL. Order by total sales descending.",
+        "duration_s": 2.83,
+        "completion_tokens": 46,
+        "generation_s": 1.03,
+        "tokens_per_s": 44.7,
+        "sql_query": "transactions -> { group_by: customer.c_preferred_cust_flag; aggregate: total_sales; where: customer.c_preferred_cust_flag != null; order_by: total_sales desc }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "c_preferred_cust_flag": "N",
+                "total_sales": 2493560166.78
+            },
+            {
+                "c_preferred_cust_flag": "Y",
+                "total_sales": 2408850335.04
+            }
+        ],
+        "result_count": 2,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 10,
+        "question": "What is the total return amount for each city where stores are located, ordered alphabetically by city name.",
+        "duration_s": 2.21,
+        "completion_tokens": 31,
+        "generation_s": 0.68,
+        "tokens_per_s": 45.6,
+        "sql_query": "store_returns -> { group_by: store.s_city; aggregate: total_returns; order_by: s_city asc }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "s_city": "Fairview",
+                "total_returns": 44308839.18
+            },
+            {
+                "s_city": "Midway",
+                "total_returns": 221569284.52
+            },
+            {
+                "s_city": null,
+                "total_returns": 4946485.55
+            }
+        ],
+        "result_count": 3,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 11,
+        "question": "What is the net sales for each store name, order by net sales.",
+        "duration_s": 2.17,
+        "completion_tokens": 31,
+        "generation_s": 0.69,
+        "tokens_per_s": 44.9,
+        "sql_query": "transactions -> { group_by: store.s_store_name; aggregate: net_sales; order_by: net_sales desc }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "s_store_name": "bar",
+                "net_sales": 804421054.86
+            },
+            {
+                "s_store_name": "eing",
+                "net_sales": 802802848.75
+            },
+            {
+                "s_store_name": "ese",
+                "net_sales": 802346690.31
+            },
+            {
+                "s_store_name": "able",
+                "net_sales": 801418584.81
+            },
+            {
+                "s_store_name": "ation",
+                "net_sales": 800752820.38
+            },
+            {
+                "s_store_name": "ought",
+                "net_sales": 799255127.85
+            },
+            {
+                "s_store_name": null,
+                "net_sales": 56844076.32
+            }
+        ],
+        "result_count": 7,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 12,
+        "question": "Calculate the return rate for each item category (i_category). Show the category name and return rate, with one row per distinct category. Exclude NULL categories. Order alphabetically by category name.",
+        "duration_s": 2.56,
+        "completion_tokens": 40,
+        "generation_s": 0.9,
+        "tokens_per_s": 44.4,
+        "sql_query": "transactions -> { group_by: item.i_category; aggregate: return_rate; where: item.i_category != null; order_by: i_category asc }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "i_category": "Books",
+                "return_rate": 5.277071586091626
+            },
+            {
+                "i_category": "Children",
+                "return_rate": 5.255009818973696
+            },
+            {
+                "i_category": "Electronics",
+                "return_rate": 5.319351916503644
+            },
+            {
+                "i_category": "Home",
+                "return_rate": 5.218649723397223
+            },
+            {
+                "i_category": "Jewelry",
+                "return_rate": 5.345070249449321
+            },
+            {
+                "i_category": "Men",
+                "return_rate": 5.209735719511015
+            },
+            {
+                "i_category": "Music",
+                "return_rate": 5.189973779995426
+            },
+            {
+                "i_category": "Shoes",
+                "return_rate": 5.311438160495239
+            },
+            {
+                "i_category": "Sports",
+                "return_rate": 5.320163737321432
+            },
+            {
+                "i_category": "Women",
+                "return_rate": 5.2633305412191
+            }
+        ],
+        "result_count": 10,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 13,
+        "question": "What is the monthly trend of net sales during the year 2001, order by net sales desc.",
+        "duration_s": 2.58,
+        "completion_tokens": 47,
+        "generation_s": 1.06,
+        "tokens_per_s": 44.3,
+        "sql_query": "transactions -> { where: date_dim.d_year = 2001, group_by: date_dim.d_moy, aggregate: net_sales, order_by: net_sales desc }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "d_moy": "12",
+                "net_sales": 165627767.25
+            },
+            {
+                "d_moy": "11",
+                "net_sales": 156381489.68
+            },
+            {
+                "d_moy": "10",
+                "net_sales": 109897296.26
+            },
+            {
+                "d_moy": "8",
+                "net_sales": 106801630.39
+            },
+            {
+                "d_moy": "9",
+                "net_sales": 103796993.78
+            },
+            {
+                "d_moy": "1",
+                "net_sales": 48862327.3
+            },
+            {
+                "d_moy": "7",
+                "net_sales": 48133560.08
+            },
+            {
+                "d_moy": "6",
+                "net_sales": 45427718.91
+            },
+            {
+                "d_moy": "5",
+                "net_sales": 44896319.14
+            },
+            {
+                "d_moy": "4",
+                "net_sales": 44084090.88
+            }
+        ],
+        "result_count": 10,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 14,
+        "question": "Which customer birth country has the highest return rate? Show the country name and return rate. Order by return rate descending, then by country name alphabetically. Return only the top 1 row.",
+        "duration_s": 2.64,
+        "completion_tokens": 54,
+        "generation_s": 1.2,
+        "tokens_per_s": 45.0,
+        "sql_query": "transactions -> { group_by: customer.c_birth_country; aggregate: return_rate; where: customer.c_birth_country != null; order_by: return_rate desc, c_birth_country asc; limit: 1 }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "c_birth_country": "FIJI",
+                "return_rate": 5.952938562856105
+            }
+        ],
+        "result_count": 1,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 15,
+        "question": "For each store, show the store name, its net sales, the overall average net sales across all stores, and the percentage calculated as (store net sales / average net sales) * 100. Order by percentage descending, then by store name alphabetically for ties.",
+        "duration_s": 10.01,
+        "completion_tokens": 211,
+        "generation_s": 4.89,
+        "tokens_per_s": 43.1,
+        "sql_query": "transactions -> { group_by: store.s_store_name; aggregate: net_sales, avg_net_sales_percent is (avg(net_sales) * 100.0); having: net_sales > 0; order_by: (net_sales / avg_net_sales_percent) * 100.0 desc, s_store_name asc }",
+        "attempts": 3,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "Execution Error: Malloy error: \u001b[31mError:\u001b[0m Error(s) compiling model:\nFILE: internal://internal.malloy\nline 1: extraneous input '(' expecting {BQ_STRING, IDENTIFIER, INTEGER_LITERAL}\n  | run: transactions -> { group_by: store.s_store_name; aggregate: net_sales, avg_net_sales_percent is (avg(net_sales) * 100.0); having: net_sales > 0; order_by: (net_sales / avg_net_sales_percent) * 100.0 desc, s_store_name asc }\n  |                                                                                                                                                                ^\nline 1: extraneous input '/' expecting {AGGREGATE, CALCULATE, DECLARE, DIMENSION, DRILL, EXCEPT, EXTENDQ, GROUP_BY, HAVING, INDEX, INTERNAL, JOIN_CROSS, JOIN_ONE, JOIN_MANY, LIMIT, MEASURE, NEST, ORDER_BY, PRIVATE, PUBLIC, QUERY, RENAME, RUN, SAMPLE, SELECT, SOURCE, TOP, WHERE, VIEW, TIMEZONE, ALL, AVG, CASE, CAST, COUNT, COMPOSE, DAY, EXCLUDE, FALSE, HOUR, IS, INTERNAL_KW, MAX, MIN, MINUTE, MONTH, NOT, NOW, NULL, PICK, PRIVATE_KW, PUBLIC_KW, QUARTER, SECOND, SOURCE_KW, SUM, TRUE, WEEK, YEAR, HACKY_REGEX, RAW_SQ, RAW_DQ, SQ3_FILTER, SQ_FILTER, DQ3_FILTER, DQ_FILTER, BQ3_FILTER, BQ_FILTER, SQ_STRING, DQ_STRING, BQ_STRING, DOC_ANNOTATION, ANNOTATION, '(', '[', '{', '}', '-', '*', ';', LITERAL_TIMESTAMP, LITERAL_HOUR, LITERAL_DAY, LITERAL_QUARTER, LITERAL_MONTH, LITERAL_WEEK, LITERAL_YEAR, IDENTIFIER, NUMERIC_LITERAL, INTEGER_LITERAL, '\"\"\"'}\n  | run: transactions -> { group_by: store.s_store_name; aggregate: net_sales, avg_net_sales_percent is (avg(net_sales) * 100.0); having: net_sales > 0; order_by: (net_sales / avg_net_sales_percent) * 100.0 desc, s_store_name asc }\n  |                                                                                                                                                                           ^"
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 16,
+        "question": "List all item product names and total sales that have a return rate greater than 5%, ordered by item product name alphabetically.",
+        "duration_s": 3.1,
+        "completion_tokens": 56,
+        "generation_s": 1.27,
+        "tokens_per_s": 44.1,
+        "sql_query": "transactions -> { group_by: item.i_product_name; aggregate: net_sales, return_rate; where: item.i_product_name != null; having: return_rate > 5; order_by: i_product_name asc }",
+        "attempts": 1,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "i_product_name": "ableableable",
+                "net_sales": 88549.45,
+                "return_rate": 8.473778634163958
+            },
+            {
+                "i_product_name": "ableableableable",
+                "net_sales": 291574.39,
+                "return_rate": 7.327825020582912
+            },
+            {
+                "i_product_name": "ableableableableought",
+                "net_sales": 86868.45,
+                "return_rate": 9.468623340962338
+            },
+            {
+                "i_product_name": "ableableableationought",
+                "net_sales": 331649.37,
+                "return_rate": 5.092948419858262
+            },
+            {
+                "i_product_name": "ableableablebarought",
+                "net_sales": 247382.29,
+                "return_rate": 9.880001038967814
+            },
+            {
+                "i_product_name": "ableableablecally",
+                "net_sales": 109328.7,
+                "return_rate": 5.584371294371361
+            },
+            {
+                "i_product_name": "ableableablecallyought",
+                "net_sales": 183230.05,
+                "return_rate": 10.135490708739116
+            },
+            {
+                "i_product_name": "ableableableought",
+                "net_sales": 246992.73,
+                "return_rate": 10.772255264754458
+            },
+            {
+                "i_product_name": "ableableableoughtought",
+                "net_sales": 286928.86,
+                "return_rate": 8.392210985903334
+            },
+            {
+                "i_product_name": "ableableablepriought",
+                "net_sales": 253703.84,
+                "return_rate": 6.529450882651473
+            }
+        ],
+        "result_count": 10,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 17,
+        "question": "For each store, what was the percentage change in net sales from year 2001 to year 2002? Show store name, net sales for 2001, net sales for 2002, and percentage change rounded to 2 decimal places. Order alphabetically by store name.",
+        "duration_s": 9.19,
+        "completion_tokens": 256,
+        "generation_s": 5.89,
+        "tokens_per_s": 43.5,
+        "sql_query": "transactions -> { group_by: store.s_store_name; aggregate: net_sales; where: date_dim.d_year = 2001; order_by: s_store_name asc }",
+        "attempts": 2,
+        "feedback_iterations": 0,
+        "result": [
+            {
+                "s_store_name": "able",
+                "net_sales": 158053428.76
+            },
+            {
+                "s_store_name": "ation",
+                "net_sales": 158611361.34
+            },
+            {
+                "s_store_name": "bar",
+                "net_sales": 156855509.08
+            },
+            {
+                "s_store_name": "eing",
+                "net_sales": 160452581.38
+            },
+            {
+                "s_store_name": "ese",
+                "net_sales": 159084730.58
+            },
+            {
+                "s_store_name": "ought",
+                "net_sales": 155696944.21
+            },
+            {
+                "s_store_name": null,
+                "net_sales": 5757184.95
+            }
+        ],
+        "result_count": 7,
+        "error_details": null
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 18,
+        "question": "What is the return rate for items sold on weekends (d_weekend = 'Y') versus weekdays (d_weekend = 'N'), broken down by customer age group? Use these age groups based on (d_year - c_birth_year): '< 20', '20-29', '30-39', '40-49', '50-59', '60+'. Show age group, weekend flag, and return rate. Order by age group, then by weekend flag.",
+        "duration_s": 27.35,
+        "completion_tokens": 896,
+        "generation_s": 21.49,
+        "tokens_per_s": 41.7,
+        "sql_query": "transactions -> { group_by: (date_dim.d_year - customer.c_birth_year) >= 60 ? '60+' : (date_dim.d_year - customer.c_birth_year) >= 50 ? '50-59' : (date_dim.d_year - customer.c_birth_year) >= 40 ? '40-49' : (date_dim.d_year - customer.c_birth_year) >= 30 ? '30-39' : (date_dim.d_year - customer.c_birth_year) >= 20 ? '20-29' : '< 20', date_dim.d_weekend, aggregate: return_rate, where: date_dim.d_weekend != null & customer.c_birth_year != null, order_by: (date_dim.d_year - customer.c_birth_year) >= 60 ? '60+' : (date_dim.d_year - customer.c_birth_year) >= 50 ? '50-59' : (date_dim.d_year - customer.c_birth_year) >= 40 ? '40-49' : (date_dim.d_year - customer.c_birth_year) >= 30 ? '30-39' : (date_dim.d_year - customer.c_birth_year) >= 20 ? '20-29' : '< 20', date_dim.d_weekend asc }",
+        "attempts": 3,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "Execution Error: Malloy error: \u001b[31mError:\u001b[0m Error(s) compiling model:\nFILE: internal://internal.malloy\nline 1: no viable alternative at input '('\n  | run: transactions -> { group_by: (date_dim.d_year - customer.c_birth_year) >= 60 ? '60+' : (date_dim.d_year - customer.c_birth_year) >= 50 ? '50-59' : (date_dim.d_year - customer.c_birth_year) >= 40 ? '40-49' : (date_dim.d_year - customer.c_birth_year) >= 30 ? '30-39' : (date_dim.d_year - customer.c_birth_year) >= 20 ? '20-29' : '< 20', date_dim.d_weekend, aggregate: return_rate, where: date_dim.d_weekend != null & customer.c_birth_year != null, order_by: (date_dim.d_year - customer.c_birth_year) >= 60 ? '60+' : (date_dim.d_year - customer.c_birth_year) >= 50 ? '50-59' : (date_dim.d_year - customer.c_birth_year) >= 40 ? '40-49' : (date_dim.d_year - customer.c_birth_year) >= 30 ? '30-39' : (date_dim.d_year - customer.c_birth_year) >= 20 ? '20-29' : '< 20', date_dim.d_weekend asc }\n  |                                  ^\nline 1: extraneous input '(' expecting {BQ_STRING, IDENTIFIER, INTEGER_LITERAL}\n  | run: transactions -> { group_by: (date_dim.d_year - customer.c_birth_year) >= 60 ? '60+' : (date_dim.d_year - customer.c_birth_year) >= 50 ? '50-59' : (date_dim.d_year - customer.c_birth_year) >= 40 ? '40-49' : (date_dim.d_year - customer.c_birth_year) >= 30 ? '30-39' : (date_dim.d_year - customer.c_birth_year) >= 20 ? '20-29' : '< 20', date_dim.d_weekend, aggregate: return_rate, where: date_dim.d_weekend != null & customer.c_birth_year != null, order_by: (date_dim.d_year - customer.c_birth_year) >= 60 ? '60+' : (date_dim.d_year - customer.c_birth_year) >= 50 ? '50-59' : (date_dim.d_year - customer.c_birth_year) >= 40 ? '40-49' : (date_dim.d_year - customer.c_birth_year) >= 30 ? '30-39' : (date_dim.d_year - customer.c_birth_year) >= 20 ? '20-29' : '< 20', date_dim.d_weekend asc }\n  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^\nline 1: extraneous input '.' expecting {AGGREGATE, CALCULATE, DECLARE, DIMENSION, DRILL, EXCEPT, EXTENDQ, GROUP_BY, HAVING, INDEX, INTERNAL, JOIN_CROSS, JOIN_ONE, JOIN_MANY, LIMIT, MEASURE, NEST, ORDER_BY, PRIVATE, PUBLIC, QUERY, RENAME, RUN, SAMPLE, SELECT, SOURCE, TOP, WHERE, VIEW, TIMEZONE, ALL, AVG, CASE, CAST, COUNT, COMPOSE, DAY, EXCLUDE, FALSE, HOUR, IS, INTERNAL_KW, MAX, MIN, MINUTE, MONTH, NOT, NOW, NULL, PICK, PRIVATE_KW, PUBLIC_KW, QUARTER, SECOND, SOURCE_KW, SUM, TRUE, WEEK, YEAR, HACKY_REGEX, RAW_SQ, RAW_DQ, SQ3_FILTER, SQ_FILTER, DQ3_FILTER, DQ_FILTER, BQ3_FILTER, BQ_FILTER, SQ_STRING, DQ_STRING, BQ_STRING, DOC_ANNOTATION, ANNOTATION, '(', '[', '{', '}', '-', '*', ';', LITERAL_TIMESTAMP, LITERAL_HOUR, LITERAL_DAY, LITERAL_QUARTER, LITERAL_MONTH, LITERAL_WEEK, LITERAL_YEAR, IDENTIFIER, NUMERIC_LITERAL, INTEGER_LITERAL, '\"\"\"'}\n  | run: transactions -> { group_by: (date_dim.d_year - customer.c_birth_year) >= 60 ? '60+' : (date_dim.d_year - customer.c_birth_year) >= 50 ? '50-59' : (date_dim.d_year - customer.c_birth_year) >= 40 ? '40-49' : (date_dim.d_year - customer.c_birth_year) >= 30 ? '30-39' : (date_dim.d_year - customer.c_birth_year) >= 20 ? '20-29' : '< 20', date_dim.d_weekend, aggregate: return_rate, where: date_dim.d_weekend != null & customer.c_birth_year != null, order_by: (date_dim.d_year - customer.c_birth_year) >= 60 ? '60+' : (date_dim.d_year - customer.c_birth_year) >= 50 ? '50-59' : (date_dim.d_year - customer.c_birth_year) >= 40 ? '40-49' : (date_dim.d_year - customer.c_birth_year) >= 30 ? '30-39' : (date_dim.d_year - customer.c_birth_year) >= 20 ? '20-29' : '< 20', date_dim.d_weekend asc }\n  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^"
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 19,
+        "question": "Which item brands had a decrease in return rate from 2001 to 2002 for stores in the 'TN' state? Show the brand name and decrease amount (2001 rate minus 2002 rate). Return rates are expressed as percentages. Only include brands where the return rate decreased (positive difference). Order by decrease descending, then by brand name alphabetically.",
+        "duration_s": 14.07,
+        "completion_tokens": 297,
+        "generation_s": 7.36,
+        "tokens_per_s": 40.4,
+        "sql_query": "transactions -> { group_by: item.i_brand; aggregate: return_rate; where: store.s_state = 'TN' & (date_dim.d_year = 2001 | date_dim.d_year = 2002); having: return_rate > lag(return_rate) over (partition by item.i_brand order by date_dim.d_year); order_by: return_rate desc, item.i_brand asc }",
+        "attempts": 3,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "Execution Error: Malloy error: \u001b[31mError:\u001b[0m Error(s) compiling model:\nFILE: internal://internal.malloy\nline 1: no viable alternative at input 'over'\n  | run: transactions -> { group_by: item.i_brand; aggregate: return_rate; where: store.s_state = 'TN' & (date_dim.d_year = 2001 | date_dim.d_year = 2002); having: return_rate > lag(return_rate) over (partition by item.i_brand order by date_dim.d_year); order_by: return_rate desc, item.i_brand asc }\n  |                                                                                                                                                                                                ^\nline 1: extraneous input '.' expecting {AGGREGATE, CALCULATE, DECLARE, DIMENSION, DRILL, EXCEPT, EXTENDQ, GROUP_BY, HAVING, INDEX, INTERNAL, JOIN_CROSS, JOIN_ONE, JOIN_MANY, LIMIT, MEASURE, NEST, ORDER_BY, PRIVATE, PUBLIC, QUERY, RENAME, RUN, SAMPLE, SELECT, SOURCE, TOP, WHERE, VIEW, TIMEZONE, ALL, AVG, CASE, CAST, COUNT, COMPOSE, DAY, EXCLUDE, FALSE, HOUR, IS, INTERNAL_KW, MAX, MIN, MINUTE, MONTH, NOT, NOW, NULL, PICK, PRIVATE_KW, PUBLIC_KW, QUARTER, SECOND, SOURCE_KW, SUM, TRUE, WEEK, YEAR, HACKY_REGEX, RAW_SQ, RAW_DQ, SQ3_FILTER, SQ_FILTER, DQ3_FILTER, DQ_FILTER, BQ3_FILTER, BQ_FILTER, SQ_STRING, DQ_STRING, BQ_STRING, DOC_ANNOTATION, ANNOTATION, '(', '[', '{', '}', '-', '*', ';', LITERAL_TIMESTAMP, LITERAL_HOUR, LITERAL_DAY, LITERAL_QUARTER, LITERAL_MONTH, LITERAL_WEEK, LITERAL_YEAR, IDENTIFIER, NUMERIC_LITERAL, INTEGER_LITERAL, '\"\"\"'}\n  | run: transactions -> { group_by: item.i_brand; aggregate: return_rate; where: store.s_state = 'TN' & (date_dim.d_year = 2001 | date_dim.d_year = 2002); having: return_rate > lag(return_rate) over (partition by item.i_brand order by date_dim.d_year); order_by: return_rate desc, item.i_brand asc }\n  |                                                                                                                                                                                                                                                                                           ^"
+    },
+    {
+        "model": "qwen3-4b-instruct-2507",
+        "SF": 1,
+        "semantic_model": "malloy",
+        "timestamp": "20260331_102024",
+        "nbr": 20,
+        "question": "For each item class and customer preferred flag (Y or N), show the average net sales per sales transaction (net sales divided by the number of distinct sales ticket numbers). Exclude rows where item class is NULL or preferred flag is NULL. Order by average net sales descending, then by item class alphabetically.",
+        "duration_s": 10.61,
+        "completion_tokens": 182,
+        "generation_s": 4.65,
+        "tokens_per_s": 39.1,
+        "sql_query": "transactions -> { group_by: item.i_class, customer.c_preferred_cust_flag; aggregate: net_sales, sales_tickets; where: item.i_class != null & customer.c_preferred_cust_flag != null; order_by: (net_sales / sales_tickets) desc, i_class asc }",
+        "attempts": 3,
+        "feedback_iterations": 0,
+        "result": [],
+        "result_count": 0,
+        "error_details": "Execution Error: Malloy error: \u001b[31mError:\u001b[0m Error(s) compiling model:\nFILE: internal://internal.malloy\nline 1: extraneous input '(' expecting {BQ_STRING, IDENTIFIER, INTEGER_LITERAL}\n  | run: transactions -> { group_by: item.i_class, customer.c_preferred_cust_flag; aggregate: net_sales, sales_tickets; where: item.i_class != null & customer.c_preferred_cust_flag != null; order_by: (net_sales / sales_tickets) desc, i_class asc }\n  |                                                                                                                                                                                                     ^\nline 1: extraneous input '/' expecting {AGGREGATE, CALCULATE, DECLARE, DIMENSION, DRILL, EXCEPT, EXTENDQ, GROUP_BY, HAVING, INDEX, INTERNAL, JOIN_CROSS, JOIN_ONE, JOIN_MANY, LIMIT, MEASURE, NEST, ORDER_BY, PRIVATE, PUBLIC, QUERY, RENAME, RUN, SAMPLE, SELECT, SOURCE, TOP, WHERE, VIEW, TIMEZONE, ALL, AVG, CASE, CAST, COUNT, COMPOSE, DAY, EXCLUDE, FALSE, HOUR, IS, INTERNAL_KW, MAX, MIN, MINUTE, MONTH, NOT, NOW, NULL, PICK, PRIVATE_KW, PUBLIC_KW, QUARTER, SECOND, SOURCE_KW, SUM, TRUE, WEEK, YEAR, HACKY_REGEX, RAW_SQ, RAW_DQ, SQ3_FILTER, SQ_FILTER, DQ3_FILTER, DQ_FILTER, BQ3_FILTER, BQ_FILTER, SQ_STRING, DQ_STRING, BQ_STRING, DOC_ANNOTATION, ANNOTATION, '(', '[', '{', '}', '-', '*', ';', LITERAL_TIMESTAMP, LITERAL_HOUR, LITERAL_DAY, LITERAL_QUARTER, LITERAL_MONTH, LITERAL_WEEK, LITERAL_YEAR, IDENTIFIER, NUMERIC_LITERAL, INTEGER_LITERAL, '\"\"\"'}\n  | run: transactions -> { group_by: item.i_class, customer.c_preferred_cust_flag; aggregate: net_sales, sales_tickets; where: item.i_class != null & customer.c_preferred_cust_flag != null; order_by: (net_sales / sales_tickets) desc, i_class asc }\n  |                                                                                                                                                                                                                ^"
+    }
+]
