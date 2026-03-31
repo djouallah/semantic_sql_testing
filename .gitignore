@@ -23,8 +23,8 @@ generate_baseline.py
 .claude/
 CLAUDE.md
 
-# Malloy (experimental, not part of main benchmark)
-*.malloy
+# Malloy
+semantic_models/tpcds.malloy
 
 # OS files
 Thumbs.db

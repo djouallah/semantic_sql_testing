@@ -68,28 +68,8 @@ def load_config(path=r'c:\llm\models_config.json'):
     init()
 
 
-def init():
-    """Initialize database connection, timestamp, and load questions."""
-    global con, timestamp, questions
-
-    if SF < 1:
-        schema = f"DS{str(SF).replace('.', '_')}"
-    else:
-        schema = f'DS{SF:02d}'
-
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(data_dir, exist_ok=True)
-    db_path = os.path.join(data_dir, f"{schema}.duckdb")
-
-    if not pathlib.Path(db_path).exists():
-        c = duckdb.connect(db_path)
-        c.sql("SET memory_limit = '14GB' ")
-        c.sql(f"CALL dsdgen(sf={SF})")
-        c.close()
-
-    con = duckdb.connect()
-    con.sql(f"ATTACH '{db_path}' AS ds; USE ds;")
-    con.sql("""
+def _create_views(c):
+    c.sql("""
         CREATE OR REPLACE VIEW v_transactions AS
         SELECT
             ss_store_sk                            AS store_sk,
@@ -115,6 +95,29 @@ def init():
             'return'                               AS row_type
         FROM store_returns
     """)
+
+
+def init():
+    """Initialize database connection, timestamp, and load questions."""
+    global con, timestamp, questions
+
+    if SF < 1:
+        schema = f"DS{str(SF).replace('.', '_')}"
+    else:
+        schema = f'DS{SF:02d}'
+
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(data_dir, exist_ok=True)
+    db_path = os.path.join(data_dir, f"{schema}.duckdb")
+
+    if not pathlib.Path(db_path).exists():
+        c = duckdb.connect(db_path)
+        c.sql("SET memory_limit = '14GB' ")
+        c.sql(f"CALL dsdgen(sf={SF})")
+        _create_views(c)
+        c.close()
+
+    con = duckdb.connect(db_path, read_only=True)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # Load questions
@@ -602,9 +605,6 @@ def execute_sql_with_retry(query, test_model):
     current_query = query.strip()
 
     while attempt <= max_attempts:
-        con.sql("SET enable_progress_bar_print = false")
-        con.sql("SET progress_bar_time = 0")
-
         result_container = {"result": None, "error": None}
 
         def query_thread():
@@ -664,85 +664,91 @@ def ask_question(questions_list, test_model):
         _token_accumulator["completion_tokens"] = 0
         _token_accumulator["generation_ms"] = 0.0
         start_time = time.time()
-        sql_query_or_error = get_ai_response(x, test_model)
-        query_result_data_json = []
-        attempts_count = None
-        error_details = None
-        feedback_iterations = 0
-        final_sql_query = sql_query_or_error
+        try:
+            sql_query_or_error = get_ai_response(x, test_model)
+            query_result_data_json = []
+            attempts_count = None
+            error_details = None
+            feedback_iterations = 0
+            final_sql_query = sql_query_or_error
 
-        if sql_query_or_error is None or sql_query_or_error.startswith("Error"):
-            error_message = sql_query_or_error if sql_query_or_error is not None else "AI response was None"
-            error_details = f"AI Error: {error_message}"
-            result_row_count = 0
-        else:
-            result_from_execution, attempts_count, query_returned = execute_sql_with_retry(sql_query_or_error, test_model)
-            final_sql_query = query_returned
-
-            is_successful = isinstance(result_from_execution, pd.DataFrame)
-
-            if is_successful and enable_feedback_loop and feedback_iterations < max_attempts:
-                current_query = query_returned
-                current_result = result_from_execution
-
-                while feedback_iterations < max_attempts:
-                    feedback_response = get_feedback_response(x, current_query, current_result, test_model)
-
-                    if "RESULTS_CORRECT" in feedback_response.upper():
-                        break
-                    elif feedback_response.startswith("Error"):
-                        break
-                    else:
-                        revised_result, revised_attempts, revised_query = execute_sql_with_retry(feedback_response, test_model)
-
-                        if isinstance(revised_result, pd.DataFrame):
-                            current_query = revised_query
-                            current_result = revised_result
-                            final_sql_query = revised_query
-                            attempts_count = (attempts_count or 0) + (revised_attempts or 0)
-                        else:
-                            break
-
-                    feedback_iterations += 1
-
-                result_from_execution = current_result
-
-            display(result_from_execution)
-            is_successful = isinstance(result_from_execution, pd.DataFrame)
-
-            if is_successful:
-                query_result_data_json = result_from_execution.to_dict('records')
-                error_details = None
-                result_row_count = len(result_from_execution)
-            else:
-                print("Execution: FAILED")
-                error_details = f"Execution Error: {result_from_execution}"
+            if sql_query_or_error is None or sql_query_or_error.startswith("Error"):
+                error_message = sql_query_or_error if sql_query_or_error is not None else "AI response was None"
+                error_details = f"AI Error: {error_message}"
                 result_row_count = 0
+            else:
+                result_from_execution, attempts_count, query_returned = execute_sql_with_retry(sql_query_or_error, test_model)
+                final_sql_query = query_returned
 
-        end_time = time.time()
-        duration = round(end_time - start_time, 2)
-        completion_tokens = _token_accumulator["completion_tokens"]
-        generation_s = round(_token_accumulator["generation_ms"] / 1000, 2)
-        tokens_per_s = round(completion_tokens / generation_s, 1) if generation_s > 0 else None
-        print(f" ############################### ")
-        results_data.append({
-            "model": test_model,
-            "SF": SF,
-            "semantic_model": os.path.basename(test_semantic_model_url),
-            "timestamp": timestamp,
-            "nbr": i + 1,
-            "question": x,
-            "duration_s": duration,
-            "completion_tokens": completion_tokens,
-            "generation_s": generation_s,
-            "tokens_per_s": tokens_per_s,
-            "sql_query": final_sql_query,
-            "attempts": attempts_count,
-            "feedback_iterations": feedback_iterations,
-            "result": query_result_data_json,
-            "result_count": result_row_count,
-            "error_details": error_details
-        })
+                is_successful = isinstance(result_from_execution, pd.DataFrame)
+
+                if is_successful and enable_feedback_loop and feedback_iterations < max_attempts:
+                    current_query = query_returned
+                    current_result = result_from_execution
+
+                    while feedback_iterations < max_attempts:
+                        feedback_response = get_feedback_response(x, current_query, current_result, test_model)
+
+                        if "RESULTS_CORRECT" in feedback_response.upper():
+                            break
+                        elif feedback_response.startswith("Error"):
+                            break
+                        else:
+                            revised_result, revised_attempts, revised_query = execute_sql_with_retry(feedback_response, test_model)
+
+                            if isinstance(revised_result, pd.DataFrame):
+                                current_query = revised_query
+                                current_result = revised_result
+                                final_sql_query = revised_query
+                                attempts_count = (attempts_count or 0) + (revised_attempts or 0)
+                            else:
+                                break
+
+                        feedback_iterations += 1
+
+                    result_from_execution = current_result
+
+                display(result_from_execution)
+                is_successful = isinstance(result_from_execution, pd.DataFrame)
+
+                if is_successful:
+                    query_result_data_json = result_from_execution.to_dict('records')
+                    error_details = None
+                    result_row_count = len(result_from_execution)
+                else:
+                    print("Execution: FAILED")
+                    error_details = f"Execution Error: {result_from_execution}"
+                    result_row_count = 0
+
+            end_time = time.time()
+            duration = round(end_time - start_time, 2)
+            completion_tokens = _token_accumulator["completion_tokens"]
+            generation_s = round(_token_accumulator["generation_ms"] / 1000, 2)
+            tokens_per_s = round(completion_tokens / generation_s, 1) if generation_s > 0 else None
+            print(f" ############################### ")
+            results_data.append({
+                "model": test_model,
+                "SF": SF,
+                "semantic_model": os.path.basename(test_semantic_model_url),
+                "timestamp": timestamp,
+                "nbr": i + 1,
+                "question": x,
+                "duration_s": duration,
+                "completion_tokens": completion_tokens,
+                "generation_s": generation_s,
+                "tokens_per_s": tokens_per_s,
+                "sql_query": final_sql_query,
+                "attempts": attempts_count,
+                "feedback_iterations": feedback_iterations,
+                "result": query_result_data_json,
+                "result_count": result_row_count,
+                "error_details": error_details
+            })
+        except Exception as _e:
+            import traceback
+            print(f"CRASH on Q{i+1}: {_e}")
+            traceback.print_exc()
+            raise
 
     log_dir = os.path.join(output_dir, "log")
     os.makedirs(log_dir, exist_ok=True)
@@ -1313,11 +1319,175 @@ def plot_tokens_per_s(comparison_table):
     plt.show()
 
 
+MALLOY_SYSTEM_PROMPT_PATH = r'c:\llm\semantic_models\malloy_prompts.txt'
+MALLOY_MODEL_PATH         = r'c:\llm\semantic_models\semantic_model.malloy'
+MALLOY_CLI                = r'C:\Users\mdjouallah\AppData\Roaming\npm\malloy-cli.cmd'
+
+
+def _malloy_system_prompt():
+    with open(MALLOY_SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as f:
+        return f.read().strip()
+
+
+def _get_ai_malloy_query(user_message, model_name, endpoint=None):
+    """Ask the LLM to generate a Malloy query."""
+    if endpoint is None:
+        endpoint = LLAMA_CPP_ENDPOINT
+    try:
+        headers = {'Content-Type': 'application/json'}
+        payload = {
+            'model': model_name,
+            'messages': [
+                {'role': 'system', 'content': _malloy_system_prompt()},
+                {'role': 'user',   'content': str(user_message)},
+            ],
+            'stream': False,
+        }
+        response = requests.post(endpoint, headers=headers, json=payload, timeout=TIMEOUT_SECONDS)
+        response.raise_for_status()
+        data = response.json()
+        message = data.get('choices', [{}])[0].get('message', {})
+        generated_text = message.get('content', '') or message.get('reasoning_content', '')
+
+        timings = data.get('timings', {})
+        usage   = data.get('usage', {})
+        _token_accumulator["completion_tokens"] += usage.get('completion_tokens', 0) or timings.get('predicted_n', 0)
+        _token_accumulator["generation_ms"]     += timings.get('predicted_ms', 0.0)
+
+        if not generated_text:
+            return f"Error: No content received. Response: {data}"
+    except Exception as e:
+        return f"Error: {e}"
+
+    # Strip think tags and code fences
+    text = re.sub(r'<think>.*?</think>', '', generated_text, flags=re.DOTALL | re.IGNORECASE).strip()
+    text = re.sub(r'.*?</think>', '', text, flags=re.DOTALL | re.IGNORECASE).strip()
+    blocks = re.findall(r'```(?:malloy)?\s*([\s\S]*?)\s*```', text, flags=re.IGNORECASE)
+    if blocks:
+        text = blocks[-1].strip()
+    return text.strip()
+
+
+def _execute_malloy_query(query_text):
+    """Run a Malloy query via malloy-cli. Returns (df_or_error, query_text)."""
+    import subprocess
+    query_text = re.sub(r'^\s*run\s*:\s*', '', query_text).strip()
+    query_text = ' '.join(query_text.split())
+    try:
+        result = subprocess.run(
+            [MALLOY_CLI, 'run', MALLOY_MODEL_PATH, query_text],
+            capture_output=True, text=True, timeout=TIMEOUT_SECONDS,
+        )
+        if result.returncode != 0:
+            return f"Malloy error: {result.stderr.strip()}", query_text
+        clean = re.sub(r'\x1b\[[0-9;]*m', '', result.stdout)
+        rows = json.loads(clean)
+        return pd.DataFrame(rows), query_text
+    except subprocess.TimeoutExpired:
+        return "Malloy error: timeout", query_text
+    except Exception as e:
+        return f"Malloy error: {e}", query_text
+
+
+def ask_question_malloy(questions_list, test_model):
+    """Malloy variant: LLM generates Malloy queries executed via malloy-cli."""
+    results_data = []
+    for i, x in enumerate(questions_list):
+        print(f"Question {i+1}: {x}")
+        _token_accumulator["completion_tokens"] = 0
+        _token_accumulator["generation_ms"] = 0.0
+        start_time = time.time()
+
+        query_text = _get_ai_malloy_query(x, test_model)
+        error_details = None
+        attempts_count = 1
+        final_query = query_text
+        query_result_data_json = []
+        result_row_count = 0
+
+        if query_text.startswith("Error"):
+            error_details = f"AI Error: {query_text}"
+        else:
+            result, final_query = _execute_malloy_query(query_text)
+
+            while isinstance(result, str) and attempts_count < max_attempts:
+                attempts_count += 1
+                retry_msg = (
+                    f"The following Malloy query failed:\n{final_query}\n"
+                    f"Error: {result}\n"
+                    f"Fix the query and return ONLY the corrected Malloy query.\n"
+                    f"Common mistakes to check:\n"
+                    f"- order_by must use bare field names, NEVER dot notation: use 'i_product_name' not 'item.i_product_name'\n"
+                    f"- group_by can use dot notation (item.i_product_name) but order_by cannot\n"
+                    f"- query must be a single line"
+                )
+                query_text = _get_ai_malloy_query(retry_msg, test_model)
+                result, final_query = _execute_malloy_query(query_text)
+
+            if isinstance(result, pd.DataFrame):
+                display(result)
+                query_result_data_json = result.to_dict('records')
+                result_row_count = len(result)
+            else:
+                print(f"Execution: FAILED — {result}")
+                error_details = f"Execution Error: {result}"
+
+        end_time = time.time()
+        duration = round(end_time - start_time, 2)
+        completion_tokens = _token_accumulator["completion_tokens"]
+        generation_s = round(_token_accumulator["generation_ms"] / 1000, 2)
+        tokens_per_s = round(completion_tokens / generation_s, 1) if generation_s > 0 else None
+        print(" ############################### ")
+        results_data.append({
+            "model":             test_model,
+            "SF":                SF,
+            "semantic_model":    "malloy",
+            "timestamp":         timestamp,
+            "nbr":               i + 1,
+            "question":          x,
+            "duration_s":        duration,
+            "completion_tokens": completion_tokens,
+            "generation_s":      generation_s,
+            "tokens_per_s":      tokens_per_s,
+            "sql_query":         final_query,
+            "attempts":          attempts_count,
+            "feedback_iterations": 0,
+            "result":            query_result_data_json,
+            "result_count":      result_row_count,
+            "error_details":     error_details,
+        })
+
+    log_dir = os.path.join(output_dir, "log")
+    os.makedirs(log_dir, exist_ok=True)
+    sanitized_model = re.sub(r'[\\/*?:"<>|]', '_', test_model)
+    output_filename = f"{timestamp}_{sanitized_model}_malloy.json"
+    output_path = os.path.join(log_dir, output_filename)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results_data, f, indent=4)
+        f.flush()
+        os.fsync(f.fileno())
+    return f"Malloy run complete. Results saved to {output_path}"
+
+
+
 def run_test(model_name, semantic_model=None):
-    """Complete test workflow: start server, run tests, analyze, plot, stop server."""
+    """Complete test workflow: start server, run tests, analyze, plot, stop server.
+
+    semantic_model: 'malloy' for Malloy mode, or path to a .txt system prompt for SQL mode.
+    """
     global timestamp, last_tested_model, test_semantic_model_url
     last_tested_model = model_name
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Malloy mode
+    if semantic_model == 'malloy':
+        try:
+            start_server(model_name)
+            ask_question_malloy(questions, model_name)
+        finally:
+            stop_server()
+        return
+
     if semantic_model is not None:
         test_semantic_model_url = semantic_model
     try:
