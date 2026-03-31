@@ -1,0 +1,868 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/open-semantic-interchange/OSI/main/core-spec/osi-schema.json
+
+# TPC-DS Star Schema — Full Dual-Fact Semantic Model
+# SF=1 | DuckDB | 1998–2003
+# Sales: 2,880,404 rows | Returns: 287,867 rows | Items: 18,000 | Customers: 100,000 | Stores: 8
+
+version: "0.1.1"
+
+semantic_model:
+  - name: tpcds_store_model
+    description: "TPC-DS store sales and returns semantic model — SF=1, DuckDB, 1998–2003. Sales: 2,880,404 rows | Returns: 287,867 rows | Items: 18,000 | Customers: 100,000 | Stores: 8"
+    ai_context:
+      instructions: |
+        You are a SQL query generator. Given a user question, produce a single correct DuckDB SQL query.
+        - Use ONLY the tables, columns, measures, and relationships defined in this semantic model.
+        - Add the question as a comment at the top of the SQL.
+        - Return only the SQL query, no explanation.
+
+        === Model Objective ===
+        Analyze store sales and return performance to identify trends and areas for improvement.
+
+        === CRITICAL: NO FACT-TO-FACT JOINS ===
+        NEVER join store_sales and store_returns directly.
+        ALWAYS use separate CTEs for each fact table, aggregate separately, then FULL OUTER JOIN results.
+
+        WRONG:
+          SELECT ... FROM store_sales ss JOIN store_returns sr ON ss.col = sr.col
+
+        CORRECT pattern:
+          WITH sales AS (SELECT dim_key, SUM(...) FROM store_sales JOIN dim ON ... GROUP BY dim_key),
+               returns AS (SELECT dim_key, SUM(...) FROM store_returns JOIN dim ON ... GROUP BY dim_key)
+          SELECT COALESCE(s.dim_key, r.dim_key), ...
+          FROM sales s FULL OUTER JOIN returns r ON s.dim_key = r.dim_key
+
+        === Measures ===
+        total_sales    = SUM(ss.ss_sales_price * ss.ss_quantity)   -- from store_sales
+        total_quantity  = SUM(ss.ss_quantity)                       -- from store_sales
+        total_returns   = SUM(sr.sr_return_amt)                     -- from store_returns
+        net_sales       = COALESCE(total_sales,0) - COALESCE(total_returns,0)
+                          Requires CTE pattern: aggregate each fact separately, then FULL OUTER JOIN
+        return_rate     = (COALESCE(total_returns,0) / NULLIF(COALESCE(total_sales,0), 0)) * 100
+                          Requires CTE pattern: aggregate each fact separately, then FULL OUTER JOIN
+        avg_net_sales_per_ticket = net_sales / COUNT(DISTINCT ss_ticket_number) from store_sales
+                          "average net sales per transaction" means this ratio, NOT AVG()
+                          Tickets only exist in store_sales — compute in the sales CTE, carry through JOIN
+
+        === Reusable Expressions ===
+        age_group (requires date_dim d and customer c):
+          CASE
+            WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20'
+            WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'
+            WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'
+            WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'
+            WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'
+            WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+'
+          END
+
+        === NULL Handling ===
+        Some dimension columns contain NULLs. Key nullable columns:
+          customer.c_first_name (3.5% NULL)
+          customer.c_last_name (3.5% NULL)
+          customer.c_preferred_cust_flag (3.4% NULL)
+          customer.c_birth_day (3.5% NULL)
+          customer.c_birth_month (3.4% NULL)
+          customer.c_birth_year (3.5% NULL)
+          customer.c_birth_country (3.4% NULL)
+          item.i_item_desc (0.3% NULL)
+          item.i_current_price (0.2% NULL)
+          item.i_wholesale_cost (0.3% NULL)
+          item.i_brand (0.2% NULL)
+          item.i_class (0.2% NULL)
+          item.i_category (0.2% NULL)
+          item.i_color (0.2% NULL)
+          item.i_units (0.2% NULL)
+          item.i_container (0.2% NULL)
+          item.i_product_name (0.2% NULL)
+        When questions ask for 'different categories', 'all brands', etc.:
+          - Filter NULLs with WHERE col IS NOT NULL unless question asks to include them
+          - FULL OUTER JOIN on nullable columns: NULL != NULL, so filter NULLs in CTEs first
+
+        === ANTI-PATTERNS (FORBIDDEN) ===
+        1. Direct fact-to-fact join:
+           WRONG: FROM store_sales ss JOIN store_returns sr ON ss.ss_store_sk = sr.sr_store_sk
+           This multiplies rows and inflates aggregations.
+
+        2. Implicit cross join:
+           WRONG: FROM store_sales ss, store_returns sr WHERE ss.ss_store_sk = sr.sr_store_sk
+           Same problem as #1.
+
+        3. Dimension-bridged fact join without CTEs:
+           WRONG: FROM store s LEFT JOIN store_sales ss ON ... LEFT JOIN store_returns sr ON ...
+           Creates cartesian product between sales and returns per store.
+
+        === VERIFIED QUERY PATTERNS ===
+
+        Pattern 1: Simple fact aggregation
+        SELECT SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales FROM store_sales AS ss
+
+        Pattern 2: Fact + dimension join
+        SELECT d.d_year, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales
+        FROM store_sales AS ss
+        JOIN date_dim AS d ON ss.ss_sold_date_sk = d.d_date_sk
+        GROUP BY d.d_year ORDER BY d.d_year
+
+        Pattern 3: Net sales using CTE (combining two fact tables)
+        WITH sales_agg AS (
+            SELECT s.s_store_name, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales
+            FROM store_sales AS ss JOIN store AS s ON ss.ss_store_sk = s.s_store_sk
+            GROUP BY s.s_store_name
+        ), returns_agg AS (
+            SELECT s.s_store_name, SUM(sr.sr_return_amt) AS total_returns
+            FROM store_returns AS sr JOIN store AS s ON sr.sr_store_sk = s.s_store_sk
+            GROUP BY s.s_store_name
+        )
+        SELECT COALESCE(sa.s_store_name, ra.s_store_name) AS store_name,
+               COALESCE(sa.total_sales, 0) - COALESCE(ra.total_returns, 0) AS net_sales
+        FROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.s_store_name = ra.s_store_name
+
+        Pattern 4: Return rate by dimension
+        WITH sales_agg AS (
+            SELECT i.i_category, SUM(ss.ss_sales_price * ss.ss_quantity) AS total_sales
+            FROM store_sales AS ss JOIN item AS i ON ss.ss_item_sk = i.i_item_sk
+            WHERE i.i_category IS NOT NULL
+            GROUP BY i.i_category
+        ), returns_agg AS (
+            SELECT i.i_category, SUM(sr.sr_return_amt) AS total_returns
+            FROM store_returns AS sr JOIN item AS i ON sr.sr_item_sk = i.i_item_sk
+            WHERE i.i_category IS NOT NULL
+            GROUP BY i.i_category
+        )
+        SELECT COALESCE(sa.i_category, ra.i_category) AS category,
+               (COALESCE(ra.total_returns, 0) / NULLIF(COALESCE(sa.total_sales, 0), 0)) * 100 AS return_rate
+        FROM sales_agg AS sa FULL OUTER JOIN returns_agg AS ra ON sa.i_category = ra.i_category
+        ORDER BY category
+
+    datasets:
+      - name: date_dim
+        source: date_dim
+        primary_key: [d_date_sk]
+        unique_keys:
+          - [d_date_sk]
+        description: Date dimension — 73,049 rows, calendar dates 1998–2003
+        ai_context:
+          synonyms: ["calendar", "dates", "time periods", "when"]
+        fields:
+          - name: d_date_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: d_date_sk
+            description: Surrogate key for date
+            dimension:
+              is_time: false
+
+          - name: d_date
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: d_date
+            description: Calendar date (DATE type)
+            dimension:
+              is_time: true
+            ai_context:
+              synonyms: ["date", "calendar date", "transaction date"]
+
+          - name: d_year
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: d_year
+            description: Calendar year (4-digit, range 1998–2003)
+            dimension:
+              is_time: true
+            ai_context:
+              synonyms: ["year", "fiscal year"]
+
+          - name: d_moy
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: d_moy
+            description: Month of year (1–12)
+            dimension:
+              is_time: true
+            ai_context:
+              synonyms: ["month", "month number"]
+
+          - name: d_dom
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: d_dom
+            description: Day of month (1–31)
+            dimension:
+              is_time: true
+            ai_context:
+              synonyms: ["day", "day of month"]
+
+          - name: d_dow
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: d_dow
+            description: Day of week (0=Sunday, 1=Monday, ..., 6=Saturday)
+            dimension:
+              is_time: true
+            ai_context:
+              synonyms: ["day of week", "weekday number"]
+
+          - name: d_qoy
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: d_qoy
+            description: Quarter of year (1–4)
+            dimension:
+              is_time: true
+            ai_context:
+              synonyms: ["quarter", "fiscal quarter"]
+
+          - name: d_day_name
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: d_day_name
+            description: Full day name (e.g. Sunday, Monday)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["day name", "weekday name"]
+
+          - name: d_holiday
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: d_holiday
+            description: Holiday indicator (Y=holiday, N=not holiday)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["holiday", "holiday flag"]
+
+          - name: d_weekend
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: d_weekend
+            description: Weekend indicator (Y=weekend, N=weekday)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["weekend", "weekend flag"]
+
+      - name: store
+        source: store
+        primary_key: [s_store_sk]
+        unique_keys:
+          - [s_store_id]
+        description: Store dimension — 12 rows, physical store locations
+        ai_context:
+          synonyms: ["stores", "retail locations", "branches", "shop"]
+        fields:
+          - name: s_store_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: s_store_sk
+            description: Surrogate key for store
+            dimension:
+              is_time: false
+
+          - name: s_store_id
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: s_store_id
+            description: Store business key
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["store ID", "store code"]
+
+          - name: s_store_name
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: s_store_name
+            description: Store display name
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["store name", "location name", "branch name"]
+
+          - name: s_number_employees
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: s_number_employees
+            description: Number of employees at the store
+            ai_context:
+              synonyms: ["employee count", "staff size", "headcount"]
+
+          - name: s_floor_space
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: s_floor_space
+            description: Floor space in square feet
+            ai_context:
+              synonyms: ["floor space", "store size", "square footage"]
+
+          - name: s_hours
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: s_hours
+            description: Operating hours (e.g. 8AM-12AM, 8AM-4PM)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["hours", "opening hours", "store hours"]
+
+          - name: s_manager
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: s_manager
+            description: Store manager name
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["manager", "store manager"]
+
+          - name: s_city
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: s_city
+            description: City where store is located
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["city", "location city"]
+
+          - name: s_state
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: s_state
+            description: State/province code (e.g. TN)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["state", "region", "province"]
+
+          - name: s_country
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: s_country
+            description: Country (e.g. United States)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["country"]
+
+      - name: item
+        source: item
+        primary_key: [i_item_sk]
+        unique_keys:
+          - [i_item_id]
+        description: Item/Product dimension — 18,000 rows
+        ai_context:
+          synonyms: ["products", "items", "merchandise", "SKUs"]
+        fields:
+          - name: i_item_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_item_sk
+            description: Surrogate key for item
+            dimension:
+              is_time: false
+
+          - name: i_item_id
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_item_id
+            description: Item business key
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["item ID", "product ID", "SKU"]
+
+          - name: i_item_desc
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_item_desc
+            description: Item description — generated text, not useful for filtering (0.3% NULL)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["description", "product description"]
+
+          - name: i_current_price
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_current_price
+            description: Current selling price — range 0.09..99.99 (0.2% NULL)
+            ai_context:
+              synonyms: ["price", "list price", "current price"]
+
+          - name: i_wholesale_cost
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_wholesale_cost
+            description: Wholesale cost — range 0.02..87.36 (0.3% NULL)
+            ai_context:
+              synonyms: ["cost", "wholesale cost"]
+
+          - name: i_brand
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_brand
+            description: Brand name (0.2% NULL)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["brand", "manufacturer", "brand name"]
+
+          - name: i_class
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_class
+            description: Item class (0.2% NULL)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["class", "item class", "product class"]
+
+          - name: i_category
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_category
+            description: "Item category — values: Books, Children, Electronics, Home, Jewelry, Men, Music, Shoes, Sports, Women (0.2% NULL)"
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["category", "product category", "department"]
+
+          - name: i_color
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_color
+            description: Item color (0.2% NULL)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["color", "colour"]
+
+          - name: i_units
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_units
+            description: Unit of measure (0.2% NULL)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["units", "unit of measure", "UOM"]
+
+          - name: i_container
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_container
+            description: Container type (0.2% NULL)
+            dimension:
+              is_time: false
+
+          - name: i_product_name
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: i_product_name
+            description: Product name (0.2% NULL)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["product name", "item name", "name"]
+
+      - name: customer
+        source: customer
+        primary_key: [c_customer_sk]
+        unique_keys:
+          - [c_customer_id]
+        description: Customer dimension — 100,000 rows
+        ai_context:
+          synonyms: ["customers", "shoppers", "buyers", "clients"]
+        fields:
+          - name: c_customer_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: c_customer_sk
+            description: Surrogate key for customer
+            dimension:
+              is_time: false
+
+          - name: c_customer_id
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: c_customer_id
+            description: Customer business key
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["customer ID", "customer number"]
+
+          - name: c_first_name
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: c_first_name
+            description: Customer first name (3.5% NULL)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["first name"]
+
+          - name: c_last_name
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: c_last_name
+            description: Customer last name (3.5% NULL)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["last name", "surname"]
+
+          - name: c_preferred_cust_flag
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: c_preferred_cust_flag
+            description: Preferred customer indicator — Y=preferred, N=standard (3.4% NULL)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["preferred customer", "VIP", "loyalty flag"]
+
+          - name: c_birth_day
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: c_birth_day
+            description: Customer birth day of month (1–31, 3.5% NULL)
+            dimension:
+              is_time: false
+
+          - name: c_birth_month
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: c_birth_month
+            description: Customer birth month (1–12, 3.4% NULL)
+            dimension:
+              is_time: false
+
+          - name: c_birth_year
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: c_birth_year
+            description: Customer birth year (1924–1992, 3.5% NULL) — used for age_group computation
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["birth year", "year of birth"]
+
+          - name: c_birth_country
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: c_birth_country
+            description: Country where customer was born (3.4% NULL)
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["birth country", "country of birth", "nationality"]
+
+          - name: age_group
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: "CASE WHEN (d.d_year - c.c_birth_year) < 20 THEN '< 20' WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29' WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39' WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49' WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59' WHEN (d.d_year - c.c_birth_year) >= 60 THEN '60+' END"
+            description: Computed age group — requires JOIN to date_dim (alias d) and customer (alias c). Returns NULL when c_birth_year IS NULL.
+            dimension:
+              is_time: false
+            ai_context:
+              synonyms: ["age group", "age bracket", "age band", "age range"]
+
+      - name: store_sales
+        source: store_sales
+        primary_key: [ss_item_sk, ss_ticket_number]
+        unique_keys:
+          - [ss_item_sk, ss_ticket_number]
+        description: Fact table — store sales transactions, 2,880,404 rows
+        ai_context:
+          synonyms: ["sales", "sales transactions", "store purchases", "POS data"]
+        fields:
+          - name: ss_sold_date_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: ss_sold_date_sk
+            description: FK → date_dim.d_date_sk (sale date)
+            dimension:
+              is_time: false
+
+          - name: ss_store_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: ss_store_sk
+            description: FK → store.s_store_sk
+            dimension:
+              is_time: false
+
+          - name: ss_item_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: ss_item_sk
+            description: FK → item.i_item_sk
+            dimension:
+              is_time: false
+
+          - name: ss_customer_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: ss_customer_sk
+            description: FK → customer.c_customer_sk (nullable)
+            dimension:
+              is_time: false
+
+          - name: ss_ticket_number
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: ss_ticket_number
+            description: Transaction ticket identifier
+            ai_context:
+              synonyms: ["ticket", "transaction ID", "receipt number"]
+
+          - name: ss_quantity
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: ss_quantity
+            description: Quantity sold (4.5% NULL)
+            ai_context:
+              synonyms: ["quantity", "units sold", "qty"]
+
+          - name: ss_sales_price
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: ss_sales_price
+            description: Unit sales price (4.5% NULL)
+            ai_context:
+              synonyms: ["unit price", "sale price"]
+
+          - name: ss_ext_sales_price
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: ss_ext_sales_price
+            description: Extended sales price — pre-computed ss_sales_price * ss_quantity (4.5% NULL)
+            ai_context:
+              synonyms: ["extended price", "line total", "total price"]
+
+      - name: store_returns
+        source: store_returns
+        primary_key: [sr_item_sk, sr_ticket_number]
+        unique_keys:
+          - [sr_item_sk, sr_ticket_number]
+        description: Fact table — store return transactions, 287,867 rows
+        ai_context:
+          synonyms: ["returns", "refunds", "return transactions"]
+        fields:
+          - name: sr_returned_date_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: sr_returned_date_sk
+            description: FK → date_dim.d_date_sk (return date)
+            dimension:
+              is_time: false
+
+          - name: sr_store_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: sr_store_sk
+            description: FK → store.s_store_sk
+            dimension:
+              is_time: false
+
+          - name: sr_item_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: sr_item_sk
+            description: FK → item.i_item_sk
+            dimension:
+              is_time: false
+
+          - name: sr_customer_sk
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: sr_customer_sk
+            description: FK → customer.c_customer_sk (nullable)
+            dimension:
+              is_time: false
+
+          - name: sr_ticket_number
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: sr_ticket_number
+            description: Return ticket identifier
+            ai_context:
+              synonyms: ["return ticket", "return ID", "return receipt"]
+
+          - name: sr_return_quantity
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: sr_return_quantity
+            description: Quantity returned (3.5% NULL)
+            ai_context:
+              synonyms: ["return quantity", "returned units"]
+
+          - name: sr_return_amt
+            expression:
+              dialects:
+                - dialect: ANSI_SQL
+                  expression: sr_return_amt
+            description: Amount refunded (3.5% NULL)
+            ai_context:
+              synonyms: ["return amount", "refund amount", "returns"]
+
+    relationships:
+      - name: store_sales_to_date
+        from: store_sales
+        to: date_dim
+        from_columns: [ss_sold_date_sk]
+        to_columns: [d_date_sk]
+
+      - name: store_sales_to_store
+        from: store_sales
+        to: store
+        from_columns: [ss_store_sk]
+        to_columns: [s_store_sk]
+
+      - name: store_sales_to_item
+        from: store_sales
+        to: item
+        from_columns: [ss_item_sk]
+        to_columns: [i_item_sk]
+
+      - name: store_sales_to_customer
+        from: store_sales
+        to: customer
+        from_columns: [ss_customer_sk]
+        to_columns: [c_customer_sk]
+
+      - name: store_returns_to_date
+        from: store_returns
+        to: date_dim
+        from_columns: [sr_returned_date_sk]
+        to_columns: [d_date_sk]
+
+      - name: store_returns_to_store
+        from: store_returns
+        to: store
+        from_columns: [sr_store_sk]
+        to_columns: [s_store_sk]
+
+      - name: store_returns_to_item
+        from: store_returns
+        to: item
+        from_columns: [sr_item_sk]
+        to_columns: [i_item_sk]
+
+      - name: store_returns_to_customer
+        from: store_returns
+        to: customer
+        from_columns: [sr_customer_sk]
+        to_columns: [c_customer_sk]
+
+    metrics:
+      - name: total_sales
+        expression:
+          dialects:
+            - dialect: ANSI_SQL
+              expression: SUM(ss.ss_sales_price * ss.ss_quantity)
+        description: Total sales revenue — from store_sales only
+        ai_context:
+          synonyms: ["total revenue", "gross sales", "sales amount", "revenue"]
+
+      - name: total_quantity
+        expression:
+          dialects:
+            - dialect: ANSI_SQL
+              expression: SUM(ss.ss_quantity)
+        description: Total units sold — from store_sales only
+        ai_context:
+          synonyms: ["units sold", "quantity sold", "total units"]
+
+      - name: total_returns
+        expression:
+          dialects:
+            - dialect: ANSI_SQL
+              expression: SUM(sr.sr_return_amt)
+        description: Total return amount — from store_returns only
+        ai_context:
+          synonyms: ["total refunds", "returns amount", "refund total"]
+
+      - name: net_sales
+        expression:
+          dialects:
+            - dialect: ANSI_SQL
+              expression: COALESCE(SUM(ss.ss_sales_price * ss.ss_quantity), 0) - COALESCE(SUM(sr.sr_return_amt), 0)
+        description: "Net sales = total_sales - total_returns. REQUIRES CTE pattern: aggregate store_sales and store_returns separately, then FULL OUTER JOIN. Never compute by joining facts directly."
+        ai_context:
+          synonyms: ["net revenue", "net sales", "sales minus returns"]
+
+      - name: return_rate
+        expression:
+          dialects:
+            - dialect: ANSI_SQL
+              expression: (COALESCE(SUM(sr.sr_return_amt), 0) / NULLIF(COALESCE(SUM(ss.ss_sales_price * ss.ss_quantity), 0), 0)) * 100
+        description: "Return rate % = (total_returns / total_sales) * 100. REQUIRES CTE pattern: aggregate each fact separately, then FULL OUTER JOIN."
+        ai_context:
+          synonyms: ["return rate", "refund rate", "return percentage"]
+
+      - name: sales_tickets
+        expression:
+          dialects:
+            - dialect: ANSI_SQL
+              expression: COUNT(DISTINCT ss.ss_ticket_number)
+        description: Number of distinct sale transactions — from store_sales only
+        ai_context:
+          synonyms: ["transaction count", "ticket count", "number of transactions", "number of sales"]

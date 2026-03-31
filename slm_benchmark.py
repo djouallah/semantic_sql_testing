@@ -18,6 +18,7 @@ import duckdb
 import pandas as pd
 import numpy as np
 import psutil
+import yaml
 from IPython.display import display
 
 # ============================================
@@ -399,6 +400,112 @@ def stop_server():
 
 
 # ============================================
+# Semantic model loading
+# ============================================
+def _yaml_to_system_prompt(parsed: dict) -> str:
+    """Convert an OSI v0.1.1 YAML semantic model to a plain-text system prompt."""
+    models = parsed.get('semantic_model', [])
+    if not models:
+        return ""
+    m = models[0]
+
+    lines = []
+
+    desc = m.get('description', '')
+    if desc:
+        lines.append(f"# {desc}")
+
+    ai_ctx = m.get('ai_context', {})
+    instructions = ai_ctx.get('instructions', '') if isinstance(ai_ctx, dict) else str(ai_ctx)
+    if instructions:
+        lines.append("")
+        for instruction_line in instructions.rstrip().splitlines():
+            lines.append(instruction_line)
+
+    # Schema section
+    datasets = m.get('datasets', [])
+    if datasets:
+        lines.append("")
+        lines.append("# ============================================================")
+        lines.append("# SCHEMA")
+        lines.append("# ============================================================")
+        for ds in datasets:
+            ds_name = ds.get('name', '')
+            ds_desc = ds.get('description', '')
+            pk = ds.get('primary_key', [])
+            pk_str = f"  (PK: {', '.join(pk)})" if pk else ""
+            lines.append(f"")
+            lines.append(f"# --- {ds_name}{pk_str} ---")
+            if ds_desc:
+                lines.append(f"#   {ds_desc}")
+            for field in ds.get('fields', []):
+                f_name = field.get('name', '')
+                f_desc = field.get('description', '')
+                f_desc_str = f"  -- {f_desc}" if f_desc else ""
+                lines.append(f"#   {f_name}{f_desc_str}")
+
+    # Relationships section
+    relationships = m.get('relationships', [])
+    if relationships:
+        lines.append("")
+        lines.append("# ============================================================")
+        lines.append("# RELATIONSHIPS")
+        lines.append("# ============================================================")
+        for rel in relationships:
+            from_ds = rel.get('from', '')
+            to_ds = rel.get('to', '')
+            from_cols = rel.get('from_columns', [])
+            to_cols = rel.get('to_columns', [])
+            lines.append(f"#   {from_ds}.{from_cols} → {to_ds}.{to_cols}")
+
+    # Metrics section
+    metrics = m.get('metrics', [])
+    if metrics:
+        lines.append("")
+        lines.append("# ============================================================")
+        lines.append("# METRICS")
+        lines.append("# ============================================================")
+        for metric in metrics:
+            m_name = metric.get('name', '')
+            m_desc = metric.get('description', '')
+            dialects = metric.get('expression', {}).get('dialects', [])
+            expr = dialects[0].get('expression', '') if dialects else ''
+            lines.append(f"#   {m_name} = {expr}")
+            if m_desc:
+                lines.append(f"#     {m_desc}")
+
+    return "\n".join(lines)
+
+
+def load_semantic_model(url_or_path: str) -> str:
+    """Load semantic model from a URL or local file path.
+
+    Supports plain .txt files and OSI v0.1.1 .yaml files.
+    YAML files are converted to a system prompt via _yaml_to_system_prompt().
+    """
+    raw = ""
+    try:
+        resp = requests.get(url_or_path)
+        resp.raise_for_status()
+        raw = resp.text.strip()
+    except requests.RequestException:
+        try:
+            with open(url_or_path, 'r', encoding='utf-8') as f:
+                raw = f.read().strip()
+        except Exception as e:
+            return f"Error loading system prompt: {e}"
+
+    if url_or_path.endswith('.yaml') or url_or_path.endswith('.yml') or raw.startswith('version:'):
+        try:
+            parsed = yaml.safe_load(raw)
+            return _yaml_to_system_prompt(parsed)
+        except Exception as e:
+            return f"Error parsing YAML semantic model: {e}"
+
+    return raw
+
+
+# ============================================
 # LLM interaction
 # ============================================
 def get_ai_response(user_message, model_name, endpoint=None):
@@ -407,17 +514,9 @@ def get_ai_response(user_message, model_name, endpoint=None):
         endpoint = LLAMA_CPP_ENDPOINT
     user_message = str(user_message)
 
-    system_prompt = ""
-    try:
-        github_response = requests.get(test_semantic_model_url)
-        github_response.raise_for_status()
-        system_prompt = github_response.text.strip()
-    except requests.RequestException:
-        try:
-            with open(test_semantic_model_url, 'r', encoding='utf-8') as f:
-                system_prompt = f.read().strip()
-        except Exception as e:
-            return f"Error loading system prompt: {e}"
+    system_prompt = load_semantic_model(test_semantic_model_url)
+    if system_prompt.startswith("Error"):
+        return system_prompt
 
     try:
         headers = {'Content-Type': 'application/json'}
@@ -540,16 +639,9 @@ IMPORTANT: Return ONLY the SQL query without any explanation, markdown formattin
 
 Your response:"""
 
-    try:
-        github_response = requests.get(test_semantic_model_url)
-        github_response.raise_for_status()
-        system_prompt = github_response.text.strip()
-    except requests.RequestException:
-        try:
-            with open(test_semantic_model_url, 'r', encoding='utf-8') as f:
-                system_prompt = f.read().strip()
-        except Exception as e:
-            return f"Error loading system prompt: {e}"
+    system_prompt = load_semantic_model(test_semantic_model_url)
+    if system_prompt.startswith("Error"):
+        return system_prompt
 
     try:
         headers = {'Content-Type': 'application/json'}
@@ -729,7 +821,7 @@ def ask_question(questions_list, test_model):
             results_data.append({
                 "model": test_model,
                 "SF": SF,
-                "semantic_model": os.path.basename(test_semantic_model_url),
+                "semantic_model": os.path.splitext(os.path.basename(test_semantic_model_url))[0],
                 "timestamp": timestamp,
                 "nbr": i + 1,
                 "question": x,
@@ -1171,7 +1263,8 @@ def analyze_all_runs():
         n_correct = sum(s['correct'] for s in scores)
         n_total = len(scores)
         tps_values = [s['tokens_per_s'] for s in scores if s['tokens_per_s']]
-        sem_model = records[0].get('semantic_model', 'semantic_model.txt') or 'semantic_model.txt'
+        sem_model = records[0].get('semantic_model', 'semantic_model') or 'semantic_model'
+        sem_model = os.path.splitext(sem_model)[0]
         all_summaries.append({
             'model': run_model,
             'timestamp': run_ts,
@@ -1197,7 +1290,7 @@ def plot_results(comparison_table):
     has_all_runs = 'timestamp' in comparison_table.columns
 
     sem_col = 'semantic_model' if 'semantic_model' in comparison_table.columns else None
-    unique_sem_models = sorted(comparison_table[sem_col].fillna('semantic_model.txt').unique()) if sem_col else ['semantic_model.txt']
+    unique_sem_models = sorted(comparison_table[sem_col].fillna('semantic_model').unique()) if sem_col else ['semantic_model']
     sem_markers = {s: m for s, m in zip(unique_sem_models, ['o', 'D', 's', '^', 'v'])}
 
     plt.figure(figsize=(12, 7))
@@ -1208,8 +1301,8 @@ def plot_results(comparison_table):
 
         for model in unique_models:
             mdf = comparison_table[comparison_table['model'] == model].sort_values('timestamp')
-            for sem, sdf in mdf.groupby(sem_col if sem_col else lambda x: 'semantic_model.txt'):
-                sem = sem or 'semantic_model.txt'
+            for sem, sdf in mdf.groupby(sem_col if sem_col else lambda x: 'semantic_model'):
+                sem = sem or 'semantic_model'
                 plt.scatter(sdf['avg_duration_per_question'], sdf['accuracy_percent'],
                             c=model_color[model], marker=sem_markers.get(sem, 'o'),
                             s=80, alpha=0.7, edgecolors='black', linewidth=1.5, zorder=3)
@@ -1230,7 +1323,7 @@ def plot_results(comparison_table):
         accuracy = comparison_table['accuracy_percent'].tolist()
         avg_time = comparison_table['avg_duration_per_question'].tolist()
         colors = (base_colors * ((len(models) // len(base_colors)) + 1))[:len(models)]
-        sem_list = comparison_table[sem_col].fillna('semantic_model.txt').tolist() if sem_col else ['semantic_model.txt'] * len(models)
+        sem_list = comparison_table[sem_col].fillna('semantic_model').tolist() if sem_col else ['semantic_model'] * len(models)
         for i, (x, y, c, s) in enumerate(zip(avg_time, accuracy, colors, sem_list)):
             plt.scatter(x, y, c=c, marker=sem_markers.get(s, 'o'), s=80, alpha=0.7, edgecolors='black', linewidth=2)
             plt.annotate(models[i], (x, y), xytext=(5, 5), textcoords='offset points', fontsize=10)
