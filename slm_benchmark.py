@@ -573,84 +573,83 @@ def get_ai_response(user_message, model_name, endpoint=None):
     return cleaned_text
 
 
-def get_feedback_response(original_question, sql_query, query_results, model_name, endpoint=None):
-    """Get LLM feedback on query results for improvement."""
+def get_feedback_response(original_question, sql_query, query_results, model_name, sql_error=None, conversation_history=None, endpoint=None):
+    """Get LLM feedback on a SQL query.
+
+    If sql_error is provided: the SQL failed — ask the model to fix it.
+    Otherwise: the SQL ran — show results and ask if they correctly answer the question.
+    """
     if endpoint is None:
         endpoint = LLAMA_CPP_ENDPOINT
     original_question = str(original_question)
 
-    if isinstance(query_results, pd.DataFrame):
-        if len(query_results) > 10:
-            results_preview = f"Results (showing first 10 of {len(query_results)} rows):\n{query_results.head(10).to_string()}\n\nTotal rows: {len(query_results)}"
-        else:
-            results_preview = f"Results ({len(query_results)} rows):\n{query_results.to_string()}"
+    if sql_error:
+        feedback_prompt = f"""QUESTION: {original_question}
 
-        quality_analysis = []
-
-        if len(query_results.columns) == 1:
-            col_name = query_results.columns[0]
-            total_rows = len(query_results)
-            unique_rows = query_results[col_name].nunique()
-            if total_rows > unique_rows:
-                duplicate_count = total_rows - unique_rows
-                quality_analysis.append(f"POTENTIAL ISSUE: Column '{col_name}' has {duplicate_count} duplicates. For 'list categories' questions, duplicates are usually wrong.")
-
-        if "categor" in original_question.lower() or "list" in original_question.lower():
-            if len(query_results.columns) == 1:
-                col_name = query_results.columns[0]
-                if query_results[col_name].nunique() < len(query_results):
-                    quality_analysis.append(f"POTENTIAL ISSUE: 'List categories' question has duplicate results. Consider using DISTINCT.")
-
-        if "order" in original_question.lower() or "sort" in original_question.lower():
-            if "alphabetical" in original_question.lower():
-                quality_analysis.append(f"REMINDER: Question asks for alphabetical ordering. Verify ORDER BY clause.")
-
-        quality_section = "\n\nQUALITY ANALYSIS:\n" + "\n".join(quality_analysis) if quality_analysis else ""
-    else:
-        results_preview = "No results returned (empty or error)"
-        quality_section = ""
-
-    feedback_prompt = f"""
-You previously generated this SQL query for the following question:
-
-ORIGINAL QUESTION: {original_question}
-
-YOUR SQL QUERY:
+SQL:
 {sql_query}
 
-QUERY RESULTS:
+ERROR:
+{sql_error}
+
+The SQL failed. Return only a corrected SQL query (no explanation, no markdown)."""
+    else:
+        if isinstance(query_results, pd.DataFrame):
+            if len(query_results) > 10:
+                results_preview = f"Results (showing first 10 of {len(query_results)} rows):\n{query_results.head(10).to_string()}\n\nTotal rows: {len(query_results)}"
+            else:
+                results_preview = f"Results ({len(query_results)} rows):\n{query_results.to_string()}"
+
+            quality_analysis = []
+
+            if len(query_results.columns) == 1:
+                col_name = query_results.columns[0]
+                total_rows = len(query_results)
+                unique_rows = query_results[col_name].nunique()
+                if total_rows > unique_rows:
+                    duplicate_count = total_rows - unique_rows
+                    quality_analysis.append(f"POTENTIAL ISSUE: Column '{col_name}' has {duplicate_count} duplicates. For 'list categories' questions, duplicates are usually wrong.")
+
+            if "categor" in original_question.lower() or "list" in original_question.lower():
+                if len(query_results.columns) == 1:
+                    col_name = query_results.columns[0]
+                    if query_results[col_name].nunique() < len(query_results):
+                        quality_analysis.append(f"POTENTIAL ISSUE: 'List categories' question has duplicate results. Consider using DISTINCT.")
+
+            if "order" in original_question.lower() or "sort" in original_question.lower():
+                if "alphabetical" in original_question.lower():
+                    quality_analysis.append(f"REMINDER: Question asks for alphabetical ordering. Verify ORDER BY clause.")
+
+            quality_section = "\n\nQUALITY ANALYSIS:\n" + "\n".join(quality_analysis) if quality_analysis else ""
+        else:
+            results_preview = "No results returned (empty or error)"
+            quality_section = ""
+
+        feedback_prompt = f"""QUESTION: {original_question}
+
+SQL:
+{sql_query}
+
+RESULTS:
 {results_preview}{quality_section}
 
-Please review your SQL query and its results carefully. Does the output correctly answer the original question?
-
-Pay special attention to:
-- Are there duplicate rows when the question asks for distinct items/categories?
-- Is the data properly ordered as requested (alphabetically, numerically, etc.)?
-- Does the result make logical sense for the question asked?
-- Are you selecting the right columns and using appropriate filtering?
-
-CRITICAL: If you see duplicate values in a single column when the question asks for "different" or "various" items, this is almost always WRONG. Use DISTINCT to get unique values only.
-
-If the results look correct and fully answer the question, respond with: "RESULTS_CORRECT"
-
-If the results need improvement (wrong data, missing information, incorrect calculations, duplicates, wrong ordering, etc.), provide a revised SQL query that better answers the question.
-
-IMPORTANT: Return ONLY the SQL query without any explanation, markdown formatting, or additional text. Just the pure SQL statement.
-
-Your response:"""
+If the results correctly answer the question, respond with: RESULTS_CORRECT
+Otherwise, return only a revised SQL query (no explanation, no markdown)."""
 
     system_prompt = load_semantic_model(test_semantic_model_url)
     if system_prompt.startswith("Error"):
         return system_prompt
 
+    messages = [{'role': 'system', 'content': system_prompt}]
+    if conversation_history:
+        messages += conversation_history
+    messages.append({'role': 'user', 'content': feedback_prompt})
+
     try:
         headers = {'Content-Type': 'application/json'}
         payload = {
             'model': model_name,
-            'messages': [
-                {'role': 'system', 'content': system_prompt},
-                {'role': 'user', 'content': feedback_prompt}
-            ],
+            'messages': messages,
             'stream': False
         }
 
@@ -691,6 +690,34 @@ Your response:"""
 # ============================================
 # SQL execution
 # ============================================
+def execute_sql_once(query):
+    """Execute SQL once. Returns (DataFrame, None) on success or (None, error_string) on failure."""
+    result_container = {"result": None, "error": None}
+    current_query = query.strip()
+
+    def query_thread():
+        try:
+            result_container["result"] = con.execute(current_query).fetchdf()
+        except duckdb.InterruptException:
+            result_container["error"] = f"Query interrupted after timeout of {TIMEOUT_SECONDS} seconds."
+        except Exception as e:
+            result_container["error"] = str(e)
+
+    thread = threading.Thread(target=query_thread)
+    thread.start()
+    start_time = time.time()
+    while thread.is_alive():
+        if time.time() - start_time > TIMEOUT_SECONDS:
+            con.interrupt()
+            thread.join()
+            return None, f"Query execution timed out after {TIMEOUT_SECONDS} seconds."
+        time.sleep(0.01)
+
+    if result_container["error"]:
+        return None, result_container["error"]
+    return result_container["result"], None
+
+
 def execute_sql_with_retry(query, test_model):
     """Execute SQL with retry on syntax errors. Returns (result, attempt, query, retry_llm_elapsed)."""
     attempt = 1
@@ -773,23 +800,56 @@ def ask_question(questions_list, test_model):
                 error_details = f"AI Error: {error_message}"
                 result_row_count = 0
             else:
-                print(f"SQL: {sql_query_or_error}")
-                result_from_execution, attempts_count, query_returned, retry_llm = execute_sql_with_retry(sql_query_or_error, test_model)
-                llm_elapsed += retry_llm
-                final_sql_query = query_returned
+                current_query = sql_query_or_error
+                current_result = None
+                print(f"SQL: {current_query}")
 
-                is_successful = isinstance(result_from_execution, pd.DataFrame)
+                # Phase 1: fix broken SQL (up to max_attempts retries on error)
+                for attempt in range(1, max_attempts + 1):
+                    result_df, sql_error = execute_sql_once(current_query)
+                    if not sql_error:
+                        current_result = result_df
+                        break
+                    print(f"Attempt {attempt} error: {sql_error}")
+                    if not enable_feedback_loop or attempt >= max_attempts:
+                        error_details = f"Execution Error: {sql_error}"
+                        break
+                    t0 = time.time()
+                    fix_response = get_feedback_response(x, current_query, None, test_model, sql_error=sql_error)
+                    llm_elapsed += time.time() - t0
+                    feedback_iterations += 1
+                    if fix_response.startswith("Error"):
+                        error_details = f"Execution Error: {sql_error}"
+                        break
+                    current_query = fix_response.strip()
+                    final_sql_query = current_query
 
-                display(result_from_execution)
-                is_successful = isinstance(result_from_execution, pd.DataFrame)
+                attempts_count = attempt
 
-                if is_successful:
-                    query_result_data_json = result_from_execution.to_dict('records')
+                # Phase 2: confirm results once — if model revises, run new SQL and accept it
+                if current_result is not None and enable_feedback_loop:
+                    t0 = time.time()
+                    confirm_response = get_feedback_response(x, current_query, current_result, test_model)
+                    llm_elapsed += time.time() - t0
+                    feedback_iterations += 1
+                    if "RESULTS_CORRECT" not in confirm_response.upper() and not confirm_response.startswith("Error"):
+                        revised_df, revised_error = execute_sql_once(confirm_response.strip())
+                        if not revised_error:
+                            current_query = confirm_response.strip()
+                            current_result = revised_df
+                            final_sql_query = current_query
+                        else:
+                            print(f"Revised SQL failed ({revised_error}), keeping original result.")
+
+                if current_result is not None:
+                    display(current_result)
+                    query_result_data_json = current_result.to_dict('records')
                     error_details = None
-                    result_row_count = len(result_from_execution)
+                    result_row_count = len(current_result)
                 else:
+                    if not error_details:
+                        error_details = f"Execution Error: query failed after {attempts_count} attempts"
                     print("Execution: FAILED")
-                    error_details = f"Execution Error: {result_from_execution}"
                     result_row_count = 0
 
             end_time = time.time()
@@ -1237,7 +1297,7 @@ def analyze_all_runs():
             else:
                 correct = _compare_stored_results(ref_map[r['nbr']], r.get('result', [])) == 'exact'
             tps = r.get('tokens_per_s')
-            scores.append({'correct': correct, 'duration_s': r.get('duration_s', 0), 'tokens_per_s': tps})
+            scores.append({'correct': correct, 'duration_s': r.get('duration_s', 0), 'tokens_per_s': tps, 'completion_tokens': r.get('completion_tokens', 0)})
 
         if not scores:
             continue
@@ -1253,6 +1313,7 @@ def analyze_all_runs():
             'accuracy_percent': round(n_correct / max(n_total, 1) * 100, 1),
             'avg_duration_per_question': round(sum(s['duration_s'] for s in scores) / max(n_total, 1), 2),
             'avg_tokens_per_s': round(sum(tps_values) / len(tps_values), 1) if tps_values else None,
+            'avg_completion_tokens': round(sum(s['completion_tokens'] for s in scores) / max(n_total, 1), 1),
         })
 
     return pd.DataFrame(all_summaries)
@@ -1336,6 +1397,49 @@ def plot_results(comparison_table):
     chart_path = os.path.join(output_dir, 'chart.png')
     plt.savefig(chart_path, dpi=150, bbox_inches='tight')
     print(f'Chart saved to {chart_path}')
+    plt.show()
+
+
+def plot_tokens(model_name):
+    """Bar chart of completion tokens per question for the latest run of a model."""
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import glob as _glob
+
+    # Find latest log file for this model
+    pattern = os.path.join(output_dir, 'log', f'*_{model_name}.json')
+    files = sorted(_glob.glob(pattern))
+    if not files:
+        print(f'No log files found for model: {model_name}')
+        return
+    log_path = files[-1]
+
+    with open(log_path, 'r', encoding='utf-8') as fh:
+        records = json.load(fh)
+
+    records = sorted(records, key=lambda r: r.get('nbr', 0))
+    labels = [f"Q{r['nbr']}" for r in records]
+    values = [r.get('completion_tokens', 0) or 0 for r in records]
+
+    fig, ax = plt.subplots(figsize=(14, 6))
+    x = np.arange(len(labels))
+    bars = ax.bar(x, values, color='#1f77b4', edgecolor='black', linewidth=0.8, width=0.7)
+
+    for bar, val in zip(bars, values):
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max(values) * 0.01,
+                str(val), ha='center', va='bottom', fontsize=8)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=9)
+    ax.set_ylabel('Completion Tokens', fontsize=12, fontweight='bold')
+    ts = os.path.basename(log_path)[:13]
+    ax.set_title(f'Completion Tokens per Question — {model_name} ({ts})', fontsize=13, fontweight='bold')
+    ax.grid(True, axis='y', alpha=0.3)
+
+    plt.tight_layout()
+    tokens_chart_path = os.path.join(output_dir, 'chart_tokens.png')
+    plt.savefig(tokens_chart_path, dpi=150, bbox_inches='tight')
+    print(f'Chart saved to {tokens_chart_path}')
     plt.show()
 
 
