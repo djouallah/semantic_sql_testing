@@ -34,8 +34,8 @@ llama_server_process = None
 # Config defaults (overridden from notebook)
 # ============================================
 LLAMA_CPP_ENDPOINT      = "http://127.0.0.1:8080/v1/chat/completions"
-TIMEOUT_SECONDS         = 300
-max_attempts            = 3
+TIMEOUT_SECONDS         = None
+max_attempts            = None
 SF                      = 1
 output_dir              = r"c:\llm"
 data_dir                = r"c:\llm\data"
@@ -315,6 +315,7 @@ def start_server(model_name):
         r'c:\llm\llama\llama-server.exe',
         '-m', selected_config['model_path'],
         '-c', str(selected_config['context_size']),
+        '-n', '-1',
         '--port', '8080',
     ]
     if 'reasoning_budget' in selected_config:
@@ -528,7 +529,6 @@ def get_ai_response(user_message, model_name, endpoint=None):
             ],
             'stream': False
         }
-
         response = requests.post(endpoint, headers=headers, json=payload, timeout=TIMEOUT_SECONDS)
         response.raise_for_status()
         data = response.json()
@@ -652,7 +652,6 @@ Otherwise, return only a revised SQL query (no explanation, no markdown)."""
             'messages': messages,
             'stream': False
         }
-
         response = requests.post(endpoint, headers=headers, json=payload, timeout=TIMEOUT_SECONDS)
         response.raise_for_status()
         data = response.json()
@@ -1420,10 +1419,11 @@ def plot_tokens(model_name):
     records = sorted(records, key=lambda r: r.get('nbr', 0))
     labels = [f"Q{r['nbr']}" for r in records]
     values = [r.get('completion_tokens', 0) or 0 for r in records]
+    colors = ['#d62728' if r.get('error_details') else '#1f77b4' for r in records]
 
     fig, ax = plt.subplots(figsize=(14, 6))
     x = np.arange(len(labels))
-    bars = ax.bar(x, values, color='#1f77b4', edgecolor='black', linewidth=0.8, width=0.7)
+    bars = ax.bar(x, values, color=colors, edgecolor='black', linewidth=0.8, width=0.7)
 
     for bar, val in zip(bars, values):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max(values) * 0.01,
