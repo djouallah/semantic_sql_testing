@@ -33,18 +33,18 @@ llama_server_process = None
 # ============================================
 # Config defaults (overridden from notebook)
 # ============================================
-LLAMA_CPP_ENDPOINT = "http://127.0.0.1:8080/v1/chat/completions"
-TIMEOUT_SECONDS = 300
-max_attempts = 3
-SF = 1
-output_dir = r"c:\llm"
-data_dir = r"c:\llm\data"
+LLAMA_CPP_ENDPOINT      = "http://127.0.0.1:8080/v1/chat/completions"
+TIMEOUT_SECONDS         = 300
+max_attempts            = 3
+SF                      = 1
+output_dir              = r"c:\llm"
+data_dir                = r"c:\llm\data"
 test_semantic_model_url = r'c:\llm\semantic_model.txt'
-questions_url = r'c:\llm\questions.json'
-model0 = "claude-opus-4-6"
-enable_feedback_loop = True
-MODEL_CONFIGS = {}
-_token_accumulator = {"completion_tokens": 0, "generation_ms": 0.0}
+questions_url           = r'c:\llm\questions\questions.json'
+model0                  = "claude-opus-4-6"
+enable_feedback_loop    = True
+MODEL_CONFIGS           = {}
+_token_accumulator      = {"completion_tokens": 0, "generation_ms": 0.0}
 
 
 def configure(**kwargs):
@@ -100,7 +100,7 @@ def _create_views(c):
 
 def init():
     """Initialize database connection, timestamp, and load questions."""
-    global con, timestamp, questions
+    global con, timestamp, questions, db_path
 
     if SF < 1:
         schema = f"DS{str(SF).replace('.', '_')}"
@@ -692,9 +692,10 @@ Your response:"""
 # SQL execution
 # ============================================
 def execute_sql_with_retry(query, test_model):
-    """Execute SQL with retry on syntax errors."""
+    """Execute SQL with retry on syntax errors. Returns (result, attempt, query, retry_llm_elapsed)."""
     attempt = 1
     current_query = query.strip()
+    retry_llm_elapsed = 0.0
 
     while attempt <= max_attempts:
         result_container = {"result": None, "error": None}
@@ -716,15 +717,15 @@ def execute_sql_with_retry(query, test_model):
             if elapsed > TIMEOUT_SECONDS:
                 con.interrupt()
                 thread.join()
-                return f"Query execution timed out after {TIMEOUT_SECONDS} seconds.", attempt, "query runs forever"
-            time.sleep(0.1)
+                return f"Query execution timed out after {TIMEOUT_SECONDS} seconds.", attempt, "query runs forever", retry_llm_elapsed
+            time.sleep(0.01)
 
         if result_container["error"]:
             print(current_query)
             print(f"Attempt {attempt}/{max_attempts} failed with error: {result_container['error']}")
 
             if attempt == max_attempts:
-                return f"Max attempts reached. Last error: {result_container['error']}", attempt, current_query
+                return f"Max attempts reached. Last error: {result_container['error']}", attempt, current_query, retry_llm_elapsed
 
             message = (
                 f"The following SQL query failed: '{current_query}'.\n"
@@ -732,17 +733,19 @@ def execute_sql_with_retry(query, test_model):
                 f"Please provide the corrected SQL query. Return only the corrected query without explanation."
             )
 
+            t0 = time.time()
             corrected_query = get_ai_response(message, test_model)
+            retry_llm_elapsed += time.time() - t0
 
             if corrected_query.startswith("Error"):
-                return f"Failed to get corrected query: {corrected_query}", attempt, current_query
+                return f"Failed to get corrected query: {corrected_query}", attempt, current_query, retry_llm_elapsed
 
             current_query = corrected_query.strip()
             attempt += 1
         else:
-            return result_container["result"], attempt, current_query
+            return result_container["result"], attempt, current_query, retry_llm_elapsed
 
-    return "Unexpected error or loop termination", attempt, current_query
+    return "Unexpected error or loop termination", attempt, current_query, retry_llm_elapsed
 
 
 # ============================================
@@ -756,8 +759,9 @@ def ask_question(questions_list, test_model):
         _token_accumulator["completion_tokens"] = 0
         _token_accumulator["generation_ms"] = 0.0
         start_time = time.time()
+        llm_elapsed = 0.0
         try:
-            sql_query_or_error = get_ai_response(x, test_model)
+            t0 = time.time(); sql_query_or_error = get_ai_response(x, test_model); llm_elapsed += time.time() - t0
             query_result_data_json = []
             attempts_count = None
             error_details = None
@@ -769,36 +773,12 @@ def ask_question(questions_list, test_model):
                 error_details = f"AI Error: {error_message}"
                 result_row_count = 0
             else:
-                result_from_execution, attempts_count, query_returned = execute_sql_with_retry(sql_query_or_error, test_model)
+                print(f"SQL: {sql_query_or_error}")
+                result_from_execution, attempts_count, query_returned, retry_llm = execute_sql_with_retry(sql_query_or_error, test_model)
+                llm_elapsed += retry_llm
                 final_sql_query = query_returned
 
                 is_successful = isinstance(result_from_execution, pd.DataFrame)
-
-                if is_successful and enable_feedback_loop and feedback_iterations < max_attempts:
-                    current_query = query_returned
-                    current_result = result_from_execution
-
-                    while feedback_iterations < max_attempts:
-                        feedback_response = get_feedback_response(x, current_query, current_result, test_model)
-
-                        if "RESULTS_CORRECT" in feedback_response.upper():
-                            break
-                        elif feedback_response.startswith("Error"):
-                            break
-                        else:
-                            revised_result, revised_attempts, revised_query = execute_sql_with_retry(feedback_response, test_model)
-
-                            if isinstance(revised_result, pd.DataFrame):
-                                current_query = revised_query
-                                current_result = revised_result
-                                final_sql_query = revised_query
-                                attempts_count = (attempts_count or 0) + (revised_attempts or 0)
-                            else:
-                                break
-
-                        feedback_iterations += 1
-
-                    result_from_execution = current_result
 
                 display(result_from_execution)
                 is_successful = isinstance(result_from_execution, pd.DataFrame)
@@ -814,10 +794,11 @@ def ask_question(questions_list, test_model):
 
             end_time = time.time()
             duration = round(end_time - start_time, 2)
+            exec_elapsed = duration - llm_elapsed
             completion_tokens = _token_accumulator["completion_tokens"]
             generation_s = round(_token_accumulator["generation_ms"] / 1000, 2)
             tokens_per_s = round(completion_tokens / generation_s, 1) if generation_s > 0 else None
-            print(f" ############################### ")
+            print(f" ### LLM: {llm_elapsed:.1f}s | Exec: {exec_elapsed:.1f}s | Total: {duration:.1f}s ###")
             results_data.append({
                 "model": test_model,
                 "SF": SF,
@@ -1305,15 +1286,15 @@ def plot_results(comparison_table):
                 sem = sem or 'semantic_model'
                 plt.scatter(sdf['avg_duration_per_question'], sdf['accuracy_percent'],
                             c=model_color[model], marker=sem_markers.get(sem, 'o'),
-                            s=80, alpha=0.7, edgecolors='black', linewidth=1.5, zorder=3)
-            plt.scatter([], [], c=model_color[model], s=80, label=model)
+                            s=40, alpha=0.7, edgecolors='black', linewidth=1.5, zorder=3)
+            plt.scatter([], [], c=model_color[model], s=40, label=model)
 
         # Legend: models (color)
         model_legend = plt.legend(loc='lower right', fontsize=10, title='Model')
         plt.gca().add_artist(model_legend)
         # Legend: semantic model (shape)
         import matplotlib.lines as mlines
-        sem_handles = [mlines.Line2D([], [], color='grey', marker=sem_markers[s], linestyle='None', markersize=8, label=s) for s in unique_sem_models]
+        sem_handles = [mlines.Line2D([], [], color='grey', marker=sem_markers[s], linestyle='None', markersize=6, label=s) for s in unique_sem_models]
         plt.legend(handles=sem_handles, loc='upper right', fontsize=9, title='Semantic model')
 
         n_label = f'{len(unique_models)} models, {len(comparison_table)} runs'
@@ -1325,7 +1306,7 @@ def plot_results(comparison_table):
         colors = (base_colors * ((len(models) // len(base_colors)) + 1))[:len(models)]
         sem_list = comparison_table[sem_col].fillna('semantic_model').tolist() if sem_col else ['semantic_model'] * len(models)
         for i, (x, y, c, s) in enumerate(zip(avg_time, accuracy, colors, sem_list)):
-            plt.scatter(x, y, c=c, marker=sem_markers.get(s, 'o'), s=80, alpha=0.7, edgecolors='black', linewidth=2)
+            plt.scatter(x, y, c=c, marker=sem_markers.get(s, 'o'), s=40, alpha=0.7, edgecolors='black', linewidth=2)
             plt.annotate(models[i], (x, y), xytext=(5, 5), textcoords='offset points', fontsize=10)
         n_label = f'{len(models)} models'
         all_times = avg_time
@@ -1412,9 +1393,12 @@ def plot_tokens_per_s(comparison_table):
     plt.show()
 
 
-MALLOY_SYSTEM_PROMPT_PATH = r'c:\llm\semantic_models\malloy_prompts.txt'
+MALLOY_SYSTEM_PROMPT_PATH = r'c:\llm\system_prompts\malloy_prompts.txt'
 MALLOY_MODEL_PATH         = r'c:\llm\semantic_models\semantic_model.malloy'
 MALLOY_CLI                = r'C:\Users\mdjouallah\AppData\Roaming\npm\malloy-cli.cmd'
+
+BORING_SYSTEM_PROMPT_PATH = r'c:\llm\system_prompts\boring_prompts.txt'
+BORING_YAML_PATH          = r'c:\llm\semantic_models\semantic_model_boring.yaml'
 
 
 def _malloy_system_prompt():
@@ -1490,8 +1474,10 @@ def ask_question_malloy(questions_list, test_model):
         _token_accumulator["completion_tokens"] = 0
         _token_accumulator["generation_ms"] = 0.0
         start_time = time.time()
+        llm_elapsed = 0.0
+        exec_elapsed = 0.0
 
-        query_text = _get_ai_malloy_query(x, test_model)
+        t0 = time.time(); query_text = _get_ai_malloy_query(x, test_model); llm_elapsed += time.time() - t0
         error_details = None
         attempts_count = 1
         final_query = query_text
@@ -1501,7 +1487,7 @@ def ask_question_malloy(questions_list, test_model):
         if query_text.startswith("Error"):
             error_details = f"AI Error: {query_text}"
         else:
-            result, final_query = _execute_malloy_query(query_text)
+            t0 = time.time(); result, final_query = _execute_malloy_query(query_text); exec_elapsed += time.time() - t0
 
             while isinstance(result, str) and attempts_count < max_attempts:
                 attempts_count += 1
@@ -1514,8 +1500,8 @@ def ask_question_malloy(questions_list, test_model):
                     f"- group_by can use dot notation (item.i_product_name) but order_by cannot\n"
                     f"- query must be a single line"
                 )
-                query_text = _get_ai_malloy_query(retry_msg, test_model)
-                result, final_query = _execute_malloy_query(query_text)
+                t0 = time.time(); query_text = _get_ai_malloy_query(retry_msg, test_model); llm_elapsed += time.time() - t0
+                t0 = time.time(); result, final_query = _execute_malloy_query(query_text); exec_elapsed += time.time() - t0
 
             if isinstance(result, pd.DataFrame):
                 display(result)
@@ -1530,7 +1516,7 @@ def ask_question_malloy(questions_list, test_model):
         completion_tokens = _token_accumulator["completion_tokens"]
         generation_s = round(_token_accumulator["generation_ms"] / 1000, 2)
         tokens_per_s = round(completion_tokens / generation_s, 1) if generation_s > 0 else None
-        print(" ############################### ")
+        print(f" ### LLM: {llm_elapsed:.1f}s | Exec: {exec_elapsed:.1f}s | Total: {duration:.1f}s ###")
         results_data.append({
             "model":             test_model,
             "SF":                SF,
@@ -1562,11 +1548,187 @@ def ask_question_malloy(questions_list, test_model):
     return f"Malloy run complete. Results saved to {output_path}"
 
 
+# ---------------------------------------------------------------------------
+# Boring Semantic Layer runtime
+# ---------------------------------------------------------------------------
+
+def _boring_system_prompt():
+    with open(BORING_SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as f:
+        return f.read().strip()
+
+
+_boring_models_cache = None
+
+def _load_boring_models():
+    global _boring_models_cache
+    if _boring_models_cache is not None:
+        return _boring_models_cache
+    import ibis
+    from boring_semantic_layer import from_yaml
+    ibis_con = ibis.duckdb.from_connection(con)
+    tables = {name: ibis_con.table(name) for name in
+              ("v_transactions", "date_dim", "store", "item", "customer")}
+    _boring_models_cache = from_yaml(BORING_YAML_PATH, tables=tables)
+    return _boring_models_cache
+
+
+def _get_ai_boring_query(user_message, model_name, endpoint=None):
+    """Ask the LLM to generate Boring Semantic Layer Python code."""
+    if endpoint is None:
+        endpoint = LLAMA_CPP_ENDPOINT
+    try:
+        headers = {'Content-Type': 'application/json'}
+        payload = {
+            'model': model_name,
+            'messages': [
+                {'role': 'system', 'content': _boring_system_prompt()},
+                {'role': 'user',   'content': str(user_message)},
+            ],
+            'stream': False,
+        }
+        response = requests.post(endpoint, headers=headers, json=payload, timeout=TIMEOUT_SECONDS)
+        response.raise_for_status()
+        data = response.json()
+        message = data.get('choices', [{}])[0].get('message', {})
+        generated_text = message.get('content', '') or message.get('reasoning_content', '')
+        timings = data.get('timings', {})
+        usage   = data.get('usage', {})
+        _token_accumulator["completion_tokens"] += usage.get('completion_tokens', 0) or timings.get('predicted_n', 0)
+        _token_accumulator["generation_ms"]     += timings.get('predicted_ms', 0.0)
+        if not generated_text:
+            return f"Error: No content received. Response: {data}"
+    except Exception as e:
+        return f"Error: {e}"
+    text = re.sub(r'<think>.*?</think>', '', generated_text, flags=re.DOTALL | re.IGNORECASE).strip()
+    text = re.sub(r'.*?</think>', '', text, flags=re.DOTALL | re.IGNORECASE).strip()
+    blocks = re.findall(r'```(?:python)?\s*([\s\S]*?)\s*```', text, flags=re.IGNORECASE)
+    if blocks:
+        text = blocks[-1].strip()
+    return text.strip()
+
+
+def _execute_boring_query(code_text, models):
+    """Execute BSL Python code. Returns (df_or_error_str, code_text).
+
+    LLM code must assign a BSL query (without .execute()) to `query`, plus any
+    post-processing steps that operate on `result` after execution.
+    We call .execute() ourselves so we can print the compiled SQL first.
+    """
+    import ibis
+    ns = {
+        "transactions": models["transactions"],
+        "pd": pd,
+    }
+    try:
+        exec(code_text, ns)  # noqa: S102
+        query = ns.get("query")
+        if query is None:
+            return "Boring error: code did not assign to 'query'", code_text
+
+        if isinstance(query, pd.DataFrame):
+            return "Boring error: 'query' is already a DataFrame — assign the BSL expression before calling .execute()", code_text
+
+        # Print compiled SQL before executing
+        print(f"[SQL]\n{query.compile()}\n")
+
+        result = query.execute()
+
+        # Run any post-processing the LLM added (expects `result` in scope)
+        post = ns.get("_post")
+        if callable(post):
+            result = post(result)
+
+        if not isinstance(result, pd.DataFrame):
+            return f"Boring error: 'result' is not a DataFrame after post-processing", code_text
+        return result, code_text
+    except Exception as e:
+        return f"Boring error: {e}", code_text
+
+
+def ask_question_boring(questions_list, test_model):
+    """Boring Semantic Layer variant: LLM generates BSL Python code executed locally."""
+    models = _load_boring_models()
+    results_data = []
+    for i, x in enumerate(questions_list):
+        print(f"Question {i+1}: {x}")
+        _token_accumulator["completion_tokens"] = 0
+        _token_accumulator["generation_ms"] = 0.0
+        start_time = time.time()
+        llm_elapsed = 0.0
+        exec_elapsed = 0.0
+
+        t0 = time.time(); code_text = _get_ai_boring_query(x, test_model); llm_elapsed += time.time() - t0
+        error_details = None
+        attempts_count = 1
+        final_code = code_text
+        query_result_data_json = []
+        result_row_count = 0
+
+        if code_text.startswith("Error"):
+            error_details = f"AI Error: {code_text}"
+        else:
+            t0 = time.time(); result, final_code = _execute_boring_query(code_text, models); exec_elapsed += time.time() - t0
+
+            while isinstance(result, str) and attempts_count < max_attempts:
+                attempts_count += 1
+                retry_msg = (
+                    f"The following Boring Semantic Layer Python code failed:\n{final_code}\n"
+                    f"Error: {result}\n"
+                    f"Fix the code and return ONLY the corrected Python code block.\n"
+                    f"Remember: assign the final Ibis table expression to a variable named 'query'."
+                )
+                t0 = time.time(); code_text = _get_ai_boring_query(retry_msg, test_model); llm_elapsed += time.time() - t0
+                t0 = time.time(); result, final_code = _execute_boring_query(code_text, models); exec_elapsed += time.time() - t0
+
+            if isinstance(result, pd.DataFrame):
+                display(result)
+                query_result_data_json = result.to_dict('records')
+                result_row_count = len(result)
+            else:
+                print(f"Execution: FAILED — {result}")
+                error_details = f"Execution Error: {result}"
+
+        end_time = time.time()
+        duration = round(end_time - start_time, 2)
+        completion_tokens = _token_accumulator["completion_tokens"]
+        generation_s = round(_token_accumulator["generation_ms"] / 1000, 2)
+        tokens_per_s = round(completion_tokens / generation_s, 1) if generation_s > 0 else None
+        print(f" ### LLM: {llm_elapsed:.1f}s | Exec: {exec_elapsed:.1f}s | Total: {duration:.1f}s ###")
+        results_data.append({
+            "model":             test_model,
+            "SF":                SF,
+            "semantic_model":    "boring",
+            "timestamp":         timestamp,
+            "nbr":               i + 1,
+            "question":          x,
+            "duration_s":        duration,
+            "completion_tokens": completion_tokens,
+            "generation_s":      generation_s,
+            "tokens_per_s":      tokens_per_s,
+            "sql_query":         final_code,
+            "attempts":          attempts_count,
+            "feedback_iterations": 0,
+            "result":            query_result_data_json,
+            "result_count":      result_row_count,
+            "error_details":     error_details,
+        })
+
+    log_dir = os.path.join(output_dir, "log")
+    os.makedirs(log_dir, exist_ok=True)
+    sanitized_model = re.sub(r'[\\/*?:"<>|]', '_', test_model)
+    output_filename = f"{timestamp}_{sanitized_model}_boring.json"
+    output_path = os.path.join(log_dir, output_filename)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results_data, f, indent=4)
+        f.flush()
+        os.fsync(f.fileno())
+    return f"Boring run complete. Results saved to {output_path}"
+
 
 def run_test(model_name, semantic_model=None):
     """Complete test workflow: start server, run tests, analyze, plot, stop server.
 
-    semantic_model: 'malloy' for Malloy mode, or path to a .txt system prompt for SQL mode.
+    semantic_model: 'malloy' for Malloy mode, 'boring' for Boring Semantic Layer mode, or path to a .txt system prompt for SQL mode.
     """
     global timestamp, last_tested_model, test_semantic_model_url
     last_tested_model = model_name
@@ -1577,6 +1739,15 @@ def run_test(model_name, semantic_model=None):
         try:
             start_server(model_name)
             ask_question_malloy(questions, model_name)
+        finally:
+            stop_server()
+        return
+
+    # Boring Semantic Layer mode
+    if semantic_model == 'boring':
+        try:
+            start_server(model_name)
+            ask_question_boring(questions, model_name)
         finally:
             stop_server()
         return

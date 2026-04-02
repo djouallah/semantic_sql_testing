@@ -1,0 +1,78 @@
+# ── Dimension tables ────────────────────────────────────────────────────────
+
+date_dim:
+  table: date_dim
+  primary_key: d_date_sk
+  dimensions:
+    d_year:     _.d_year
+    d_moy:      _.d_moy
+    d_qoy:      _.d_qoy
+    d_day_name: _.d_day_name
+    d_holiday:  _.d_holiday
+    d_weekend:  _.d_weekend
+
+store:
+  table: store
+  primary_key: s_store_sk
+  dimensions:
+    s_store_name: _.s_store_name
+    s_state:      _.s_state
+    s_city:       _.s_city
+    s_manager:    _.s_manager
+    s_hours:      _.s_hours
+
+item:
+  table: item
+  primary_key: i_item_sk
+  dimensions:
+    i_category:      _.i_category
+    i_brand:         _.i_brand
+    i_class:         _.i_class
+    i_product_name:  _.i_product_name
+    i_color:         _.i_color
+    i_current_price: _.i_current_price
+
+customer:
+  table: customer
+  primary_key: c_customer_sk
+  dimensions:
+    c_preferred_cust_flag: _.c_preferred_cust_flag
+    c_birth_country:       _.c_birth_country
+    c_birth_year:          _.c_birth_year
+
+# ── Unified fact view ────────────────────────────────────────────────────────
+# v_transactions = store_sales UNION ALL store_returns
+# sale rows:   sale_amount = ss_sales_price * ss_quantity, return_amount = 0
+# return rows: sale_amount = 0, return_amount = sr_return_amt
+# row_type: 'sale' | 'return'
+
+transactions:
+  table: v_transactions
+  description: "Unified sales + returns view — 3,168,271 rows"
+  measures:
+    total_sales:    _.sale_amount.sum()
+    total_returns:  _.return_amount.sum()
+    total_quantity: _.quantity.sum()
+    net_sales:      (_.sale_amount - _.return_amount).sum()
+    ticket_count:   (_.row_type == 'sale').sum()
+  joins:
+    date_dim:
+      model: date_dim
+      type: one
+      left_on: date_sk
+      right_on: d_date_sk
+    store:
+      model: store
+      type: one
+      left_on: store_sk
+      right_on: s_store_sk
+    item:
+      model: item
+      type: one
+      left_on: item_sk
+      right_on: i_item_sk
+    customer:
+      model: customer
+      type: one
+      left_on: customer_sk
+      right_on: c_customer_sk

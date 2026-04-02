@@ -1,7 +1,7 @@
 {
   "settings": {
-"max_attempts": 3,
-    "TIMEOUT_SECONDS": 60,
+    "max_attempts": 3,
+    "TIMEOUT_SECONDS": 20,
     "enable_feedback_loop": true,
     "model0": "claude-opus-4-6"
   },
