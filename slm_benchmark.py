@@ -1419,7 +1419,7 @@ def plot_tokens(model_name):
     records = sorted(records, key=lambda r: r.get('nbr', 0))
     labels = [f"Q{r['nbr']}" for r in records]
     values = [r.get('completion_tokens', 0) or 0 for r in records]
-    colors = ['#d62728' if r.get('error_details') else '#1f77b4' for r in records]
+    colors = ['#1f77b4' for r in records]
 
     fig, ax = plt.subplots(figsize=(14, 6))
     x = np.arange(len(labels))
