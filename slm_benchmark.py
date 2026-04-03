@@ -1255,7 +1255,7 @@ def _compare_stored_results(ref_result, model_result, rtol=0.005):
     return 'wrong'
 
 
-def analyze_all_runs():
+def analyze_all_runs(date=None):
     """Load and score ALL historical runs using stored results (no SQL re-execution)."""
     import glob as _glob
     from collections import defaultdict
@@ -1269,7 +1269,7 @@ def analyze_all_runs():
             all_records.extend(json.load(fh))
     all_records = [r for r in all_records if str(r.get('SF', '')) == str(SF)]
 
-    # Build baseline reference map (latest run)
+    # Build baseline reference map (latest run) — always from full history
     baseline_records = [r for r in all_records if r.get('model') == baseline]
     latest_ts = max(r['timestamp'] for r in baseline_records)
     ref_map = {
@@ -1280,10 +1280,12 @@ def analyze_all_runs():
     }
 
     # Group model runs by (model, timestamp)
+    date_prefix = date.replace('-', '') if date is not None else None
     runs = defaultdict(list)
     for r in all_records:
         if r.get('model') != baseline:
-            runs[(r['model'], r['timestamp'])].append(r)
+            if date_prefix is None or str(r.get('timestamp', '')) >= date_prefix:
+                runs[(r['model'], r['timestamp'])].append(r)
 
     all_summaries = []
     for (run_model, run_ts), records in sorted(runs.items()):
@@ -1318,14 +1320,32 @@ def analyze_all_runs():
     return pd.DataFrame(all_summaries)
 
 
-def plot_results(comparison_table):
+def plot_results(comparison_table, models=None, semantic_model=None):
     """Plot scatter chart of Speed vs Accuracy and save to chart.png.
 
     Accepts either:
     - a single-row-per-model table (columns: model, accuracy_percent, avg_duration_per_question)
     - an all-runs table from analyze_all_runs() (adds a 'timestamp' column)
+
+    Args:
+        models: optional list of model names to include
+        semantic_model: optional list of semantic model names to include
     """
     import matplotlib.pyplot as plt
+
+    if models is not None:
+        comparison_table = comparison_table[comparison_table['model'].isin(models)]
+
+    if semantic_model is not None:
+        sem_col_check = 'semantic_model' if 'semantic_model' in comparison_table.columns else None
+        if sem_col_check:
+            import pathlib
+            normalized = [pathlib.Path(s).stem if pathlib.Path(s).suffix else s for s in semantic_model]
+            comparison_table = comparison_table[comparison_table[sem_col_check].isin(normalized)]
+
+    if comparison_table.empty:
+        print("plot_results: no data after filtering — check models/semantic_model args")
+        return
 
     base_colors = ['#1f77b4', '#2e8b57', '#ff8c00', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
     has_all_runs = 'timestamp' in comparison_table.columns
@@ -1380,11 +1400,12 @@ def plot_results(comparison_table):
         pass
     plt.title(f'Text to SQL: Duration vs Accuracy ({n_label})\n(NVIDIA RTX 2000 Mobile, 4GB VRAM, 32GB RAM, llama.cpp {llama_version})', fontsize=14, fontweight='bold')
     import numpy as np
-    xmax = 60
+    xmax = max(np.ceil(max(all_times) / 5) * 5, 5)
     plt.xlim(0, xmax)
+    all_acc = comparison_table['accuracy_percent'].tolist()
     plt.ylim(0, 100)
     ax = plt.gca()
-    ax.set_xticks(np.arange(0, 65, 5))
+    ax.set_xticks(np.arange(0, xmax + 5, 5))
     ax.set_yticks(np.arange(0, 110, 10))
     plt.grid(True, alpha=0.3)
     ax.add_patch(plt.matplotlib.patches.Rectangle(
@@ -1394,6 +1415,83 @@ def plot_results(comparison_table):
 
     plt.tight_layout()
     chart_path = os.path.join(output_dir, 'chart.png')
+    plt.savefig(chart_path, dpi=150, bbox_inches='tight')
+    print(f'Chart saved to {chart_path}')
+    plt.show()
+
+
+def plot_model_history(all_runs, model_name):
+    """Plot all runs of a single model over time: accuracy vs duration, labeled by date.
+
+    Args:
+        all_runs: DataFrame from analyze_all_runs()
+        model_name: exact model name string (must match 'model' column)
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    mdf = all_runs[all_runs['model'] == model_name].copy()
+    if mdf.empty:
+        print(f"No runs found for model '{model_name}'")
+        return
+
+    mdf = mdf.sort_values('timestamp')
+    mdf['run_label'] = mdf['timestamp'].str[:10]  # YYYY-MM-DD
+
+    sem_col = 'semantic_model' if 'semantic_model' in mdf.columns else None
+    unique_sem = sorted(mdf[sem_col].fillna('semantic_model').unique()) if sem_col else ['semantic_model']
+    sem_markers = {s: m for s, m in zip(unique_sem, ['o', 'D', 's', '^', 'v'])}
+
+    cmap = plt.cm.plasma
+    n = len(mdf)
+    colors = [cmap(i / max(n - 1, 1)) for i in range(n)]
+
+    fig, ax = plt.subplots(figsize=(12, 7))
+
+    for idx, (_, row) in enumerate(mdf.iterrows()):
+        sem = (row[sem_col] if sem_col else None) or 'semantic_model'
+        ax.scatter(row['avg_duration_per_question'], row['accuracy_percent'],
+                   c=[colors[idx]], marker=sem_markers.get(sem, 'o'),
+                   s=80, edgecolors='black', linewidth=1.5, zorder=3)
+        ax.annotate(row['run_label'], (row['avg_duration_per_question'], row['accuracy_percent']),
+                    xytext=(6, 4), textcoords='offset points', fontsize=9)
+
+    # Color bar to show chronological order
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(0, max(n - 1, 1)))
+    sm.set_array([])
+    cbar = fig.colorbar(sm, ax=ax, pad=0.01)
+    cbar.set_label('Run order (older → newer)', fontsize=10)
+    cbar.set_ticks([0, max(n - 1, 1)])
+    cbar.set_ticklabels(['oldest', 'newest'])
+
+    if len(unique_sem) > 1:
+        import matplotlib.lines as mlines
+        sem_handles = [mlines.Line2D([], [], color='grey', marker=sem_markers[s],
+                                     linestyle='None', markersize=7, label=s) for s in unique_sem]
+        ax.legend(handles=sem_handles, loc='upper right', fontsize=9, title='Semantic model')
+
+    ax.set_xlabel('Avg Duration (seconds) - lower is better', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Accuracy (%)', fontsize=12, fontweight='bold')
+    llama_version = 'unknown'
+    try:
+        llama_version = 'b' + open(r'c:\llm\llama\version.txt').read().strip()
+    except Exception:
+        pass
+    ax.set_title(f'{model_name} — History ({n} runs)\n(NVIDIA RTX 2000 Mobile, 4GB VRAM, llama.cpp {llama_version})',
+                 fontsize=13, fontweight='bold')
+    ax.set_xlim(0, 60)
+    ax.set_ylim(0, 100)
+    ax.set_xticks(np.arange(0, 65, 5))
+    ax.set_yticks(np.arange(0, 110, 10))
+    ax.grid(True, alpha=0.3)
+    ax.add_patch(plt.matplotlib.patches.Rectangle(
+        (0, 90), 5, 10, transform=ax.transData,
+        facecolor='#00cc44', alpha=0.12, zorder=0
+    ))
+
+    plt.tight_layout()
+    safe_name = model_name.replace('/', '_').replace('\\', '_')
+    chart_path = os.path.join(output_dir, f'chart_history_{safe_name}.png')
     plt.savefig(chart_path, dpi=150, bbox_inches='tight')
     print(f'Chart saved to {chart_path}')
     plt.show()
