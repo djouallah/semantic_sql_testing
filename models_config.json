@@ -1,7 +1,7 @@
 {
   "settings": {
     "max_attempts": 3,
-    "TIMEOUT_SECONDS": 20,
+    "TIMEOUT_SECONDS": 120,
     "enable_feedback_loop": true,
     "model0": "claude-opus-4-6"
   },
@@ -50,6 +50,22 @@
       "min_p": 0.0,
       "repeat_penalty": 1.05,
       "description": "Gemma 4 E2B-it (4-bit Q4_K_M) - MoE ~2B active params, full GPU"
+    },
+"gemma4-e4b": {
+      "model_path": "C:/llm/models/gemma-4-E4B-it-Q4_K_M.gguf",
+      "hf_repo": "unsloth/gemma-4-E4B-it-GGUF",
+      "context_size": 4096,
+      "gpu_layers": 99,
+      "flash_attn": "on",
+      "reasoning_budget": 0,
+      "parallel": 1,
+      "batch_size": 4096,
+      "temp": 0.7,
+      "top_p": 0.95,
+      "top_k": 40,
+      "min_p": 0.0,
+      "repeat_penalty": 1.05,
+      "description": "Gemma 4 E4B-it (4-bit Q4_K_M) - MoE ~4B active params, full GPU, thinking OFF"
     },
 "nemotron3-nano-4b": {
       "model_path": "C:/llm/models/NVIDIA-Nemotron3-Nano-4B-Q4_K_M.gguf",

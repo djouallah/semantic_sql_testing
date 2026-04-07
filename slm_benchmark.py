@@ -345,6 +345,9 @@ def start_server(model_name):
     if 'batch_size' in selected_config:
         cmd.extend(['-b', str(selected_config['batch_size'])])
 
+    if 'parallel' in selected_config:
+        cmd.extend(['--parallel', str(selected_config['parallel'])])
+
     if selected_config.get('override_tensors'):
         for pattern, device in selected_config['override_tensors']:
             cmd.extend(['--override-tensor', f'{pattern}={device}'])
