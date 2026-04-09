@@ -1,7 +1,7 @@
 {
   "settings": {
     "max_attempts": 3,
-    "TIMEOUT_SECONDS": 120,
+    "TIMEOUT_SECONDS": 60,
     "enable_feedback_loop": true,
     "model0": "claude-opus-4-6"
   },
@@ -37,28 +37,13 @@
       "repeat_penalty": 1.05,
       "description": "Qwen3.5-4B (4-bit) - Qwen recommended params, full GPU, thinking OFF"
     },
-"gemma4-e2b": {
-      "model_path": "C:/llm/models/gemma-4-E2B-it-Q4_K_M.gguf",
-      "hf_repo": "unsloth/gemma-4-E2B-it-GGUF",
-      "context_size": 8192,
-      "gpu_layers": 99,
-      "flash_attn": "on",
-      "batch_size": 4096,
-      "temp": 0.7,
-      "top_p": 0.95,
-      "top_k": 40,
-      "min_p": 0.0,
-      "repeat_penalty": 1.05,
-      "description": "Gemma 4 E2B-it (4-bit Q4_K_M) - MoE ~2B active params, full GPU"
-    },
 "gemma4-e4b": {
       "model_path": "C:/llm/models/gemma-4-E4B-it-Q4_K_M.gguf",
       "hf_repo": "unsloth/gemma-4-E4B-it-GGUF",
-      "context_size": 4096,
+      "context_size": 8192,
       "gpu_layers": 99,
       "flash_attn": "on",
       "reasoning_budget": 0,
-      "parallel": 1,
       "batch_size": 4096,
       "temp": 0.7,
       "top_p": 0.95,
