@@ -348,6 +348,12 @@ def start_server(model_name):
     if 'parallel' in selected_config:
         cmd.extend(['--parallel', str(selected_config['parallel'])])
 
+    if 'cache_type_k' in selected_config:
+        cmd.extend(['--cache-type-k', str(selected_config['cache_type_k'])])
+
+    if 'cache_type_v' in selected_config:
+        cmd.extend(['--cache-type-v', str(selected_config['cache_type_v'])])
+
     if selected_config.get('override_tensors'):
         for pattern, device in selected_config['override_tensors']:
             cmd.extend(['--override-tensor', f'{pattern}={device}'])
