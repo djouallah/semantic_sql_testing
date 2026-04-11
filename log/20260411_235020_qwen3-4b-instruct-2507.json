@@ -3,19 +3,19 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 1,
         "question": "What is the overall total sales revenue?",
-        "duration_s": 3.01,
-        "completion_tokens": 39,
-        "generation_s": 0.84,
-        "tokens_per_s": 46.4,
-        "sql_query": "SELECT SUM(sale_amount) AS total_sales\nFROM v_transactions;",
+        "duration_s": 3.65,
+        "completion_tokens": 52,
+        "generation_s": 1.16,
+        "tokens_per_s": 44.8,
+        "sql_query": "-- What is the overall total sales revenue?\nSELECT SUM(sale_amount) AS total_sales_revenue\nFROM v_transactions;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
             {
-                "total_sales": 5138665812.53
+                "total_sales_revenue": 5138665812.53
             }
         ],
         "result_count": 1,
@@ -25,14 +25,14 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 2,
         "question": "What is the total number of items sold across all transactions?",
-        "duration_s": 1.23,
-        "completion_tokens": 43,
-        "generation_s": 0.94,
-        "tokens_per_s": 45.7,
-        "sql_query": "SELECT SUM(v.quantity) AS total_quantity\nFROM v_transactions v;",
+        "duration_s": 1.6,
+        "completion_tokens": 56,
+        "generation_s": 1.25,
+        "tokens_per_s": 44.8,
+        "sql_query": "-- What is the total number of items sold across all transactions?\nSELECT SUM(v.quantity) AS total_quantity\nFROM v_transactions v;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
@@ -47,19 +47,19 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 3,
         "question": "What is the total monetary value of all returned items?",
-        "duration_s": 1.89,
-        "completion_tokens": 72,
-        "generation_s": 1.57,
-        "tokens_per_s": 45.9,
-        "sql_query": "-- QUESTION: What is the total monetary value of all returned items?\nSELECT SUM(return_amount) AS total_returned_value\nFROM v_transactions\nWHERE row_type = 'return';",
+        "duration_s": 1.78,
+        "completion_tokens": 58,
+        "generation_s": 1.33,
+        "tokens_per_s": 43.6,
+        "sql_query": "-- What is the total monetary value of all returned items?\nSELECT SUM(v.return_amount) AS total_return_value\nFROM v_transactions v;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
             {
-                "total_returned_value": 270824609.25
+                "total_return_value": 270824609.25
             }
         ],
         "result_count": 1,
@@ -69,13 +69,13 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 4,
         "question": "List the names of all stores, order by store name.",
-        "duration_s": 1.44,
+        "duration_s": 1.72,
         "completion_tokens": 50,
-        "generation_s": 1.08,
-        "tokens_per_s": 46.3,
+        "generation_s": 1.16,
+        "tokens_per_s": 43.1,
         "sql_query": "SELECT DISTINCT s.s_store_name\nFROM store s\nORDER BY s.s_store_name;",
         "attempts": 1,
         "feedback_iterations": 1,
@@ -112,13 +112,13 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 5,
         "question": "What are the different item categories available? Remove null values. Order alphabetically by category name.",
-        "duration_s": 1.95,
+        "duration_s": 2.23,
         "completion_tokens": 70,
-        "generation_s": 1.53,
-        "tokens_per_s": 45.8,
+        "generation_s": 1.71,
+        "tokens_per_s": 40.9,
         "sql_query": "SELECT DISTINCT i.i_category\nFROM item i\nWHERE i.i_category IS NOT NULL\nORDER BY i.i_category;",
         "attempts": 1,
         "feedback_iterations": 1,
@@ -161,13 +161,13 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 6,
         "question": "Show total sales revenue for each year, ordered chronologically by year.",
-        "duration_s": 3.72,
+        "duration_s": 4.37,
         "completion_tokens": 144,
-        "generation_s": 3.2,
-        "tokens_per_s": 45.0,
+        "generation_s": 3.52,
+        "tokens_per_s": 40.9,
         "sql_query": "-- Show total sales revenue for each year, ordered chronologically by year.\nSELECT \n    d.d_year,\n    SUM(v.sale_amount) AS total_sales\nFROM \n    v_transactions v\nJOIN \n    date_dim d ON v.date_sk = d.d_date_sk\nGROUP BY \n    d.d_year\nORDER BY \n    d.d_year;",
         "attempts": 1,
         "feedback_iterations": 1,
@@ -204,14 +204,14 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 7,
         "question": "Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties. Return only the top 1 row.",
-        "duration_s": 3.99,
-        "completion_tokens": 154,
-        "generation_s": 3.44,
-        "tokens_per_s": 44.8,
-        "sql_query": "SELECT s.s_store_name,\n       SUM(v.sale_amount) AS total_sales\nFROM v_transactions v\nJOIN store s ON v.store_sk = s.s_store_sk\nGROUP BY s.s_store_name\nORDER BY total_sales DESC, s.s_store_name ASC\nLIMIT 1;",
+        "duration_s": 5.5,
+        "completion_tokens": 192,
+        "generation_s": 4.76,
+        "tokens_per_s": 40.3,
+        "sql_query": "-- Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties. Return only the top 1 row.\nSELECT s.s_store_name,\n       SUM(v.sale_amount) AS total_sales\nFROM v_transactions v\nJOIN store s ON v.store_sk = s.s_store_sk\nGROUP BY s.s_store_name\nORDER BY total_sales DESC, s.s_store_name ASC\nLIMIT 1;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
@@ -227,14 +227,14 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 8,
         "question": "What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, then by brand name alphabetically for ties.",
-        "duration_s": 4.63,
-        "completion_tokens": 182,
-        "generation_s": 4.09,
-        "tokens_per_s": 44.5,
-        "sql_query": "-- What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, then by brand name alphabetically for ties.\nSELECT \n    i.i_brand,\n    SUM(v.quantity) AS total_quantity\nFROM v_transactions v\nJOIN item i ON v.item_sk = i.i_item_sk\nWHERE i.i_brand IS NOT NULL\nGROUP BY i.i_brand\nORDER BY total_quantity DESC, i.i_brand ASC;",
+        "duration_s": 5.15,
+        "completion_tokens": 180,
+        "generation_s": 4.48,
+        "tokens_per_s": 40.2,
+        "sql_query": "-- What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, then by brand name alphabetically for ties.\nSELECT \n    i.i_brand,\n    SUM(v.quantity) AS total_quantity\nFROM v_transactions v\nJOIN item i ON v.item_sk = i.i_item_sk\nWHERE i.i_brand IS NOT NULL\nGROUP BY i.i_brand\nORDER BY total_quantity DESC, i.i_brand ASC",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
@@ -3094,23 +3094,23 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 9,
         "question": "Show total sales for preferred customers versus non-preferred customers as two rows. Use the raw flag value (c_preferred_cust_flag) as the group label \u2014 output 'Y' and 'N', not 'Preferred' / 'Non-Preferred'. Exclude customers where the preferred flag is NULL. Order by total sales descending.",
-        "duration_s": 3.66,
-        "completion_tokens": 139,
-        "generation_s": 3.17,
-        "tokens_per_s": 43.8,
-        "sql_query": "SELECT \n    c.c_preferred_cust_flag AS group_label,\n    SUM(v.sale_amount) AS total_sales\nFROM v_transactions v\nJOIN customer c ON v.customer_sk = c.c_customer_sk\nWHERE c.c_preferred_cust_flag IS NOT NULL\nGROUP BY c.c_preferred_cust_flag\nORDER BY total_sales DESC;",
+        "duration_s": 7.45,
+        "completion_tokens": 264,
+        "generation_s": 6.57,
+        "tokens_per_s": 40.2,
+        "sql_query": "-- Show total sales for preferred customers versus non-preferred customers as two rows. Use the raw flag value (c_preferred_cust_flag) as the group label \u2014 output 'Y' and 'N', not 'Preferred' / 'Non-Preferred'. Exclude customers where the preferred flag is NULL. Order by total sales descending.\nSELECT \n    c.c_preferred_cust_flag,\n    SUM(v.sale_amount) AS total_sales\nFROM v_transactions v\nLEFT JOIN customer c ON v.customer_sk = c.c_customer_sk\nWHERE c.c_preferred_cust_flag IS NOT NULL\nGROUP BY c.c_preferred_cust_flag\nORDER BY total_sales DESC;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
             {
-                "group_label": "N",
+                "c_preferred_cust_flag": "N",
                 "total_sales": 2493560166.78
             },
             {
-                "group_label": "Y",
+                "c_preferred_cust_flag": "Y",
                 "total_sales": 2408850335.04
             }
         ],
@@ -3121,14 +3121,14 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 10,
         "question": "What is the total return amount for each city where stores are located, ordered alphabetically by city name.",
-        "duration_s": 3.46,
-        "completion_tokens": 136,
-        "generation_s": 3.06,
-        "tokens_per_s": 44.4,
-        "sql_query": "SELECT \n    s.s_city,\n    SUM(v.return_amount) AS total_return_amount\nFROM \n    v_transactions v\nJOIN \n    store s ON v.store_sk = s.s_store_sk\nGROUP BY \n    s.s_city\nORDER BY \n    s.s_city;",
+        "duration_s": 3.59,
+        "completion_tokens": 120,
+        "generation_s": 2.96,
+        "tokens_per_s": 40.5,
+        "sql_query": "SELECT \n    s.s_city,\n    SUM(v.return_amount) AS total_return_amount\nFROM v_transactions v\nJOIN store s ON v.store_sk = s.s_store_sk\nGROUP BY s.s_city\nORDER BY s.s_city;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
@@ -3148,14 +3148,14 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 11,
         "question": "What is the net sales for each store name, order by net sales.",
-        "duration_s": 4.17,
-        "completion_tokens": 160,
-        "generation_s": 3.59,
-        "tokens_per_s": 44.6,
-        "sql_query": "-- What is the net sales for each store name, order by net sales.\nSELECT \n    s.s_store_name,\n    SUM(v.sale_amount) - SUM(v.return_amount) AS net_sales\nFROM \n    v_transactions v\nJOIN \n    store s ON v.store_sk = s.s_store_sk\nGROUP BY \n    s.s_store_name\nORDER BY \n    net_sales DESC;",
+        "duration_s": 3.99,
+        "completion_tokens": 144,
+        "generation_s": 3.37,
+        "tokens_per_s": 42.7,
+        "sql_query": "-- What is the net sales for each store name, order by net sales.\nSELECT \n    s.s_store_name,\n    SUM(v.sale_amount) - SUM(v.return_amount) AS net_sales\nFROM v_transactions v\nJOIN store s ON v.store_sk = s.s_store_sk\nGROUP BY s.s_store_name\nORDER BY net_sales DESC;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
@@ -3191,14 +3191,14 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 12,
         "question": "Calculate the return rate for each item category (i_category). Show the category name and return rate, with one row per distinct category. Exclude NULL categories. Order alphabetically by category name.",
-        "duration_s": 5.34,
-        "completion_tokens": 208,
-        "generation_s": 4.68,
-        "tokens_per_s": 44.4,
-        "sql_query": "SELECT \n    i.i_category,\n    (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 AS return_rate\nFROM \n    v_transactions v\nJOIN \n    item i ON v.item_sk = i.i_item_sk\nWHERE \n    i.i_category IS NOT NULL\nGROUP BY \n    i.i_category\nORDER BY \n    i.i_category;",
+        "duration_s": 3.21,
+        "completion_tokens": 117,
+        "generation_s": 2.69,
+        "tokens_per_s": 43.5,
+        "sql_query": "SELECT \n    i.i_category,\n    (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 AS return_rate\nFROM v_transactions v\nJOIN item i ON v.item_sk = i.i_item_sk\nWHERE i.i_category IS NOT NULL\nGROUP BY i.i_category\nORDER BY i.i_category;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
@@ -3250,13 +3250,13 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 13,
         "question": "What is the monthly trend of net sales during the year 2001, order by net sales desc.",
-        "duration_s": 4.86,
+        "duration_s": 4.87,
         "completion_tokens": 184,
-        "generation_s": 4.18,
-        "tokens_per_s": 44.0,
+        "generation_s": 4.31,
+        "tokens_per_s": 42.7,
         "sql_query": "-- What is the monthly trend of net sales during the year 2001, order by net sales desc.\nSELECT \n    d.d_moy AS month,\n    SUM(v.sale_amount - v.return_amount) AS net_sales\nFROM v_transactions v\nJOIN date_dim d ON v.date_sk = d.d_date_sk\nWHERE d.d_year = 2001\nGROUP BY d.d_moy\nORDER BY net_sales DESC;",
         "attempts": 1,
         "feedback_iterations": 1,
@@ -3317,14 +3317,14 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 14,
         "question": "Which customer birth country has the highest return rate? Show the country name and return rate. Order by return rate descending, then by country name alphabetically. Return only the top 1 row.",
-        "duration_s": 7.19,
-        "completion_tokens": 279,
-        "generation_s": 6.38,
-        "tokens_per_s": 43.7,
-        "sql_query": "-- Which customer birth country has the highest return rate? Show the country name and return rate. Order by return rate descending, then by country name alphabetically. Return only the top 1 row.\nSELECT \n    c.c_birth_country,\n    (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 AS return_rate\nFROM \n    v_transactions v\nJOIN \n    customer c ON v.customer_sk = c.c_customer_sk\nWHERE \n    c.c_birth_country IS NOT NULL\nGROUP BY \n    c.c_birth_country\nORDER BY \n    return_rate DESC, \n    c.c_birth_country ASC\nLIMIT 1;",
+        "duration_s": 5.61,
+        "completion_tokens": 216,
+        "generation_s": 5.03,
+        "tokens_per_s": 42.9,
+        "sql_query": "SELECT \n    c.c_birth_country,\n    (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 AS return_rate\nFROM v_transactions v\nLEFT JOIN customer c ON v.customer_sk = c.c_customer_sk\nWHERE c.c_birth_country IS NOT NULL\nGROUP BY c.c_birth_country\nORDER BY return_rate DESC, c.c_birth_country ASC\nLIMIT 1;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
@@ -3340,51 +3340,51 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 15,
         "question": "For each store, show the store name, its net sales, the overall average net sales across all stores, and the percentage calculated as (store net sales / average net sales) * 100. Order by percentage descending, then by store name alphabetically for ties.",
-        "duration_s": 14.9,
-        "completion_tokens": 593,
-        "generation_s": 13.91,
-        "tokens_per_s": 42.6,
-        "sql_query": "-- For each store, show the store name, its net sales, the overall average net sales across all stores, and the percentage calculated as (store net sales / average net sales) * 100. Order by percentage descending, then by store name alphabetically for ties.\nSELECT \n    s.s_store_name,\n    (SUM(v.sale_amount) - SUM(v.return_amount)) AS net_sales,\n    (SELECT AVG(net_sales) \n     FROM (\n         SELECT (SUM(v2.sale_amount) - SUM(v2.return_amount)) AS net_sales\n         FROM v_transactions v2\n         JOIN store s2 ON v2.store_sk = s2.s_store_sk\n         GROUP BY s2.s_store_name\n     ) AS subquery) AS avg_net_sales_across_stores,\n    ((SUM(v.sale_amount) - SUM(v.return_amount)) / \n     NULLIF((SELECT AVG(net_sales) \n              FROM (\n                  SELECT (SUM(v2.sale_amount) - SUM(v2.return_amount)) AS net_sales\n                  FROM v_transactions v2\n                  JOIN store s2 ON v2.store_sk = s2.s_store_sk\n                  GROUP BY s2.s_store_name\n              ) AS subquery), 0)) * 100 AS percentage\nFROM v_transactions v\nJOIN store s ON v.store_sk = s.s_store_sk\nGROUP BY s.s_store_name\nORDER BY percentage DESC, s.s_store_name ASC;",
+        "duration_s": 8.33,
+        "completion_tokens": 319,
+        "generation_s": 7.54,
+        "tokens_per_s": 42.3,
+        "sql_query": "SELECT \n    s.s_store_name,\n    (SUM(v.sale_amount) - SUM(v.return_amount)) AS net_sales,\n    (AVG(SUM(v.sale_amount) - SUM(v.return_amount)) OVER ()) AS avg_net_sales_all_stores,\n    ((SUM(v.sale_amount) - SUM(v.return_amount)) / NULLIF(AVG(SUM(v.sale_amount) - SUM(v.return_amount)) OVER (), 0)) * 100 AS percentage\nFROM v_transactions v\nJOIN store s ON v.store_sk = s.s_store_sk\nGROUP BY s.s_store_name\nORDER BY percentage DESC, s.s_store_name ASC;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
             {
                 "s_store_name": "bar",
                 "net_sales": 804421054.86,
-                "avg_net_sales_across_stores": 801832854.4933333,
+                "avg_net_sales_all_stores": 801832854.4933333,
                 "percentage": 100.32278552221487
             },
             {
                 "s_store_name": "eing",
                 "net_sales": 802802848.75,
-                "avg_net_sales_across_stores": 801832854.4933333,
+                "avg_net_sales_all_stores": 801832854.4933333,
                 "percentage": 100.12097212670083
             },
             {
                 "s_store_name": "ese",
                 "net_sales": 802346690.31,
-                "avg_net_sales_across_stores": 801832854.4933333,
+                "avg_net_sales_all_stores": 801832854.4933333,
                 "percentage": 100.06408265934567
             },
             {
                 "s_store_name": "able",
                 "net_sales": 801418584.81,
-                "avg_net_sales_across_stores": 801832854.4933333,
+                "avg_net_sales_all_stores": 801832854.4933333,
                 "percentage": 99.9483346584002
             },
             {
                 "s_store_name": "ation",
                 "net_sales": 800752820.38,
-                "avg_net_sales_across_stores": 801832854.4933333,
+                "avg_net_sales_all_stores": 801832854.4933333,
                 "percentage": 99.86530433278195
             },
             {
                 "s_store_name": "ought",
                 "net_sales": 799255127.85,
-                "avg_net_sales_across_stores": 801832854.4933333,
+                "avg_net_sales_all_stores": 801832854.4933333,
                 "percentage": 99.67852070055646
             }
         ],
@@ -3395,14 +3395,14 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 16,
         "question": "List all item product names and total sales that have a return rate greater than 5%, ordered by item product name alphabetically.",
-        "duration_s": 7.68,
-        "completion_tokens": 285,
-        "generation_s": 6.62,
-        "tokens_per_s": 43.1,
-        "sql_query": "SELECT \n    i.i_product_name,\n    SUM(v.sale_amount) AS total_sales,\n    (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 AS return_rate\nFROM \n    v_transactions v\nJOIN \n    item i ON v.item_sk = i.i_item_sk\nWHERE \n    i.i_product_name IS NOT NULL\nGROUP BY \n    i.i_product_name\nHAVING \n    (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 > 5\nORDER BY \n    i.i_product_name;",
+        "duration_s": 7.02,
+        "completion_tokens": 261,
+        "generation_s": 6.17,
+        "tokens_per_s": 42.3,
+        "sql_query": "SELECT \n    i.i_product_name,\n    SUM(v.sale_amount) AS total_sales,\n    (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 AS return_rate\nFROM v_transactions v\nJOIN item i ON v.item_sk = i.i_item_sk\nWHERE i.i_product_name IS NOT NULL\nGROUP BY i.i_product_name\nHAVING (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 > 5\nORDER BY i.i_product_name;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [
@@ -47719,13 +47719,13 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 17,
         "question": "For each store, what was the percentage change in net sales from year 2001 to year 2002? Show store name, net sales for 2001, net sales for 2002, and percentage change rounded to 2 decimal places. Order alphabetically by store name.",
-        "duration_s": 14.62,
-        "completion_tokens": 580,
-        "generation_s": 13.78,
-        "tokens_per_s": 42.1,
+        "duration_s": 15.61,
+        "completion_tokens": 579,
+        "generation_s": 14.75,
+        "tokens_per_s": 39.3,
         "sql_query": "SELECT \n    s.s_store_name,\n    SUM(CASE WHEN d.d_year = 2001 THEN v.sale_amount - v.return_amount ELSE 0 END) AS net_sales_2001,\n    SUM(CASE WHEN d.d_year = 2002 THEN v.sale_amount - v.return_amount ELSE 0 END) AS net_sales_2002,\n    ROUND(\n        ((SUM(CASE WHEN d.d_year = 2002 THEN v.sale_amount - v.return_amount ELSE 0 END) - \n          SUM(CASE WHEN d.d_year = 2001 THEN v.sale_amount - v.return_amount ELSE 0 END)) * 100.0 / \n         NULLIF(SUM(CASE WHEN d.d_year = 2001 THEN v.sale_amount - v.return_amount ELSE 0 END), 0)),\n        2\n    ) AS percentage_change\nFROM v_transactions v\nJOIN store s ON v.store_sk = s.s_store_sk\nJOIN date_dim d ON v.date_sk = d.d_date_sk\nWHERE d.d_year IN (2001, 2002)\nGROUP BY s.s_store_name\nORDER BY s.s_store_name;",
         "attempts": 1,
         "feedback_iterations": 1,
@@ -47774,75 +47774,75 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 18,
         "question": "What is the return rate for items sold on weekends (d_weekend = 'Y') versus weekdays (d_weekend = 'N'), broken down by customer age group? Use these age groups based on (d_year - c_birth_year): '< 20', '20-29', '30-39', '40-49', '50-59', '60+'. Show age group, weekend flag, and return rate. Order by age group, then by weekend flag.",
-        "duration_s": 38.56,
-        "completion_tokens": 1342,
-        "generation_s": 36.48,
-        "tokens_per_s": 36.8,
-        "sql_query": "SELECT \n    CASE\n        WHEN (d.d_year - c.c_birth_year) < 20              THEN '< 20'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n        WHEN (d.d_year - c.c_birth_year) >= 60             THEN '60+'\n    END AS age_group,\n    CASE WHEN d.d_weekend = 'Y' THEN 'weekend' ELSE 'weekday' END AS weekend_flag,\n    (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 AS return_rate\nFROM v_transactions v\nJOIN date_dim d ON v.date_sk = d.d_date_sk\nJOIN customer c ON v.customer_sk = c.c_customer_sk\nWHERE d.d_weekend IN ('Y', 'N')\n    AND c.c_birth_year IS NOT NULL\nGROUP BY \n    CASE\n        WHEN (d.d_year - c.c_birth_year) < 20              THEN '< 20'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n        WHEN (d.d_year - c.c_birth_year) >= 60             THEN '60+'\n    END,\n    CASE WHEN d.d_weekend = 'Y' THEN 'weekend' ELSE 'weekday' END\nORDER BY \n    age_group, \n    weekend_flag;",
+        "duration_s": 22.39,
+        "completion_tokens": 789,
+        "generation_s": 20.88,
+        "tokens_per_s": 37.8,
+        "sql_query": "-- What is the return rate for items sold on weekends (d_weekend = 'Y') versus weekdays (d_weekend = 'N'), broken down by customer age group? Use these age groups based on (d_year - c_birth_year): '< 20', '20-29', '30-39', '40-49', '50-59', '60+'. Show age group, weekend flag, and return rate. Order by age group, then by weekend flag.\nSELECT \n    CASE\n        WHEN (d.d_year - c.c_birth_year) < 20              THEN '< 20'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n        WHEN (d.d_year - c.c_birth_year) >= 60             THEN '60+'\n    END AS age_group,\n    d.d_weekend,\n    (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 AS return_rate\nFROM v_transactions v\nJOIN date_dim d ON v.date_sk = d.d_date_sk\nLEFT JOIN customer c ON v.customer_sk = c.c_customer_sk\nWHERE d.d_weekend IN ('Y', 'N')\n    AND c.c_birth_year IS NOT NULL\nGROUP BY \n    CASE\n        WHEN (d.d_year - c.c_birth_year) < 20              THEN '< 20'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 20 AND 29 THEN '20-29'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 30 AND 39 THEN '30-39'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 40 AND 49 THEN '40-49'\n        WHEN (d.d_year - c.c_birth_year) BETWEEN 50 AND 59 THEN '50-59'\n        WHEN (d.d_year - c.c_birth_year) >= 60             THEN '60+'\n    END,\n    d.d_weekend\nORDER BY \n    age_group, \n    d.d_weekend;",
         "attempts": 2,
         "feedback_iterations": 2,
         "result": [
             {
                 "age_group": "20-29",
-                "weekend_flag": "weekday",
+                "d_weekend": "N",
                 "return_rate": 5.1770899868034
             },
             {
                 "age_group": "20-29",
-                "weekend_flag": "weekend",
+                "d_weekend": "Y",
                 "return_rate": 5.45234697965128
             },
             {
                 "age_group": "30-39",
-                "weekend_flag": "weekday",
+                "d_weekend": "N",
                 "return_rate": 5.271531421379365
             },
             {
                 "age_group": "30-39",
-                "weekend_flag": "weekend",
+                "d_weekend": "Y",
                 "return_rate": 5.293287222520307
             },
             {
                 "age_group": "40-49",
-                "weekend_flag": "weekday",
+                "d_weekend": "N",
                 "return_rate": 5.224185002922424
             },
             {
                 "age_group": "40-49",
-                "weekend_flag": "weekend",
+                "d_weekend": "Y",
                 "return_rate": 5.154697458358448
             },
             {
                 "age_group": "50-59",
-                "weekend_flag": "weekday",
+                "d_weekend": "N",
                 "return_rate": 5.242373956536235
             },
             {
                 "age_group": "50-59",
-                "weekend_flag": "weekend",
+                "d_weekend": "Y",
                 "return_rate": 5.258758786041589
             },
             {
                 "age_group": "60+",
-                "weekend_flag": "weekday",
+                "d_weekend": "N",
                 "return_rate": 5.342442143632496
             },
             {
                 "age_group": "60+",
-                "weekend_flag": "weekend",
+                "d_weekend": "Y",
                 "return_rate": 5.264606377218903
             },
             {
                 "age_group": "< 20",
-                "weekend_flag": "weekday",
+                "d_weekend": "N",
                 "return_rate": 5.027449475892041
             },
             {
                 "age_group": "< 20",
-                "weekend_flag": "weekend",
+                "d_weekend": "Y",
                 "return_rate": 5.035602302291778
             }
         ],
@@ -47853,32 +47853,617 @@
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 19,
         "question": "Which item brands had a decrease in return rate from 2001 to 2002 for stores in the 'TN' state? Show the brand name and decrease amount (2001 rate minus 2002 rate). Return rates are expressed as percentages. Only include brands where the return rate decreased (positive difference). Order by decrease descending, then by brand name alphabetically.",
-        "duration_s": 35.62,
-        "completion_tokens": 1277,
-        "generation_s": 32.11,
-        "tokens_per_s": 39.8,
-        "sql_query": "-- Which item brands had a decrease in return rate from 2001 to 2002 for stores in the 'TN' state? Show the brand name and decrease amount (2001 rate minus 2002 rate). Return rates are expressed as percentages. Only include brands where the return rate decreased (positive difference). Order by decrease descending, then by brand name alphabetically.\nSELECT \n    i.i_brand,\n    (r2001.return_rate - r2002.return_rate) AS decrease_amount\nFROM (\n    SELECT \n        i.i_brand,\n        SUM(v.return_amount) * 1.0 / NULLIF(SUM(v.sale_amount), 0) * 100 AS return_rate\n    FROM v_transactions v\n    JOIN item i ON v.item_sk = i.i_item_sk\n    JOIN store s ON v.store_sk = s.s_store_sk\n    JOIN date_dim d ON v.date_sk = d.d_date_sk\n    WHERE s.s_state = 'TN' \n      AND d.d_year = 2001\n    GROUP BY i.i_brand\n) r2001\nJOIN (\n    SELECT \n        i.i_brand,\n        SUM(v.return_amount) * 1.0 / NULLIF(SUM(v.sale_amount), 0) * 100 AS return_rate\n    FROM v_transactions v\n    JOIN item i ON v.item_sk = i.i_item_sk\n    JOIN store s ON v.store_sk = s.s_store_sk\n    JOIN date_dim d ON v.date_sk = d.d_date_sk\n    WHERE s.s_state = 'TN' \n      AND d.d_year = 2002\n    GROUP BY i.i_brand\n) r2002 ON r2001.i_brand = r2002.i_brand\nWHERE (r2001.return_rate - r2002.return_rate) > 0\nORDER BY decrease_amount DESC, i.i_brand ASC;",
-        "attempts": 3,
-        "feedback_iterations": 2,
-        "result": [],
-        "result_count": 0,
-        "error_details": "Execution Error: Binder Error: Referenced table \"i\" not found!\nCandidate tables: \"r2001\"\n\nLINE 3:     i.i_brand,\n            ^"
+        "duration_s": 26.15,
+        "completion_tokens": 813,
+        "generation_s": 24.83,
+        "tokens_per_s": 32.7,
+        "sql_query": "SELECT \n    i.i_brand,\n    (\n        (SUM(CASE WHEN d.d_year = 2001 THEN v.return_amount ELSE 0 END) / NULLIF(SUM(CASE WHEN d.d_year = 2001 THEN v.sale_amount ELSE 0 END), 0)) * 100.0\n    ) - \n    (\n        (SUM(CASE WHEN d.d_year = 2002 THEN v.return_amount ELSE 0 END) / NULLIF(SUM(CASE WHEN d.d_year = 2002 THEN v.sale_amount ELSE 0 END), 0)) * 100.0\n    ) AS decrease_rate\nFROM \n    v_transactions v\nJOIN \n    item i ON v.item_sk = i.i_item_sk\nJOIN \n    store s ON v.store_sk = s.s_store_sk\nJOIN \n    date_dim d ON v.date_sk = d.d_date_sk\nWHERE \n    s.s_state = 'TN'\n    AND i.i_brand IS NOT NULL\nGROUP BY \n    i.i_brand\nHAVING \n    (SUM(CASE WHEN d.d_year = 2001 THEN v.return_amount ELSE 0 END) / NULLIF(SUM(CASE WHEN d.d_year = 2001 THEN v.sale_amount ELSE 0 END), 0)) * 100.0 > \n    (SUM(CASE WHEN d.d_year = 2002 THEN v.return_amount ELSE 0 END) / NULLIF(SUM(CASE WHEN d.d_year = 2002 THEN v.sale_amount ELSE 0 END), 0)) * 100.0\nORDER BY \n    decrease_rate DESC, \n    i.i_brand ASC;",
+        "attempts": 1,
+        "feedback_iterations": 1,
+        "result": [
+            {
+                "i_brand": "exportiunivamalg #9",
+                "decrease_rate": 20.812102063998637
+            },
+            {
+                "i_brand": "corpunivamalg #3",
+                "decrease_rate": 15.805713594837107
+            },
+            {
+                "i_brand": "amalgamalgamalg #5",
+                "decrease_rate": 15.58653361436832
+            },
+            {
+                "i_brand": "maxiunivamalg #9",
+                "decrease_rate": 15.579875627758538
+            },
+            {
+                "i_brand": "edu packunivamalg #17",
+                "decrease_rate": 15.02297403829667
+            },
+            {
+                "i_brand": "scholarunivamalg #3",
+                "decrease_rate": 13.2957787452211
+            },
+            {
+                "i_brand": "importounivamalg #3",
+                "decrease_rate": 11.324015991102442
+            },
+            {
+                "i_brand": "scholarunivamalg #5",
+                "decrease_rate": 10.909733737809583
+            },
+            {
+                "i_brand": "corpunivamalg #9",
+                "decrease_rate": 10.795662005975156
+            },
+            {
+                "i_brand": "exportiamalgamalg #15",
+                "decrease_rate": 9.694591328652796
+            },
+            {
+                "i_brand": "maxiunivamalg #4",
+                "decrease_rate": 9.219588018467615
+            },
+            {
+                "i_brand": "amalgunivamalg #9",
+                "decrease_rate": 9.213211293748092
+            },
+            {
+                "i_brand": "namelessunivamalg #15",
+                "decrease_rate": 8.998419589131167
+            },
+            {
+                "i_brand": "univamalgamalg #4",
+                "decrease_rate": 7.868831503858212
+            },
+            {
+                "i_brand": "edu packamalgamalg #15",
+                "decrease_rate": 7.781468549990938
+            },
+            {
+                "i_brand": "corpunivamalg #16",
+                "decrease_rate": 7.7698543801221
+            },
+            {
+                "i_brand": "corpamalgamalg #4",
+                "decrease_rate": 7.4906561962499545
+            },
+            {
+                "i_brand": "exportiunivamalg #7",
+                "decrease_rate": 7.3429090615600465
+            },
+            {
+                "i_brand": "edu packamalgamalg #14",
+                "decrease_rate": 7.160680700289381
+            },
+            {
+                "i_brand": "corpunivamalg #15",
+                "decrease_rate": 7.042238065513871
+            },
+            {
+                "i_brand": "scholaramalgamalg #16",
+                "decrease_rate": 6.759631755860707
+            },
+            {
+                "i_brand": "importounivamalg #7",
+                "decrease_rate": 6.735066902945964
+            },
+            {
+                "i_brand": "corpunivamalg #1",
+                "decrease_rate": 6.6154366615066085
+            },
+            {
+                "i_brand": "importounivamalg #1",
+                "decrease_rate": 6.522259225845903
+            },
+            {
+                "i_brand": "scholaramalgamalg #10",
+                "decrease_rate": 6.513445810803859
+            },
+            {
+                "i_brand": "namelessunivamalg #14",
+                "decrease_rate": 6.500647518599335
+            },
+            {
+                "i_brand": "amalgunivamalg #16",
+                "decrease_rate": 6.049883088267375
+            },
+            {
+                "i_brand": "namelessunivamalg #17",
+                "decrease_rate": 5.635974395956432
+            },
+            {
+                "i_brand": "exportiamalgamalg #16",
+                "decrease_rate": 4.965397900022033
+            },
+            {
+                "i_brand": "corpunivamalg #14",
+                "decrease_rate": 4.9058361103100125
+            },
+            {
+                "i_brand": "scholaramalgamalg #12",
+                "decrease_rate": 4.890457139612909
+            },
+            {
+                "i_brand": "corpunivamalg #17",
+                "decrease_rate": 4.803796576989611
+            },
+            {
+                "i_brand": "importoamalgamalg #4",
+                "decrease_rate": 4.679855963617097
+            },
+            {
+                "i_brand": "exportiamalgamalg #5",
+                "decrease_rate": 4.57021812198453
+            },
+            {
+                "i_brand": "importounivamalg #11",
+                "decrease_rate": 4.519262798721994
+            },
+            {
+                "i_brand": "exportiamalgamalg #14",
+                "decrease_rate": 4.464372109176889
+            },
+            {
+                "i_brand": "exportiunivamalg #15",
+                "decrease_rate": 4.3684221260067
+            },
+            {
+                "i_brand": "scholaramalgamalg #8",
+                "decrease_rate": 4.260712343129509
+            },
+            {
+                "i_brand": "edu packamalgamalg #9",
+                "decrease_rate": 4.214949373332641
+            },
+            {
+                "i_brand": "exportiamalgamalg #7",
+                "decrease_rate": 4.201409242533937
+            },
+            {
+                "i_brand": "scholarunivamalg #14",
+                "decrease_rate": 4.02622590016384
+            },
+            {
+                "i_brand": "amalgamalgamalg #6",
+                "decrease_rate": 3.935392302170094
+            },
+            {
+                "i_brand": "scholarunivamalg #11",
+                "decrease_rate": 3.9076016156808033
+            },
+            {
+                "i_brand": "scholaramalgamalg #17",
+                "decrease_rate": 3.771744415934788
+            },
+            {
+                "i_brand": "brandunivamalg #7",
+                "decrease_rate": 3.5359891920463733
+            },
+            {
+                "i_brand": "exportiamalgamalg #2",
+                "decrease_rate": 3.358003428927045
+            },
+            {
+                "i_brand": "edu packunivamalg #14",
+                "decrease_rate": 3.3257335168019404
+            },
+            {
+                "i_brand": "namelessunivamalg #2",
+                "decrease_rate": 3.273688403488785
+            },
+            {
+                "i_brand": "amalgunivamalg #1",
+                "decrease_rate": 3.160059234321197
+            },
+            {
+                "i_brand": "importoamalgamalg #7",
+                "decrease_rate": 3.1498114692288617
+            },
+            {
+                "i_brand": "scholaramalgamalg #6",
+                "decrease_rate": 3.128177367376928
+            },
+            {
+                "i_brand": "exportiunivamalg #3",
+                "decrease_rate": 3.0665823265148626
+            },
+            {
+                "i_brand": "importounivamalg #16",
+                "decrease_rate": 2.997843471466497
+            },
+            {
+                "i_brand": "namelessunivamalg #6",
+                "decrease_rate": 2.9786240462632705
+            },
+            {
+                "i_brand": "scholarunivamalg #9",
+                "decrease_rate": 2.8690513279791054
+            },
+            {
+                "i_brand": "maxiunivamalg #8",
+                "decrease_rate": 2.5829114829438202
+            },
+            {
+                "i_brand": "namelessunivamalg #1",
+                "decrease_rate": 2.5566166761070273
+            },
+            {
+                "i_brand": "amalgamalgamalg #13",
+                "decrease_rate": 2.4489895110208906
+            },
+            {
+                "i_brand": "scholarunivamalg #1",
+                "decrease_rate": 2.3754063205099434
+            },
+            {
+                "i_brand": "scholarunivamalg #7",
+                "decrease_rate": 2.3689992426282527
+            },
+            {
+                "i_brand": "importoamalgamalg #11",
+                "decrease_rate": 2.210501983476301
+            },
+            {
+                "i_brand": "univamalgamalg #8",
+                "decrease_rate": 2.1898105540774297
+            },
+            {
+                "i_brand": "univunivamalg #8",
+                "decrease_rate": 2.1752627239092126
+            },
+            {
+                "i_brand": "maxiunivamalg #15",
+                "decrease_rate": 2.151375803048371
+            },
+            {
+                "i_brand": "edu packamalgamalg #5",
+                "decrease_rate": 2.1487322785039966
+            },
+            {
+                "i_brand": "univamalgamalg #17",
+                "decrease_rate": 2.0171441069018634
+            },
+            {
+                "i_brand": "brandunivamalg #13",
+                "decrease_rate": 2.00789411566077
+            },
+            {
+                "i_brand": "amalgamalgamalg #4",
+                "decrease_rate": 1.971648182253575
+            },
+            {
+                "i_brand": "edu packunivamalg #3",
+                "decrease_rate": 1.8944737560241292
+            },
+            {
+                "i_brand": "exportiamalgamalg #1",
+                "decrease_rate": 1.8885113754786578
+            },
+            {
+                "i_brand": "edu packamalgamalg #7",
+                "decrease_rate": 1.8793263539595135
+            },
+            {
+                "i_brand": "corpamalgamalg #13",
+                "decrease_rate": 1.8276349628249595
+            },
+            {
+                "i_brand": "exportiamalgamalg #3",
+                "decrease_rate": 1.7802343975470691
+            },
+            {
+                "i_brand": "exportiunivamalg #1",
+                "decrease_rate": 1.7786551607144756
+            },
+            {
+                "i_brand": "edu packbrand #10",
+                "decrease_rate": 1.7090692386289827
+            },
+            {
+                "i_brand": "namelessunivamalg #10",
+                "decrease_rate": 1.6133617516292729
+            },
+            {
+                "i_brand": "maxibrand #2",
+                "decrease_rate": 1.6021005050618005
+            },
+            {
+                "i_brand": "scholarunivamalg #13",
+                "decrease_rate": 1.569973352102303
+            },
+            {
+                "i_brand": "brandmaxi #2",
+                "decrease_rate": 1.5684131493224394
+            },
+            {
+                "i_brand": "amalgamalgamalg #14",
+                "decrease_rate": 1.5633541511071698
+            },
+            {
+                "i_brand": "importounivamalg #15",
+                "decrease_rate": 1.5529627904819594
+            },
+            {
+                "i_brand": "edu packamalgamalg #17",
+                "decrease_rate": 1.5162173247944715
+            },
+            {
+                "i_brand": "importounivamalg #9",
+                "decrease_rate": 1.5119658529977107
+            },
+            {
+                "i_brand": "maxibrand #6",
+                "decrease_rate": 1.4988794664054383
+            },
+            {
+                "i_brand": "maxiunivamalg #3",
+                "decrease_rate": 1.4731792428020496
+            },
+            {
+                "i_brand": "amalgcorp #8",
+                "decrease_rate": 1.4655037387196455
+            },
+            {
+                "i_brand": "exportiamalgamalg #8",
+                "decrease_rate": 1.4480602742259747
+            },
+            {
+                "i_brand": "maximaxi #8",
+                "decrease_rate": 1.4374148826723268
+            },
+            {
+                "i_brand": "namelessmaxi #2",
+                "decrease_rate": 1.4032177735600921
+            },
+            {
+                "i_brand": "corpamalgamalg #9",
+                "decrease_rate": 1.391003764628108
+            },
+            {
+                "i_brand": "scholarunivamalg #15",
+                "decrease_rate": 1.37602715346146
+            },
+            {
+                "i_brand": "amalgamalgamalg #16",
+                "decrease_rate": 1.3644621539145092
+            },
+            {
+                "i_brand": "corpamalgamalg #3",
+                "decrease_rate": 1.353032216792589
+            },
+            {
+                "i_brand": "brandunivamalg #10",
+                "decrease_rate": 1.3467675433133848
+            },
+            {
+                "i_brand": "corpamalgamalg #1",
+                "decrease_rate": 1.3275222543614813
+            },
+            {
+                "i_brand": "brandmaxi #4",
+                "decrease_rate": 1.2748366973677223
+            },
+            {
+                "i_brand": "brandunivamalg #2",
+                "decrease_rate": 1.2590481484200984
+            },
+            {
+                "i_brand": "brandunivamalg #9",
+                "decrease_rate": 1.2386724941696285
+            },
+            {
+                "i_brand": "corpmaxi #10",
+                "decrease_rate": 1.1624692792316873
+            },
+            {
+                "i_brand": "brandnameless #6",
+                "decrease_rate": 1.1408290146925717
+            },
+            {
+                "i_brand": "exportiunivamalg #13",
+                "decrease_rate": 1.0908093742584555
+            },
+            {
+                "i_brand": "namelessunivamalg #9",
+                "decrease_rate": 1.0807672250379494
+            },
+            {
+                "i_brand": "univamalgamalg #6",
+                "decrease_rate": 1.0540728364652265
+            },
+            {
+                "i_brand": "exportiunivamalg #8",
+                "decrease_rate": 1.049813630139293
+            },
+            {
+                "i_brand": "univmaxi #10",
+                "decrease_rate": 1.0448180723263132
+            },
+            {
+                "i_brand": "brandunivamalg #4",
+                "decrease_rate": 1.0432631162542814
+            },
+            {
+                "i_brand": "amalgunivamalg #7",
+                "decrease_rate": 1.0114499658646223
+            },
+            {
+                "i_brand": "brandbrand #10",
+                "decrease_rate": 0.9534215384024005
+            },
+            {
+                "i_brand": "amalgunivamalg #8",
+                "decrease_rate": 0.9190479358250805
+            },
+            {
+                "i_brand": "univunivamalg #2",
+                "decrease_rate": 0.9142848944768076
+            },
+            {
+                "i_brand": "importounivamalg #8",
+                "decrease_rate": 0.9048169913721456
+            },
+            {
+                "i_brand": "brandmaxi #8",
+                "decrease_rate": 0.8587420933151613
+            },
+            {
+                "i_brand": "exportiamalgamalg #12",
+                "decrease_rate": 0.8323290878273575
+            },
+            {
+                "i_brand": "corpamalgamalg #14",
+                "decrease_rate": 0.828047670385506
+            },
+            {
+                "i_brand": "amalgamalgamalg #9",
+                "decrease_rate": 0.8272385290676292
+            },
+            {
+                "i_brand": "maxiunivamalg #13",
+                "decrease_rate": 0.7908458919903882
+            },
+            {
+                "i_brand": "corpunivamalg #11",
+                "decrease_rate": 0.7589844765163472
+            },
+            {
+                "i_brand": "amalgamalgamalg #8",
+                "decrease_rate": 0.7192372794835924
+            },
+            {
+                "i_brand": "namelessunivamalg #7",
+                "decrease_rate": 0.7001425696251911
+            },
+            {
+                "i_brand": "edu packcorp #8",
+                "decrease_rate": 0.6910311234901068
+            },
+            {
+                "i_brand": "scholarunivamalg #8",
+                "decrease_rate": 0.6545237256203844
+            },
+            {
+                "i_brand": "edu packnameless #6",
+                "decrease_rate": 0.6101428918271408
+            },
+            {
+                "i_brand": "namelessunivamalg #16",
+                "decrease_rate": 0.6092482113570927
+            },
+            {
+                "i_brand": "amalgamalgamalg #11",
+                "decrease_rate": 0.5712129469735459
+            },
+            {
+                "i_brand": "corpbrand #2",
+                "decrease_rate": 0.558635247141821
+            },
+            {
+                "i_brand": "corpamalgamalg #5",
+                "decrease_rate": 0.5539094224903716
+            },
+            {
+                "i_brand": "exportiamalgamalg #17",
+                "decrease_rate": 0.5473583627700593
+            },
+            {
+                "i_brand": "exportimaxi #2",
+                "decrease_rate": 0.5433124442134707
+            },
+            {
+                "i_brand": "maximaxi #10",
+                "decrease_rate": 0.44647121815104285
+            },
+            {
+                "i_brand": "exportiunivamalg #2",
+                "decrease_rate": 0.3984447276507783
+            },
+            {
+                "i_brand": "importounivamalg #17",
+                "decrease_rate": 0.3128436910644963
+            },
+            {
+                "i_brand": "maxinameless #8",
+                "decrease_rate": 0.2891140728263055
+            },
+            {
+                "i_brand": "amalgunivamalg #15",
+                "decrease_rate": 0.27071889444207997
+            },
+            {
+                "i_brand": "amalgamalgamalg #12",
+                "decrease_rate": 0.21940183200341412
+            },
+            {
+                "i_brand": "importoamalgamalg #14",
+                "decrease_rate": 0.21840092581730275
+            },
+            {
+                "i_brand": "edu packamalgamalg #16",
+                "decrease_rate": 0.2106877804152507
+            },
+            {
+                "i_brand": "scholarunivamalg #4",
+                "decrease_rate": 0.1495890741061121
+            },
+            {
+                "i_brand": "scholarunivamalg #2",
+                "decrease_rate": 0.14018339620524767
+            },
+            {
+                "i_brand": "corpunivamalg #8",
+                "decrease_rate": 0.13683377995718438
+            },
+            {
+                "i_brand": "corpunivamalg #7",
+                "decrease_rate": 0.11469765820178646
+            },
+            {
+                "i_brand": "amalgunivamalg #5",
+                "decrease_rate": 0.11071351258436302
+            },
+            {
+                "i_brand": "importounivamalg #5",
+                "decrease_rate": 0.09683715507013924
+            },
+            {
+                "i_brand": "corpmaxi #2",
+                "decrease_rate": 0.09589859703137993
+            },
+            {
+                "i_brand": "maxicorp #6",
+                "decrease_rate": 0.08299887410472628
+            },
+            {
+                "i_brand": "exportinameless #8",
+                "decrease_rate": 0.07064787072495804
+            },
+            {
+                "i_brand": "maxiunivamalg #17",
+                "decrease_rate": 0.04469049077448917
+            }
+        ],
+        "result_count": 146,
+        "error_details": null
     },
     {
         "model": "qwen3-4b-instruct-2507",
         "SF": 1,
         "semantic_model": "semantic_model_simplified",
-        "timestamp": "20260411_001209",
+        "timestamp": "20260411_235020",
         "nbr": 20,
         "question": "For each item class and customer preferred flag (Y or N), show the average net sales per sales transaction (net sales divided by the number of distinct sales ticket numbers). Exclude rows where item class is NULL or preferred flag is NULL. Order by average net sales descending, then by item class alphabetically.",
-        "duration_s": 10.0,
-        "completion_tokens": 343,
-        "generation_s": 8.58,
-        "tokens_per_s": 40.0,
-        "sql_query": "SELECT \n    i.i_class,\n    c.c_preferred_cust_flag,\n    (SUM(v.sale_amount) - SUM(v.return_amount)) / NULLIF(COUNT(DISTINCT CASE WHEN v.row_type = 'sale' THEN v.ticket_number END), 0) AS avg_net_sales_per_ticket\nFROM v_transactions v\nJOIN item i ON v.item_sk = i.i_item_sk\nJOIN customer c ON v.customer_sk = c.c_customer_sk\nWHERE i.i_class IS NOT NULL \n    AND c.c_preferred_cust_flag IS NOT NULL\nGROUP BY i.i_class, c.c_preferred_cust_flag\nORDER BY avg_net_sales_per_ticket DESC, i.i_class ASC;",
+        "duration_s": 11.91,
+        "completion_tokens": 344,
+        "generation_s": 10.57,
+        "tokens_per_s": 32.5,
+        "sql_query": "SELECT \n    i.i_class,\n    c.c_preferred_cust_flag,\n    (SUM(v.sale_amount) - SUM(v.return_amount)) / NULLIF(COUNT(DISTINCT CASE WHEN v.row_type = 'sale' THEN v.ticket_number END), 0) AS avg_net_sales_per_ticket\nFROM v_transactions v\nJOIN item i ON v.item_sk = i.i_item_sk\nLEFT JOIN customer c ON v.customer_sk = c.c_customer_sk\nWHERE i.i_class IS NOT NULL \n    AND c.c_preferred_cust_flag IS NOT NULL\nGROUP BY i.i_class, c.c_preferred_cust_flag\nORDER BY avg_net_sales_per_ticket DESC, i.i_class ASC;",
         "attempts": 1,
         "feedback_iterations": 1,
         "result": [

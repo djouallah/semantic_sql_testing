@@ -297,7 +297,7 @@ def start_server(model_name):
         print(f"Enable Thinking (chat template): {selected_config['enable_thinking']}")
 
     sampling_params = []
-    for p in ['temp', 'top_p', 'top_k', 'min_p', 'repeat_penalty']:
+    for p in ['temp', 'top_p', 'top_k', 'min_p', 'repeat_penalty', 'presence_penalty']:
         if p in selected_config:
             sampling_params.append(f"{p}={selected_config[p]}")
     if sampling_params:
@@ -359,7 +359,8 @@ def start_server(model_name):
             cmd.extend(['--override-tensor', f'{pattern}={device}'])
 
     for param, flag in [('temp', '--temp'), ('top_p', '--top-p'), ('top_k', '--top-k'),
-                         ('min_p', '--min-p'), ('repeat_penalty', '--repeat-penalty')]:
+                         ('min_p', '--min-p'), ('repeat_penalty', '--repeat-penalty'),
+                         ('presence_penalty', '--presence-penalty')]:
         if param in selected_config:
             cmd.extend([flag, str(selected_config[param])])
 
@@ -1384,7 +1385,7 @@ def plot_results(comparison_table, models=None, semantic_model=None):
         # Legend: semantic model (shape)
         import matplotlib.lines as mlines
         sem_handles = [mlines.Line2D([], [], color='grey', marker=sem_markers[s], linestyle='None', markersize=6, label=s) for s in unique_sem_models]
-        plt.legend(handles=sem_handles, loc='upper right', fontsize=9, title='Semantic model')
+        plt.legend(handles=sem_handles, loc='lower left', fontsize=9, title='Semantic model')
 
         n_label = f'{len(unique_models)} models, {len(comparison_table)} runs'
         all_times = comparison_table['avg_duration_per_question'].tolist()
@@ -1477,7 +1478,7 @@ def plot_model_history(all_runs, model_name):
         import matplotlib.lines as mlines
         sem_handles = [mlines.Line2D([], [], color='grey', marker=sem_markers[s],
                                      linestyle='None', markersize=7, label=s) for s in unique_sem]
-        ax.legend(handles=sem_handles, loc='upper right', fontsize=9, title='Semantic model')
+        ax.legend(handles=sem_handles, loc='lower left', fontsize=9, title='Semantic model')
 
     ax.set_xlabel('Avg Duration (seconds) - lower is better', fontsize=12, fontweight='bold')
     ax.set_ylabel('Accuracy (%)', fontsize=12, fontweight='bold')

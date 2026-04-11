@@ -59,6 +59,32 @@ semantic_model:
             WHEN (d.d_year - c.c_birth_year) >= 60             THEN '60+'
           END AS age_group
 
+        === DuckDB HAVING Rule ===
+        DuckDB does NOT allow referencing a SELECT alias inside HAVING.
+        Always repeat the full aggregate expression in HAVING.
+          WRONG:   HAVING return_rate > 5
+          CORRECT: HAVING (SUM(v.return_amount) / NULLIF(SUM(v.sale_amount), 0)) * 100 > 5
+
+        === Raw Flag Values ===
+        Always output flag columns with their raw stored values.
+        Never remap flag values to human-readable labels unless the question explicitly asks for it.
+          d_weekend:            use 'Y' / 'N'  — NEVER remap to 'Weekend' / 'Weekday'
+          d_holiday:            use 'Y' / 'N'  — NEVER remap to 'Holiday' / 'Non-Holiday'
+          c_preferred_cust_flag: use 'Y' / 'N'  — NEVER remap to 'Preferred' / 'Standard'
+
+        === Subquery Scope ===
+        When using derived tables aliased as (e.g.) r2001 / r2002, the outer SELECT can only
+        reference those subquery aliases. Inner table aliases (i, s, d) are local to each
+        subquery and are out of scope in the outer query.
+          WRONG:   SELECT i.i_brand, r2001.return_rate - r2002.return_rate  -- i not in outer scope
+          CORRECT: SELECT r2001.i_brand, r2001.return_rate - r2002.return_rate
+
+        === LEFT JOIN customer for age_group ===
+        Whenever you JOIN customer solely to compute age_group, use LEFT JOIN.
+        customer_sk in v_transactions is nullable — an INNER JOIN silently drops those rows
+        and corrupts aggregation denominators.
+          ALWAYS: LEFT JOIN customer c ON v.customer_sk = c.c_customer_sk
+
         === NULL Handling ===
         Filter NULLs explicitly when question asks for distinct values or excludes unknowns.
         Nullable: c_preferred_cust_flag, c_birth_country, c_birth_year,
