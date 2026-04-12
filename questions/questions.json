@@ -6,7 +6,7 @@
     "What are the different item categories available? Remove null values. Order alphabetically by category name.",
     "Show total sales revenue for each year, ordered chronologically by year.",
     "Which store generated the most total sales revenue? Show store name and total sales. Order by revenue descending, then store name alphabetically for ties. Return only the top 1 row.",
-    "What is the total quantity of items sold, broken down by item brand? Order by quantity sold descending, then by brand name alphabetically for ties.",
+    "What is the total quantity of items sold, broken down by item brand? Remove null values. Order by quantity sold descending, then by brand name alphabetically for ties.",
     "Show total sales for preferred customers versus non-preferred customers as two rows. Use the raw flag value (c_preferred_cust_flag) as the group label — output 'Y' and 'N', not 'Preferred' / 'Non-Preferred'. Exclude customers where the preferred flag is NULL. Order by total sales descending.",
     "What is the total return amount for each city where stores are located, ordered alphabetically by city name.",
     "What is the net sales for each store name, order by net sales.",
@@ -16,7 +16,7 @@
     "For each store, show the store name, its net sales, the overall average net sales across all stores, and the percentage calculated as (store net sales / average net sales) * 100. Order by percentage descending, then by store name alphabetically for ties.",
     "List all item product names and total sales that have a return rate greater than 5%, ordered by item product name alphabetically.",
     "For each store, what was the percentage change in net sales from year 2001 to year 2002? Show store name, net sales for 2001, net sales for 2002, and percentage change rounded to 2 decimal places. Order alphabetically by store name.",
-    "What is the return rate for items sold on weekends (d_weekend = 'Y') versus weekdays (d_weekend = 'N'), broken down by customer age group? Use these age groups based on (d_year - c_birth_year): '< 20', '20-29', '30-39', '40-49', '50-59', '60+'. Show age group, weekend flag, and return rate. Order by age group, then by weekend flag.",
+    "What is the return rate for items sold on weekends (d_weekend = 'Y') versus weekdays (d_weekend = 'N'), broken down by customer age group? Use these age groups based on (d_year - c_birth_year): '< 20', '20-29', '30-39', '40-49', '50-59', '60+'. Exclude null values. Show age group, weekend flag, and return rate. Order by age group, then by weekend flag.",
     "Which item brands had a decrease in return rate from 2001 to 2002 for stores in the 'TN' state? Show the brand name and decrease amount (2001 rate minus 2002 rate). Return rates are expressed as percentages. Only include brands where the return rate decreased (positive difference). Order by decrease descending, then by brand name alphabetically.",
     "For each item class and customer preferred flag (Y or N), show the average net sales per sales transaction (net sales divided by the number of distinct sales ticket numbers). Exclude rows where item class is NULL or preferred flag is NULL. Order by average net sales descending, then by item class alphabetically."
 ]
