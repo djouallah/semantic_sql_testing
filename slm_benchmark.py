@@ -787,7 +787,7 @@ def execute_sql_with_retry(query, test_model):
 # ============================================
 # Test runner
 # ============================================
-def ask_question(questions_list, test_model):
+def ask_question(questions_list, test_model, model_config=None):
     """Process questions and generate SQL queries using llama.cpp server."""
     results_data = []
     for i, x in enumerate(questions_list):
@@ -884,7 +884,8 @@ def ask_question(questions_list, test_model):
                 "feedback_iterations": feedback_iterations,
                 "result": query_result_data_json,
                 "result_count": result_row_count,
-                "error_details": error_details
+                "error_details": error_details,
+                "model_config": model_config
             })
         except Exception as _e:
             import traceback
@@ -1413,7 +1414,7 @@ def plot_results(comparison_table, models=None, semantic_model=None):
     xmax = max(np.ceil(max(all_times) / 5) * 5, 5)
     plt.xlim(0, xmax)
     all_acc = comparison_table['accuracy_percent'].tolist()
-    plt.ylim(0, 100)
+    plt.ylim(0, 105)
     ax = plt.gca()
     ax.set_xticks(np.arange(0, xmax + 5, 5))
     ax.set_yticks(np.arange(0, 110, 10))
@@ -1968,7 +1969,7 @@ def run_test(model_name, semantic_model=None):
         test_semantic_model_url = semantic_model
     try:
         start_server(model_name)
-        ask_question(questions, model_name)
+        ask_question(questions, model_name, model_config=MODEL_CONFIGS.get(model_name))
     finally:
         stop_server()
 
